@@ -9,8 +9,7 @@ const __dirname = dirname(__filename);
 const ROOT = join(__dirname, "..");
 const PUBLIC = join(ROOT, "public");
 
-GlobalFonts.registerFromPath("C:/Windows/Fonts/arialbd.ttf", "ArialBold");
-GlobalFonts.registerFromPath("C:/Windows/Fonts/arial.ttf", "Arial");
+GlobalFonts.registerFromPath(join(__dirname, "fonts", "BebasNeue-Regular.ttf"), "BebasNeue");
 
 const SVG_LOGO_PATH = join(PUBLIC, "assets", "logo-acf.png");
 const svgLogo = readFileSync(SVG_LOGO_PATH);
@@ -113,31 +112,103 @@ async function generateOGImage() {
   const canvas = createCanvas(W, H);
   const ctx = canvas.getContext("2d");
 
-  drawGradientBg(ctx, W, H);
+  // --- 1. Background: landing-bg.jpg cropped to center ---
+  const bgPath = join(PUBLIC, "assets", "backgrounds", "landing-bg.jpg");
+  const bgResized = await sharp(bgPath)
+    .resize(W, H, { fit: "cover", position: "center" })
+    .png()
+    .toBuffer();
+  const bgImg = await loadImage(bgResized);
+  ctx.drawImage(bgImg, 0, 0, W, H);
+
+  // --- 2. Dark overlay (matching landing: bg-acf-dark/70) ---
+  ctx.fillStyle = "rgba(13,13,13,0.70)";
+  ctx.fillRect(0, 0, W, H);
+
+  // --- 3. Red fog layers (simulating Vanta fog / CSS fallback) ---
+  // Layer 1 — top-center warm glow
+  const fog1 = ctx.createRadialGradient(W * 0.5, H * 0.15, 0, W * 0.5, H * 0.15, W * 0.55);
+  fog1.addColorStop(0, "rgba(230,28,36,0.22)");
+  fog1.addColorStop(0.5, "rgba(176,20,27,0.08)");
+  fog1.addColorStop(1, "rgba(13,13,13,0)");
+  ctx.fillStyle = fog1;
+  ctx.fillRect(0, 0, W, H);
+
+  // Layer 2 — left side drift
+  const fog2 = ctx.createRadialGradient(W * 0.2, H * 0.45, 0, W * 0.2, H * 0.45, W * 0.5);
+  fog2.addColorStop(0, "rgba(230,28,36,0.16)");
+  fog2.addColorStop(0.6, "rgba(176,20,27,0.04)");
+  fog2.addColorStop(1, "rgba(13,13,13,0)");
+  ctx.fillStyle = fog2;
+  ctx.fillRect(0, 0, W, H);
+
+  // Layer 3 — right side drift
+  const fog3 = ctx.createRadialGradient(W * 0.8, H * 0.5, 0, W * 0.8, H * 0.5, W * 0.45);
+  fog3.addColorStop(0, "rgba(230,28,36,0.14)");
+  fog3.addColorStop(0.55, "rgba(176,20,27,0.05)");
+  fog3.addColorStop(1, "rgba(13,13,13,0)");
+  ctx.fillStyle = fog3;
+  ctx.fillRect(0, 0, W, H);
+
+  // Layer 4 — bottom ambient red
+  const fog4 = ctx.createRadialGradient(W * 0.5, H * 0.85, 0, W * 0.5, H * 0.85, W * 0.6);
+  fog4.addColorStop(0, "rgba(230,28,36,0.12)");
+  fog4.addColorStop(0.5, "rgba(176,20,27,0.03)");
+  fog4.addColorStop(1, "rgba(13,13,13,0)");
+  ctx.fillStyle = fog4;
+  ctx.fillRect(0, 0, W, H);
+
+  // --- 4. Film grain texture ---
   drawGrainTexture(ctx, W, H);
-  drawRedGlow(ctx, W / 2, H * 0.35, 400);
-  drawRedLine(ctx, H - 40, W);
 
-  const shieldSize = 220;
-  await drawShieldOnCanvas(ctx, W / 2 - shieldSize / 2, 60, shieldSize);
+  // --- 5. Bottom fade to black (matching landing) ---
+  const bottomFade = ctx.createLinearGradient(0, H - 160, 0, H);
+  bottomFade.addColorStop(0, "rgba(13,13,13,0)");
+  bottomFade.addColorStop(1, "rgba(13,13,13,0.85)");
+  ctx.fillStyle = bottomFade;
+  ctx.fillRect(0, H - 160, W, 160);
 
+  // --- 6. Shield with red glow halo behind ---
+  const shieldSize = 260;
+  const shieldX = W / 2 - shieldSize / 2;
+  const shieldY = 60;
+
+  // Red glow halo (matching landing: blur-3xl opacity-10 scale-150)
+  const haloSize = shieldSize * 1.8;
+  const haloGrad = ctx.createRadialGradient(
+    W / 2, shieldY + shieldSize / 2, shieldSize * 0.3,
+    W / 2, shieldY + shieldSize / 2, haloSize / 2
+  );
+  haloGrad.addColorStop(0, "rgba(230,28,36,0.18)");
+  haloGrad.addColorStop(0.5, "rgba(230,28,36,0.06)");
+  haloGrad.addColorStop(1, "rgba(230,28,36,0)");
+  ctx.fillStyle = haloGrad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Draw shield
+  await drawShieldOnCanvas(ctx, shieldX, shieldY, shieldSize);
+
+  // --- 7. "AC FRÍO" in Bebas Neue (matching landing header style) ---
   ctx.fillStyle = WHITE;
-  ctx.font = "bold 72px sans-serif";
+  ctx.font = "90px BebasNeue";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText("AC FRÍO", W / 2, 330);
+  ctx.fillText("AC FRÍO", W / 2, 380);
 
-  ctx.fillStyle = GREY;
-  ctx.font = "500 28px sans-serif";
-  ctx.fillText("Sangre Fría · Juego al Rojo", W / 2, 390);
+  // --- 8. "Sangre fría" in Inter (matching landing tagline) ---
+  ctx.fillStyle = "rgba(232,232,232,0.90)";
+  ctx.font = "italic 500 36px Inter, sans-serif";
+  ctx.fillText("Sangre fría", W / 2, 440);
 
+  // --- 9. "Juego al Rojo" accent line ---
   ctx.fillStyle = RED;
-  ctx.font = "bold 22px sans-serif";
-  ctx.fillText("Equipo de Fútbol 7 · Fundado 2026 · Madrid", W / 2, 450);
+  ctx.font = "bold 20px Inter, sans-serif";
+  ctx.fillText("J U E G O   A L   R O J O", W / 2, 485);
 
+  // --- 10. URL at bottom ---
   ctx.fillStyle = GREY;
-  ctx.font = "400 18px sans-serif";
-  ctx.fillText("acfrio-web.vercel.app", W / 2, H - 60);
+  ctx.font = "400 16px Inter, sans-serif";
+  ctx.fillText("acfrio-web.vercel.app", W / 2, H - 30);
 
   const buf = canvas.toBuffer("image/png");
   const out = join(PUBLIC, "og-image.png");

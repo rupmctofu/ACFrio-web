@@ -38,13 +38,13 @@ function useVantaFog(ref, onFallback) {
           mouseControls: false,
           touchControls: false,
           gyroControls: false,
-          baseColor: 0x0d0d0d,
-          midtoneColor: 0xc81e27,
-          lowlightColor: 0x161616,
-          highlightColor: 0xff4d55,
-          speed: 1.2,
-          zoom: 1.0,
-          blurFactor: 0.7,
+          baseColor: 0x000000,
+          midtoneColor: 0x000000,
+          lowlightColor: 0x000000,
+          highlightColor: 0xed0707,
+          speed: 0.3,
+          zoom: 1.2,
+          blurFactor: 0.45,
         });
         if (!ref.current.querySelector("canvas")) {
           throw new Error("webgl canvas no creado");
@@ -139,7 +139,7 @@ export default function Hero() {
           />
         </div>
       ) : (
-        <div ref={fogRef} className="absolute inset-0 pointer-events-none opacity-70" />
+        <div ref={fogRef} className="absolute inset-0 pointer-events-none opacity-35" />
       )}
 
       {/* Glow rojo de fondo */}
