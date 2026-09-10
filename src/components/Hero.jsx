@@ -42,7 +42,7 @@ function useVantaFog(ref, onFallback) {
           midtoneColor: 0x000000,
           lowlightColor: 0x000000,
           highlightColor: 0xed0707,
-          speed: 0.3,
+          speed: 1.1,
           zoom: 1.2,
           blurFactor: 0.45,
         });
