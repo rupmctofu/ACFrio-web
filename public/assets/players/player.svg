@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 144" fill="none">
+  <rect width="128" height="144" fill="#161616"/>
+  <rect y="110" width="128" height="34" fill="#e61c24" opacity="0.9"/>
+  <circle cx="64" cy="56" r="26" fill="#2a2a2a" stroke="#3a3a3a" stroke-width="2"/>
+  <path d="M30 120 Q64 66 98 120" stroke="#e61c24" stroke-width="6" fill="none" opacity="0.5"/>
+  <text x="64" y="132" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="22" fill="#ffffff" opacity="0.9">ACF</text>
+  <circle cx="105" cy="22" r="10" fill="#e61c24" opacity="0.85"/>
+  <path d="M105 16 L105 28 M105 22 L112 19 M105 22 L98 25 M105 22 L112 25 M105 22 L98 19" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" opacity="0.9"/>
+</svg>

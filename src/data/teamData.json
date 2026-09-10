@@ -1,0 +1,222 @@
+{
+  "club": {
+    "name": "AC FRÍO",
+    "shortName": "ACF",
+    "tagline": "Sangre fría",
+    "founded": 2026,
+    "city": "Madrid",
+    "colors": {
+      "primary": "#E61C24",
+      "dark": "#0D0D0D",
+      "white": "#FFFFFF"
+    },
+    "stadium": "Pachanga Arena",
+    "logo": "/assets/logo-acf.svg"
+  },
+  "squad": [
+    {
+      "id": 1,
+      "name": "Roberto Martínez",
+      "nickname": "El Portero Helado",
+      "number": 1,
+      "position": "Portero",
+      "photo": "/assets/players/player1.png",
+      "stats": {
+        "matches": 8,
+        "goals": 0,
+        "assists": 1,
+        "yellowCards": 0,
+        "attendanceRate": 96,
+        "coldMeter": 92
+      }
+    },
+    {
+      "id": 2,
+      "name": "Carlos Gómez",
+      "nickname": "La Sombra",
+      "number": 2,
+      "position": "Defensa",
+      "photo": "/assets/players/player2.png",
+      "stats": {
+        "matches": 8,
+        "goals": 1,
+        "assists": 2,
+        "yellowCards": 3,
+        "attendanceRate": 88,
+        "coldMeter": 78
+      }
+    },
+    {
+      "id": 3,
+      "name": "Javier Ruiz",
+      "nickname": "El Muro",
+      "number": 3,
+      "position": "Defensa",
+      "photo": "/assets/players/player3.png",
+      "stats": {
+        "matches": 7,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 4,
+        "attendanceRate": 82,
+        "coldMeter": 85
+      }
+    },
+    {
+      "id": 4,
+      "name": "Miguel Torres",
+      "nickname": "Hielo Seco",
+      "number": 4,
+      "position": "Defensa",
+      "photo": "/assets/players/player4.png",
+      "stats": {
+        "matches": 8,
+        "goals": 2,
+        "assists": 1,
+        "yellowCards": 2,
+        "attendanceRate": 91,
+        "coldMeter": 88
+      }
+    },
+    {
+      "id": 5,
+      "name": "Álvaro Castro",
+      "nickname": "El Rompehielos",
+      "number": 5,
+      "position": "Medio",
+      "photo": "/assets/players/player5.png",
+      "stats": {
+        "matches": 8,
+        "goals": 3,
+        "assists": 5,
+        "yellowCards": 1,
+        "attendanceRate": 95,
+        "coldMeter": 90
+      }
+    },
+    {
+      "id": 6,
+      "name": "Diego Navarro",
+      "nickname": "El Termómetro",
+      "number": 6,
+      "position": "Medio",
+      "photo": "/assets/players/player6.png",
+      "stats": {
+        "matches": 7,
+        "goals": 1,
+        "assists": 4,
+        "yellowCards": 2,
+        "attendanceRate": 79,
+        "coldMeter": 74
+      }
+    },
+    {
+      "id": 7,
+      "name": "Pablo Sanz",
+      "nickname": "La Ventisca",
+      "number": 7,
+      "position": "Medio",
+      "photo": "/assets/players/player7.png",
+      "stats": {
+        "matches": 8,
+        "goals": 5,
+        "assists": 3,
+        "yellowCards": 1,
+        "attendanceRate": 93,
+        "coldMeter": 86
+      }
+    },
+    {
+      "id": 8,
+      "name": "Andrea López",
+      "nickname": "La Avalancha",
+      "number": 8,
+      "position": "Delantero",
+      "photo": "/assets/players/player8.png",
+      "stats": {
+        "matches": 6,
+        "goals": 7,
+        "assists": 2,
+        "yellowCards": 0,
+        "attendanceRate": 85,
+        "coldMeter": 80
+      }
+    },
+    {
+      "id": 9,
+      "name": "Mario Vega",
+      "nickname": "El Yeti",
+      "number": 9,
+      "position": "Delantero",
+      "photo": "/assets/players/player9.png",
+      "stats": {
+        "matches": 8,
+        "goals": 9,
+        "assists": 1,
+        "yellowCards": 2,
+        "attendanceRate": 89,
+        "coldMeter": 95
+      }
+    },
+    {
+      "id": 10,
+      "name": "Raúl Nieto",
+      "nickname": "Cero Absoluto",
+      "number": 10,
+      "position": "Medio",
+      "photo": "/assets/players/player10.png",
+      "stats": {
+        "matches": 8,
+        "goals": 6,
+        "assists": 7,
+        "yellowCards": 0,
+        "attendanceRate": 98,
+        "coldMeter": 97
+      }
+    },
+    {
+      "id": 11,
+      "name": "Sergio Molina",
+      "nickname": "El Glaciar",
+      "number": 11,
+      "position": "Delantero",
+      "photo": "/assets/players/player11.png",
+      "stats": {
+        "matches": 7,
+        "goals": 8,
+        "assists": 3,
+        "yellowCards": 1,
+        "attendanceRate": 87,
+        "coldMeter": 91
+      }
+    },
+    {
+      "id": 12,
+      "name": "Lucía Peña",
+      "nickname": "La Perpetua",
+      "number": 12,
+      "position": "Portero",
+      "photo": "/assets/players/player12.png",
+      "stats": {
+        "matches": 2,
+        "goals": 0,
+        "assists": 0,
+        "yellowCards": 0,
+        "attendanceRate": 70,
+        "coldMeter": 72
+      }
+    }
+  ],
+  "fanZone": {
+    "mvpLastMatch": {
+      "playerId": 9,
+      "votes": 8,
+      "reason": "Hat-trick con dos golazos de fuera del área. Se llevó el balón, el termo y la cartera del rival."
+    },
+    "iceOfTheWeek": {
+      "playerId": 6,
+      "reason": "Llegó 20 minutos tarde diciendo que «el frío le congelaba el despertador». Premio Congelado."
+    },
+    "weeklyQuote": "«Yo no corro, es que el campo gira bajo mis pies.» — Raúl Cero Absoluto, tras esprintar 3 metros."
+  }
+}
