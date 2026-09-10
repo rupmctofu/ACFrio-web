@@ -169,13 +169,13 @@ body {
 }
 
 .anim-fog-1 {
-  animation: fog-drift 18s ease-in-out infinite;
+  animation: fog-drift 25s ease-in-out infinite;
 }
 .anim-fog-2 {
-  animation: fog-drift-reverse 24s ease-in-out infinite;
+  animation: fog-drift-reverse 35s ease-in-out infinite;
 }
 .anim-fog-3 {
-  animation: fog-drift 30s ease-in-out infinite;
+  animation: fog-drift 45s ease-in-out infinite;
 }
 
 /* Marquee para resultados */
