@@ -77,9 +77,9 @@ export default function Standings() {
           </h2>
         </div>
 
-        <div className="bg-acf-panel border border-acf-line shadow-acf clip-edge-tl overflow-hidden">
+        <div className="bg-acf-panel border border-acf-line shadow-acf clip-edge-tl">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[560px]">
+            <table className="w-full min-w-[420px]">
               <thead>
                 <tr className="text-left text-[10px] font-bold uppercase tracking-[0.25em] text-acf-grey bg-acf-dark/60">
                   <th className="py-3.5 px-3 sm:px-4">#</th>

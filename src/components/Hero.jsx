@@ -25,7 +25,7 @@ function CountdownUnit({ value, label, accent = false }) {
   return (
     <div className="flex flex-col items-center">
       <div
-        className={`clip-edge font-display text-5xl sm:text-6xl lg:text-7xl tabular-nums leading-none px-6 py-3 ${
+        className={`clip-edge font-display text-3xl sm:text-5xl sm:text-6xl lg:text-7xl tabular-nums leading-none px-3 sm:px-6 py-2 sm:py-3 ${
           accent
             ? "bg-acf-red text-white shadow-red"
             : "bg-acf-panel text-white border border-acf-line"
@@ -60,7 +60,7 @@ export default function Hero() {
     >
       {/* Fondo: campo de noche tenue */}
       <img
-        src="/assets/backgrounds/field-night.jpg"
+        src="/assets/backgrounds/landing-bg.jpg"
         alt=""
         className="absolute inset-0 h-full w-full object-cover pointer-events-none"
       />
@@ -82,50 +82,45 @@ export default function Hero() {
       />
 
       <div className="relative max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
-        <div className="anim-frost-in delay-100 flex items-center justify-center mb-8">
+        <div className="anim-frost-in delay-100 flex items-center justify-center mb-6">
           <div className="relative">
             <div className="absolute inset-0 bg-acf-red blur-2xl opacity-30 rounded-full scale-150" />
-            <img src={club.logo} alt={club.name} className="relative h-36 w-auto sm:h-44" />
+            <img src={club.logo} alt={club.name} className="relative h-44 w-auto sm:h-56 lg:h-60" />
           </div>
         </div>
 
-        <h1 className="anim-frost-in delay-200 font-display text-5xl sm:text-7xl lg:text-8xl tracking-wide leading-[0.9] uppercase">
-          {club.name.split(" ")[0]}{" "}
-          <span className="text-red-gradient">{club.name.split(" ")[1]}</span>
-        </h1>
-
-        <p className="anim-frost-in delay-300 mt-5 text-lg sm:text-2xl font-semibold tracking-wide text-acf-snow/90 max-w-2xl">
+        <h1 className="anim-frost-in delay-300 mt-4 text-5xl sm:text-6xl lg:text-7xl font-bold tracking-wide text-acf-snow/90 max-w-4xl">
           {club.tagline}
-        </p>
+        </h1>
 
         <div className="anim-frost-in delay-400 mt-14 w-full max-w-3xl">
           <div className="flex items-center justify-center gap-3 mb-6">
             <CalendarDays className="h-4 w-4 text-acf-red" />
-            <p className="text-sm text-acf-grey uppercase tracking-[0.3em] font-semibold">
+            <p className="text-xs sm:text-sm text-acf-grey uppercase tracking-[0.15em] sm:tracking-[0.3em] font-semibold">
               Próximo partido · {matchDate} · {nextMatch.round}
             </p>
           </div>
-          <div className="flex items-center justify-center gap-3 sm:gap-5">
+          <div className="flex items-center justify-center gap-1 sm:gap-3 md:gap-5">
             <CountdownUnit value={days} label="Días" />
-            <span className="font-display text-4xl sm:text-5xl text-acf-red pb-8">:</span>
+            <span className="font-display text-2xl sm:text-4xl sm:text-5xl text-acf-red pb-6 sm:pb-8">:</span>
             <CountdownUnit value={hours} label="Horas" />
-            <span className="font-display text-4xl sm:text-5xl text-acf-red pb-8">:</span>
+            <span className="font-display text-2xl sm:text-4xl sm:text-5xl text-acf-red pb-6 sm:pb-8">:</span>
             <CountdownUnit value={minutes} label="Min" />
-            <span className="font-display text-4xl sm:text-5xl text-acf-red pb-8">:</span>
+            <span className="font-display text-2xl sm:text-4xl sm:text-5xl text-acf-red pb-6 sm:pb-8">:</span>
             <CountdownUnit value={seconds} label="Seg" accent />
           </div>
         </div>
 
-        <div className="anim-frost-in delay-400 mt-12 flex flex-col sm:flex-row items-center gap-4">
+        <div className="anim-frost-in delay-400 mt-12 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
           <a
             href="#partidos"
-            className="bg-acf-red hover:bg-acf-red-dark text-white font-bold px-8 py-3.5 clip-edge transition-all hover:shadow-red-lg"
+            className="w-full sm:w-auto text-center bg-acf-red hover:bg-acf-red-dark text-white font-bold px-8 py-3.5 clip-edge transition-all hover:shadow-red-lg"
           >
             Ver Partidos
           </a>
           <a
             href="#plantilla"
-            className="border border-acf-line hover:border-acf-red hover:text-white text-acf-snow/80 font-bold px-8 py-3.5 clip-edge transition-all bg-acf-panel/60"
+            className="w-full sm:w-auto text-center border border-acf-line hover:border-acf-red hover:text-white text-acf-snow/80 font-bold px-8 py-3.5 clip-edge transition-all bg-acf-panel/60"
           >
             Conocer la Plantilla
           </a>

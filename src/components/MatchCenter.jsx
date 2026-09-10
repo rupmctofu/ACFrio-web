@@ -125,14 +125,14 @@ export default function MatchCenter() {
                 <Trophy className="h-4 w-4 text-acf-red" /> Último Resultado
               </div>
 
-              <div className="flex items-center justify-center gap-6 sm:gap-10">
-                <div className="flex-1 text-center">
+              <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-10">
+                <div className="flex-1 text-center min-w-0">
                   <ClubBadge name={lastMatch.homeTeam} badge={lastMatch.homeBadge} />
-                  <p className="font-bold text-sm text-white uppercase">{lastMatch.homeTeam}</p>
+                  <p className="font-bold text-xs sm:text-sm text-white uppercase truncate">{lastMatch.homeTeam}</p>
                 </div>
 
-                <div className="flex flex-col items-center">
-                  <span className="font-display text-6xl sm:text-7xl tabular-nums leading-none">
+                <div className="flex flex-col items-center shrink-0">
+                  <span className="font-display text-5xl sm:text-6xl sm:text-7xl tabular-nums leading-none">
                     <span className="text-white">{lastMatch.homeScore}</span>
                     <span className="text-acf-grey mx-2">—</span>
                     <span className="text-acf-red">{lastMatch.awayScore}</span>
@@ -142,9 +142,9 @@ export default function MatchCenter() {
                   </span>
                 </div>
 
-                <div className="flex-1 text-center">
+                <div className="flex-1 text-center min-w-0">
                   <ClubBadge name={lastMatch.awayTeam} badge={lastMatch.awayBadge} />
-                  <p className="font-bold text-sm text-acf-snow/70 uppercase">{lastMatch.awayTeam}</p>
+                  <p className="font-bold text-xs sm:text-sm text-acf-snow/70 uppercase truncate">{lastMatch.awayTeam}</p>
                 </div>
               </div>
 
@@ -178,22 +178,22 @@ export default function MatchCenter() {
                 <CalendarDays className="h-4 w-4 text-acf-red" /> {nextMatch.round}
               </div>
 
-              <div className="flex items-center justify-center gap-6 sm:gap-10">
-                <div className="flex-1 text-center">
+              <div className="flex items-center justify-center gap-4 sm:gap-6 md:gap-10">
+                <div className="flex-1 text-center min-w-0">
                   <ClubBadge name={club.name} />
-                  <p className="font-bold text-sm text-white uppercase">{club.name}</p>
+                  <p className="font-bold text-xs sm:text-sm text-white uppercase truncate">{club.name}</p>
                 </div>
 
-                <div className="flex flex-col items-center">
-                  <span className="font-display text-5xl sm:text-6xl leading-none text-acf-red">VS</span>
+                <div className="flex flex-col items-center shrink-0">
+                  <span className="font-display text-4xl sm:text-5xl md:text-6xl leading-none text-acf-red">VS</span>
                   <span className="mt-2 text-[10px] font-bold tracking-[0.3em] text-acf-grey uppercase">
                     {formatMatchDate(nextMatch.date)} · {formatTime(nextMatch.date)}
                   </span>
                 </div>
 
-                <div className="flex-1 text-center">
+                <div className="flex-1 text-center min-w-0">
                   <ClubBadge name={nextMatch.rivalName} badge={nextMatch.rivalBadge} />
-                  <p className="font-bold text-sm text-white uppercase">{nextMatch.rivalName}</p>
+                  <p className="font-bold text-xs sm:text-sm text-white uppercase truncate">{nextMatch.rivalName}</p>
                 </div>
               </div>
 
@@ -216,7 +216,7 @@ export default function MatchCenter() {
                 href={nextMatch.fieldLocationUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-7 flex items-center justify-center gap-2 bg-acf-red hover:bg-acf-red-dark text-white font-bold py-3 clip-edge transition-all hover:shadow-red"
+                className="mt-7 flex items-center justify-center gap-2 bg-acf-red hover:bg-acf-red-dark text-white font-bold py-3 px-4 clip-edge transition-all hover:shadow-red"
               >
                 <MapPin className="h-4 w-4" /> Cómo llegar <ExternalLink className="h-3.5 w-3.5 ml-1" />
               </a>

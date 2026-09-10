@@ -39,7 +39,7 @@ export default function Armor() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-14">
           <p className="text-acf-red font-display text-3xl tracking-widest">LA ARMADURA</p>
-          <h2 className="font-display text-4xl sm:text-6xl tracking-wide uppercase">
+          <h2 className="font-display text-3xl sm:text-4xl sm:text-6xl tracking-wide uppercase">
             Primera Equipación <span className="text-red-gradient">25·26</span>
           </h2>
         </div>
@@ -57,7 +57,7 @@ export default function Armor() {
                     background: "repeating-linear-gradient(90deg, #0d0d0d 0px, #0d0d0d 60px, #e61c24 60px, #e61c24 120px)",
                   }}
                 />
-                <div className="relative flex flex-col items-center gap-6">
+                <div className="relative flex flex-col items-center gap-6 mx-auto">
                   {/* Escudo */}
                   <div className="h-16 w-16 rounded-xl bg-acf-red flex items-center justify-center shadow-red mx-auto">
                     <Shield className="h-9 w-9 text-white" />

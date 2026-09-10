@@ -25,3 +25,5 @@ telegram_ask_result.txt
 *.njsproj
 *.sln
 *.sw?
+
+.vercel

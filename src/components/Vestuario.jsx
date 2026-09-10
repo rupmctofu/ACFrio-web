@@ -122,12 +122,12 @@ export default function Vestuario() {
           <article className="flex flex-col gap-6">
             {/* Votación */}
             <div className="bg-acf-panel border border-acf-line clip-edge-tl p-6 flex-1">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between gap-3 mb-4">
                 <div className="flex items-center gap-2">
-                  <Users className="h-5 w-5 text-acf-red" />
-                  <h3 className="font-display text-2xl tracking-widest">VOTA AL MVP</h3>
+                  <Users className="h-5 w-5 text-acf-red shrink-0" />
+                  <h3 className="font-display text-xl sm:text-2xl tracking-widest">VOTA AL MVP</h3>
                 </div>
-                <span className="flex items-center gap-1.5 text-acf-grey text-xs">
+                <span className="hidden sm:flex items-center gap-1.5 text-acf-grey text-xs shrink-0">
                   <Info className="h-3.5 w-3.5" /> Grupito del equipo
                 </span>
               </div>

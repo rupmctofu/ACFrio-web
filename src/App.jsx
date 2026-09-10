@@ -29,7 +29,7 @@ function Footer() {
             © 2026 {club.name} · {club.founded ? `Fundado en ${club.founded}` : ""} · Pachanga Arena
           </p>
 
-          <p className="font-display text-lg text-acf-grey tracking-widest">
+          <p className="font-display text-base sm:text-lg text-acf-grey tracking-wider sm:tracking-widest text-center">
             0°C ES TEMPERATURA AMBIENTE
           </p>
         </div>
