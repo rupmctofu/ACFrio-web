@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CalendarDays, ArrowDown } from "lucide-react";
 import teamData from "../data/teamData.json";
 import matchData from "../data/matchData.json";
@@ -21,7 +21,7 @@ function useCountdown(targetIso) {
   };
 }
 
-function useVantaFog(ref) {
+function useVantaFog(ref, onFallback) {
   useEffect(() => {
     let effect = null;
     let cancelled = false;
@@ -38,24 +38,30 @@ function useVantaFog(ref) {
           mouseControls: false,
           touchControls: false,
           gyroControls: false,
-          baseColor: 0x0a0a0a,
-          midtoneColor: 0x271920,
+          baseColor: 0x0d0d0d,
+          midtoneColor: 0xb0141b,
           lowlightColor: 0x161616,
           highlightColor: 0xe61c24,
-          speed: 0.9,
-          zoom: 1.15,
-          blurFactor: 0.85,
-          backgroundAlpha: 0,
+          speed: 1.2,
+          zoom: 1.0,
+          blurFactor: 0.7,
         });
-      } catch {
-        // fallback silencioso: sin niebla si falla el shader
+        if (!ref.current.querySelector("canvas")) {
+          throw new Error("webgl canvas no creado");
+        }
+        console.info("[Vanta FOG] niebla webgl activa");
+      } catch (err) {
+        console.warn("[Vanta FOG] no disponible, usando fallback CSS:", err);
+        effect?.destroy?.();
+        effect = null;
+        if (!cancelled) onFallback?.();
       }
     })();
     return () => {
       cancelled = true;
       effect?.destroy();
     };
-  }, [ref]);
+  }, [ref, onFallback]);
 }
 
 function CountdownUnit({ value, label, accent = false }) {
@@ -82,7 +88,9 @@ export default function Hero() {
   const { nextMatch } = matchData;
   const { days, hours, minutes, seconds } = useCountdown(nextMatch.date);
   const fogRef = useRef(null);
-  useVantaFog(fogRef);
+  const [fogFallback, setFogFallback] = useState(false);
+  const handleFogFallback = useCallback(() => setFogFallback(true), []);
+  useVantaFog(fogRef, handleFogFallback);
 
   const matchDate = useMemo(() => {
     return new Date(nextMatch.date).toLocaleDateString("es-ES", {
@@ -105,8 +113,34 @@ export default function Hero() {
       />
       <div className="absolute inset-0 bg-acf-dark/70 pointer-events-none" />
 
-      {/* Niebla Vanta (WebGL) */}
-      <div ref={fogRef} className="absolute inset-0 pointer-events-none" />
+      {/* Niebla Vanta (WebGL) — si falla, fallback CSS */}
+      {fogFallback ? (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div
+            className="absolute -top-1/4 -left-1/4 w-[150%] h-[60%] anim-fog-1 opacity-20"
+            style={{
+              background:
+                "radial-gradient(ellipse at 30% 50%, rgba(230,28,36,0.35) 0%, transparent 60%)",
+            }}
+          />
+          <div
+            className="absolute top-[20%] -right-1/4 w-[140%] h-[50%] anim-fog-2 opacity-15"
+            style={{
+              background:
+                "radial-gradient(ellipse at 70% 40%, rgba(176,20,27,0.3) 0%, transparent 55%)",
+            }}
+          />
+          <div
+            className="absolute bottom-[10%] -left-1/4 w-[160%] h-[45%] anim-fog-3 opacity-[0.18]"
+            style={{
+              background:
+                "radial-gradient(ellipse at 50% 60%, rgba(230,28,36,0.28) 0%, transparent 50%)",
+            }}
+          />
+        </div>
+      ) : (
+        <div ref={fogRef} className="absolute inset-0 pointer-events-none mix-blend-screen opacity-50" />
+      )}
 
       {/* Glow rojo de fondo */}
       <div
