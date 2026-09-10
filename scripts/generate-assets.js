@@ -12,7 +12,7 @@ const PUBLIC = join(ROOT, "public");
 GlobalFonts.registerFromPath("C:/Windows/Fonts/arialbd.ttf", "ArialBold");
 GlobalFonts.registerFromPath("C:/Windows/Fonts/arial.ttf", "Arial");
 
-const SVG_LOGO_PATH = join(PUBLIC, "assets", "logo-acf.svg");
+const SVG_LOGO_PATH = join(PUBLIC, "assets", "logo-acf.png");
 const svgLogo = readFileSync(SVG_LOGO_PATH);
 
 const RED = "#E61C24";
