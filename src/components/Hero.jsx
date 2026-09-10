@@ -66,6 +66,28 @@ export default function Hero() {
       />
       <div className="absolute inset-0 bg-acf-dark/70 pointer-events-none" />
 
+      {/* Niebla sutil */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div
+          className="absolute -top-1/4 -left-1/4 w-[150%] h-[60%] anim-fog-1 opacity-[0.04]"
+          style={{
+            background: "radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.6) 0%, transparent 60%)",
+          }}
+        />
+        <div
+          className="absolute top-[20%] -right-1/4 w-[140%] h-[50%] anim-fog-2 opacity-[0.03]"
+          style={{
+            background: "radial-gradient(ellipse at 70% 40%, rgba(200,200,220,0.5) 0%, transparent 55%)",
+          }}
+        />
+        <div
+          className="absolute bottom-[10%] -left-1/4 w-[160%] h-[45%] anim-fog-3 opacity-[0.035]"
+          style={{
+            background: "radial-gradient(ellipse at 50% 60%, rgba(255,255,255,0.4) 0%, transparent 50%)",
+          }}
+        />
+      </div>
+
       {/* Glow rojo de fondo */}
       <div
         className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full pointer-events-none"
