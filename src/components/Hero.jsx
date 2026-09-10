@@ -27,7 +27,7 @@ function useVantaFog(ref, onFallback) {
     let cancelled = false;
     (async () => {
       try {
-        const [{ default: FOG }, { default: THREE }] = await Promise.all([
+        const [{ default: FOG }, THREE] = await Promise.all([
           import("vanta/dist/vanta.fog.min.js"),
           import("three"),
         ]);
@@ -39,9 +39,9 @@ function useVantaFog(ref, onFallback) {
           touchControls: false,
           gyroControls: false,
           baseColor: 0x0d0d0d,
-          midtoneColor: 0xb0141b,
+          midtoneColor: 0xc81e27,
           lowlightColor: 0x161616,
-          highlightColor: 0xe61c24,
+          highlightColor: 0xff4d55,
           speed: 1.2,
           zoom: 1.0,
           blurFactor: 0.7,
@@ -139,7 +139,7 @@ export default function Hero() {
           />
         </div>
       ) : (
-        <div ref={fogRef} className="absolute inset-0 pointer-events-none mix-blend-screen opacity-50" />
+        <div ref={fogRef} className="absolute inset-0 pointer-events-none opacity-70" />
       )}
 
       {/* Glow rojo de fondo */}
