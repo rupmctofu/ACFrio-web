@@ -84,7 +84,7 @@ export default function Hero() {
       <div className="relative max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
         <div className="anim-frost-in delay-100 flex items-center justify-center mb-6">
           <div className="relative">
-            <div className="absolute inset-0 bg-acf-red blur-2xl opacity-30 rounded-full scale-150" />
+            <div className="absolute inset-0 bg-acf-red blur-3xl opacity-10 rounded-full scale-150" />
             <img src={club.logo} alt={club.name} className="relative h-44 w-auto sm:h-56 lg:h-60" />
           </div>
         </div>
