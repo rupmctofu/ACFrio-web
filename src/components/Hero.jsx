@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CalendarDays, ArrowDown } from "lucide-react";
 import teamData from "../data/teamData.json";
 import matchData from "../data/matchData.json";
@@ -19,6 +19,43 @@ function useCountdown(targetIso) {
     minutes: Math.floor((diff % 3600000) / 60000),
     seconds: Math.floor((diff % 60000) / 1000),
   };
+}
+
+function useVantaFog(ref) {
+  useEffect(() => {
+    let effect = null;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [{ default: FOG }, { default: THREE }] = await Promise.all([
+          import("vanta/dist/vanta.fog.min.js"),
+          import("three"),
+        ]);
+        if (cancelled || !ref.current) return;
+        effect = FOG({
+          el: ref.current,
+          THREE,
+          mouseControls: false,
+          touchControls: false,
+          gyroControls: false,
+          baseColor: 0x0a0a0a,
+          midtoneColor: 0x271920,
+          lowlightColor: 0x161616,
+          highlightColor: 0xe61c24,
+          speed: 0.9,
+          zoom: 1.15,
+          blurFactor: 0.85,
+          backgroundAlpha: 0,
+        });
+      } catch {
+        // fallback silencioso: sin niebla si falla el shader
+      }
+    })();
+    return () => {
+      cancelled = true;
+      effect?.destroy();
+    };
+  }, [ref]);
 }
 
 function CountdownUnit({ value, label, accent = false }) {
@@ -44,6 +81,8 @@ export default function Hero() {
   const { club } = teamData;
   const { nextMatch } = matchData;
   const { days, hours, minutes, seconds } = useCountdown(nextMatch.date);
+  const fogRef = useRef(null);
+  useVantaFog(fogRef);
 
   const matchDate = useMemo(() => {
     return new Date(nextMatch.date).toLocaleDateString("es-ES", {
@@ -66,27 +105,8 @@ export default function Hero() {
       />
       <div className="absolute inset-0 bg-acf-dark/70 pointer-events-none" />
 
-      {/* Niebla sutil */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div
-          className="absolute -top-1/4 -left-1/4 w-[150%] h-[60%] anim-fog-1 opacity-15"
-          style={{
-            background: "radial-gradient(ellipse at 30% 50%, rgba(255,255,255,0.5) 0%, transparent 60%)",
-          }}
-        />
-        <div
-          className="absolute top-[20%] -right-1/4 w-[140%] h-[50%] anim-fog-2 opacity-10"
-          style={{
-            background: "radial-gradient(ellipse at 70% 40%, rgba(200,200,220,0.4) 0%, transparent 55%)",
-          }}
-        />
-        <div
-          className="absolute bottom-[10%] -left-1/4 w-[160%] h-[45%] anim-fog-3 opacity-12"
-          style={{
-            background: "radial-gradient(ellipse at 50% 60%, rgba(255,255,255,0.45) 0%, transparent 50%)",
-          }}
-        />
-      </div>
+      {/* Niebla Vanta (WebGL) */}
+      <div ref={fogRef} className="absolute inset-0 pointer-events-none" />
 
       {/* Glow rojo de fondo */}
       <div
