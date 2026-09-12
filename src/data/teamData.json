@@ -29,7 +29,7 @@
         "attendanceRate": 96,
         "coldMeter": 92
       },
-      "cutout": "/assets/players-cutout/1.png"
+      "cutout": "/assets/players-cutout/player1.png"
     },
     {
       "id": 2,
@@ -46,7 +46,7 @@
         "attendanceRate": 88,
         "coldMeter": 78
       },
-      "cutout": "/assets/players-cutout/2.png"
+      "cutout": "/assets/players-cutout/player2.png"
     },
     {
       "id": 3,
@@ -63,7 +63,7 @@
         "attendanceRate": 82,
         "coldMeter": 85
       },
-      "cutout": "/assets/players-cutout/3.png"
+      "cutout": "/assets/players-cutout/player3.png"
     },
     {
       "id": 4,
@@ -80,7 +80,7 @@
         "attendanceRate": 91,
         "coldMeter": 88
       },
-      "cutout": "/assets/players-cutout/4.png"
+      "cutout": "/assets/players-cutout/player4.png"
     },
     {
       "id": 5,
@@ -97,7 +97,7 @@
         "attendanceRate": 95,
         "coldMeter": 90
       },
-      "cutout": "/assets/players-cutout/5.png"
+      "cutout": "/assets/players-cutout/player5.png"
     },
     {
       "id": 6,
@@ -114,7 +114,7 @@
         "attendanceRate": 79,
         "coldMeter": 74
       },
-      "cutout": "/assets/players-cutout/6.png"
+      "cutout": "/assets/players-cutout/player6.png"
     },
     {
       "id": 7,
@@ -131,7 +131,7 @@
         "attendanceRate": 93,
         "coldMeter": 86
       },
-      "cutout": "/assets/players-cutout/7.png"
+      "cutout": "/assets/players-cutout/player7.png"
     },
     {
       "id": 8,
@@ -148,7 +148,7 @@
         "attendanceRate": 85,
         "coldMeter": 80
       },
-      "cutout": "/assets/players-cutout/8.png"
+      "cutout": "/assets/players-cutout/player8.png"
     },
     {
       "id": 9,
@@ -165,7 +165,7 @@
         "attendanceRate": 89,
         "coldMeter": 95
       },
-      "cutout": "/assets/players-cutout/9.png"
+      "cutout": "/assets/players-cutout/player9.png"
     },
     {
       "id": 10,
@@ -182,7 +182,7 @@
         "attendanceRate": 98,
         "coldMeter": 97
       },
-      "cutout": "/assets/players-cutout/10.png"
+      "cutout": "/assets/players-cutout/player10.png"
     },
     {
       "id": 11,
@@ -199,7 +199,7 @@
         "attendanceRate": 87,
         "coldMeter": 91
       },
-      "cutout": "/assets/players-cutout/11.png"
+      "cutout": "/assets/players-cutout/player11.png"
     },
     {
       "id": 12,
@@ -216,7 +216,7 @@
         "attendanceRate": 70,
         "coldMeter": 72
       },
-      "cutout": "/assets/players-cutout/12.png"
+      "cutout": "/assets/players-cutout/player12.png"
     }
   ],
   "fanZone": {
