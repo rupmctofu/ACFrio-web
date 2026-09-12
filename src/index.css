@@ -186,3 +186,29 @@ body {
 .anim-marquee {
   animation: marquee 30s linear infinite;
 }
+
+/* ===== Slider de plantilla (scroll horizontal) ===== */
+.squad-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.squad-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.squad-fade-right {
+  mask-image: linear-gradient(
+    to right,
+    black calc(100% - 3rem),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    black calc(100% - 3rem),
+    transparent 100%
+  );
+}
+
+.drop-shadow-red {
+  filter: drop-shadow(0 6px 16px rgba(230, 28, 36, 0.28));
+}

@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Users, Trophy, Flame } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { Users, Trophy, Flame, ChevronLeft, ChevronRight } from "lucide-react";
 import teamData from "../data/teamData.json";
 
 const POSITIONS = ["Todos", "Portero", "Defensa", "Medio", "Delantero"];
@@ -45,7 +45,10 @@ function PlayerCard({ player, isMvp, isIce }) {
   const pos = positionStyle[player.position];
 
   return (
-    <article className="group relative bg-acf-panel border border-acf-line hover:border-acf-red/60 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-red overflow-hidden clip-edge-tl">
+    <article
+      data-card
+      className="group relative bg-acf-panel border border-acf-line hover:border-acf-red/60 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-red overflow-hidden clip-edge-tl shrink-0 snap-start min-w-[17rem] w-[78vw] max-w-[19rem]"
+    >
       {/* Fondo del dorsal en marca de agua */}
       <span className="absolute -right-4 -bottom-8 font-display text-[10rem] leading-none text-white/[0.04] select-none pointer-events-none transition-all duration-500 group-hover:text-white/[0.07]">
         {player.number}
@@ -73,26 +76,21 @@ function PlayerCard({ player, isMvp, isIce }) {
         </div>
       </div>
 
-      {/* Foto */}
-      <div className="relative mt-1 flex flex-col items-center">
-        <div className="relative h-36 w-32">
-          <div className="absolute inset-0 bg-gradient-to-t from-acf-panel via-transparent to-transparent" />
+      {/* Foto de medio cuerpo con transparencia */}
+      <div className="relative mt-1 flex items-center justify-center">
+        <div className="relative h-64 sm:h-72 w-full">
           <img
-            src={player.photo}
+            src={player.cutout}
             alt={player.name}
-            className="relative h-full w-full object-cover object-top rounded-lg border border-acf-line bg-acf-panel-light"
+            className="relative h-full w-full object-contain object-top drop-shadow-red"
             onError={(e) => {
               e.currentTarget.src =
                 "data:image/svg+xml," +
                 encodeURIComponent(
-                  `<svg xmlns='http://www.w3.org/2000/svg' width='128' height='144'><rect width='128' height='144' fill='%23161616'/><circle cx='64' cy='52' r='28' fill='%232a2a2a'/><rect y='90' width='128' height='54' fill='%23e61c24'/></svg>`
+                  `<svg xmlns='http://www.w3.org/2000/svg' width='160' height='200'><circle cx='80' cy='70' r='42' fill='%232a2a2a'/><rect y='120' width='160' height='80' fill='%23e61c24'/></svg>`
                 );
             }}
           />
-          {/* Dorsal sobre la foto */}
-          <span className="absolute bottom-0 right-1 font-display text-6xl text-white/25 leading-none group-hover:text-white/40 transition-colors">
-            {player.number}
-          </span>
         </div>
       </div>
 
@@ -119,6 +117,7 @@ function PlayerCard({ player, isMvp, isIce }) {
 
 export default function Squad() {
   const [filter, setFilter] = useState("Todos");
+  const trackRef = useRef(null);
   const { squad, fanZone } = teamData;
 
   const mvpId = fanZone.mvpLastMatch.playerId;
@@ -131,6 +130,14 @@ export default function Squad() {
 
   const totalGoals = squad.reduce((acc, p) => acc + p.stats.goals, 0);
   const totalAssists = squad.reduce((acc, p) => acc + p.stats.assists, 0);
+
+  const scrollByCards = (dir) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const card = track.querySelector("[data-card]");
+    const step = card ? card.offsetWidth + 24 : 320;
+    track.scrollBy({ left: dir * step, behavior: "smooth" });
+  };
 
   return (
     <section id="plantilla" className="relative py-24 texture-grain bg-acf-panel/30">
@@ -175,15 +182,38 @@ export default function Squad() {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filtered.map((player) => (
-            <PlayerCard
-              key={player.id}
-              player={player}
-              isMvp={player.id === mvpId}
-              isIce={player.id === iceId}
-            />
-          ))}
+        {/* Slider horizontal de jugadores */}
+        <div className="relative">
+          <div
+            ref={trackRef}
+            className="flex gap-6 overflow-x-auto overscroll-x-contain scroll-smooth snap-x snap-mandatory pb-2 squad-scrollbar squad-fade-right"
+          >
+            {filtered.map((player) => (
+              <PlayerCard
+                key={player.id}
+                player={player}
+                isMvp={player.id === mvpId}
+                isIce={player.id === iceId}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => scrollByCards(-1)}
+            aria-label="Anteriores"
+            className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 items-center justify-center h-11 w-11 bg-acf-panel border border-acf-line text-acf-snow/70 hover:text-acf-red hover:border-acf-red transition-colors z-10"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollByCards(1)}
+            aria-label="Siguientes"
+            className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 items-center justify-center h-11 w-11 bg-acf-panel border border-acf-line text-acf-snow/70 hover:text-acf-red hover:border-acf-red transition-colors z-10"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
         </div>
       </div>
     </section>
