@@ -96,3 +96,6 @@ supplies them (T9, T11).
   Próximo partido, Calendario, La Copa — and every figure matches `competition.json`.
 - **L7** (commits): `8468049` data sync, `5ab6a27` real fixtures and standings, `94742d7` club goalscorers
   and cards, plus the home grid commit that follows this entry.
+- **L8** (owner): "albert ha marcado 2 mas" — the two pending goals belong to Albert, so the record reads
+  Albert 3, Jonay 1, which is exactly the 4 league goals the official table reports. The scorers card
+  drops its pending and partial lines on its own through `isComplete()`.

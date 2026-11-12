@@ -3,8 +3,8 @@
   "updatedAt": "2026-11-12",
   "source": "Datos facilitados por el club. La fuente oficial (CEGARRAF) no publica goleadores ni tarjetas.",
   "scorers": [
-    { "player": "Jonay", "goals": 1 },
-    { "player": "Albert", "goals": 1 }
+    { "player": "Albert", "goals": 3 },
+    { "player": "Jonay", "goals": 1 }
   ],
   "cards": [
     { "player": "Albert", "yellow": 1, "red": 0 }
