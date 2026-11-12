@@ -275,7 +275,15 @@ export default function PitchCard({ className = "" }) {
           <div
             key={marker.name}
             className="absolute -translate-x-1/2 -translate-y-1/2"
-            style={{ left: `${marker.x}%`, top: `${marker.y}%` }}
+            style={{
+              left: `${marker.x}%`,
+              top: `${marker.y}%`,
+              // The receiver greets the ball with a soft one-off pulse; it fires
+              // on every holder change because the previous receiver's wrapper
+              // drops back to no animation in between.
+              animation:
+                index === holder && !reduced ? "pitch-receive 900ms ease" : undefined,
+            }}
           >
             <img
               src={marker.photo}

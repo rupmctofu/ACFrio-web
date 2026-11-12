@@ -204,3 +204,18 @@ body {
     animation: none;
   }
 }
+
+/* ===== Pass reception: a soft pulse on the player who receives the ball =====
+   The wrapper keeps its centering in the separate `translate` property, so the
+   scale in `transform` composes instead of cancelling it. */
+@keyframes pitch-receive {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.14);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
