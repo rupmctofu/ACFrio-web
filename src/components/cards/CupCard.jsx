@@ -4,7 +4,7 @@ import Card from "./Card.jsx";
 import { Crest } from "./Crest.jsx";
 
 const HEAD_CELL =
-  "py-2 text-[8px] font-semibold uppercase tracking-[0.14em] text-acf-dim";
+  "py-2.5 text-micro font-semibold uppercase tracking-[0.14em] text-acf-dim";
 
 /**
  * The cup table. The source publishes the full cup calendar but no results yet,
@@ -27,10 +27,10 @@ export default function CupCard({ className = "" }) {
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-acf-line">
-                <th className={`${HEAD_CELL} pl-3 pr-1 text-center`}>#</th>
+                <th className={`${HEAD_CELL} pl-4 pr-1 text-center`}>#</th>
                 <th className={`${HEAD_CELL} pr-1 text-left`}>Equipo</th>
                 <th className={`${HEAD_CELL} px-0.5 text-center`}>PJ</th>
-                <th className={`${HEAD_CELL} pl-1 pr-3 text-right`}>Pts</th>
+                <th className={`${HEAD_CELL} pl-1 pr-4 text-right`}>Pts</th>
               </tr>
             </thead>
             <tbody>
@@ -39,24 +39,24 @@ export default function CupCard({ className = "" }) {
                   key={row.slug}
                   className="border-t border-acf-line-soft transition-colors hover:bg-white/[0.03]"
                 >
-                  <td className="py-2 pl-3 pr-1 text-center font-display text-base leading-none text-acf-dim">
+                  <td className="py-3 pl-4 pr-1 text-center font-display text-lg leading-none text-acf-dim">
                     {row.rank ?? "—"}
                   </td>
-                  <td className="py-2 pr-1">
-                    <span className="flex items-center gap-1.5">
+                  <td className="py-3 pr-1">
+                    <span className="flex items-center gap-2">
                       <Crest slug={row.slug} size="sm" />
                       <span
                         title={teamFullName(row.slug)}
-                        className="truncate text-[11px] font-bold uppercase tracking-[0.04em] text-acf-snow/80"
+                        className="truncate text-row font-bold uppercase tracking-[0.04em] text-acf-snow/80"
                       >
                         {teamName(row.slug)}
                       </span>
                     </span>
                   </td>
-                  <td className="px-0.5 py-2 text-center text-[11px] tabular-nums text-acf-snow/50">
+                  <td className="px-0.5 py-3 text-center text-figure tabular-nums text-acf-snow/50">
                     {row.played}
                   </td>
-                  <td className="py-2 pl-1 pr-3 text-right font-display text-lg leading-none tabular-nums text-white">
+                  <td className="py-3 pl-1 pr-4 text-right font-display text-xl leading-none tabular-nums text-white">
                     {row.points}
                   </td>
                 </tr>
@@ -66,28 +66,28 @@ export default function CupCard({ className = "" }) {
         </div>
       ) : (
         <>
-          <p className="px-5 pb-4 text-[11px] leading-relaxed text-acf-grey">
+          <p className="px-6 pb-5 text-row leading-relaxed text-acf-grey">
             <span className="font-bold text-acf-snow">
               {playedMatches} de {matchCount} partidos jugados.
             </span>{" "}
             La fuente oficial no publica puntos, goles ni posiciones hasta que se juegue
             la primera jornada.
           </p>
-          <ul className="flex flex-wrap gap-1.5 px-5 pb-5">
+          <ul className="flex flex-wrap gap-2 px-6 pb-6">
             {rows.map((row) => {
               // Our team gets the accent tint so it stands out from the rivals at a glance.
               const isClub = row.slug === CLUB_SLUG;
               return (
               <li
                 key={row.slug}
-                className={`flex max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 ${
+                className={`flex max-w-full items-center gap-2 rounded-full border py-1 pl-1 pr-3 ${
                   isClub ? "border-acf-red/40 bg-acf-red/12" : "border-acf-line"
                 }`}
               >
                 <Crest slug={row.slug} size="sm" />
                 <span
                   title={teamFullName(row.slug)}
-                  className={`min-w-0 truncate text-[9px] font-bold uppercase tracking-[0.06em] ${
+                  className={`min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.06em] ${
                     isClub ? "text-white" : "text-acf-snow/70"
                   }`}
                 >

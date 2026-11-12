@@ -12,21 +12,21 @@ function Footer() {
           <div className="flex items-center gap-3">
             <img src={club.logo} alt={club.name} className="h-10 w-auto" />
             <div>
-              <p className="text-base font-extrabold leading-none tracking-tight text-white">
+              <p className="text-lg font-extrabold leading-none tracking-tight text-white">
                 AC <span className="text-acf-red">FRÍO</span>
               </p>
-              <p className="mt-1.5 text-[8px] font-semibold uppercase tracking-[0.26em] text-acf-dim">
+              <p className="mt-2 text-micro font-semibold uppercase tracking-[0.26em] text-acf-dim">
                 {club.tagline}
               </p>
             </div>
           </div>
 
-          <p className="text-center text-[11px] text-acf-grey">
+          <p className="text-center text-row text-acf-grey">
             © 2026 {club.name}
             {club.founded ? ` · Fundado en ${club.founded}` : ""}
           </p>
 
-          <p className="text-center text-[9px] font-semibold uppercase tracking-[0.22em] text-acf-dim">
+          <p className="text-center text-micro font-semibold uppercase tracking-[0.22em] text-acf-dim">
             0°C ES TEMPERATURA AMBIENTE
           </p>
         </div>

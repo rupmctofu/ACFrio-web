@@ -40,22 +40,22 @@ function slideBy(node, deltaY) {
 
 function FixtureSlide({ fixture }) {
   return (
-    <li className="min-w-[11.5rem] snap-start rounded-tile border border-acf-line-soft bg-acf-panel-light/60 p-3">
-      <p className="text-[11px] font-extrabold uppercase leading-none tracking-[0.1em] text-white">
+    <li className="min-w-[13rem] snap-start rounded-tile border border-acf-line-soft bg-acf-panel-light/60 p-4">
+      <p className="text-row font-extrabold uppercase leading-none tracking-[0.1em] text-white">
         {fixtureDateLabel(fixture)}
       </p>
-      <p className="mt-1.5 text-[8px] font-semibold uppercase tracking-[0.16em] text-acf-dim">
+      <p className="mt-2 text-micro font-semibold uppercase tracking-[0.14em] text-acf-dim">
         {fixtureTimeLabel(fixture)} · J{fixture.matchday} ·{" "}
         {COMPETITION_TAG[fixture.competitionKey] ?? fixture.competitionName}
       </p>
 
-      <div className="mt-3 space-y-1.5">
+      <div className="mt-3 space-y-2">
         {[fixture.home, fixture.away].map((team) => (
-          <div key={team.slug} className="flex items-center gap-1.5">
+          <div key={team.slug} className="flex items-center gap-2">
             <Crest slug={team.slug} size="sm" />
             <span
               title={teamFullName(team.slug)}
-              className={`truncate text-[10px] font-bold uppercase tracking-[0.04em] ${
+              className={`truncate text-[12px] font-bold uppercase tracking-[0.04em] ${
                 team.slug === CLUB_SLUG ? "text-acf-red" : "text-acf-snow/60"
               }`}
             >
@@ -65,7 +65,7 @@ function FixtureSlide({ fixture }) {
         ))}
       </div>
 
-      <p className="mt-2.5 truncate text-[8px] font-semibold uppercase tracking-[0.16em] text-acf-dim">
+      <p className="mt-3 truncate text-micro font-semibold uppercase tracking-[0.14em] text-acf-dim">
         {fixture.field ?? "Campo por confirmar"}
       </p>
     </li>
@@ -109,7 +109,7 @@ export default function FixturesCard({ className = "" }) {
   return (
     <Card
       title="Calendario"
-      hint={fixtures.length ? "Rueda o desliza" : "Sin partidos programados"}
+      hint={fixtures.length ? undefined : "Sin partidos programados"}
       icon={CalendarDays}
       className={className}
       bodyClassName="flex"
@@ -120,7 +120,7 @@ export default function FixturesCard({ className = "" }) {
           tabIndex={0}
           aria-label="Siguientes partidos"
           onWheel={handleWheel}
-          className="flex w-full snap-x snap-mandatory gap-2.5 overflow-x-auto px-5 pb-5 pt-1 squad-scrollbar focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-acf-red/60"
+          className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-6 pt-1 squad-scrollbar focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-acf-red/60"
         >
           {fixtures.map((fixture) => (
             <FixtureSlide
@@ -130,7 +130,7 @@ export default function FixturesCard({ className = "" }) {
           ))}
         </ul>
       ) : (
-        <p className="px-5 py-4 text-sm text-acf-grey">
+        <p className="px-6 py-4 text-row text-acf-grey">
           La fuente oficial no publica más partidos programados.
         </p>
       )}

@@ -12,7 +12,7 @@ const navLinks = [
 const HEADER_READ_LINE = 72;
 
 const PILL_BASE =
-  "block rounded-full px-3.5 py-1.5 text-[12px] font-semibold tracking-tight transition-colors";
+  "block rounded-full px-3.5 py-1.5 text-row font-semibold tracking-tight transition-colors";
 const PILL_ACTIVE = "bg-acf-red text-white";
 const PILL_IDLE = "text-acf-snow/60 hover:text-white";
 
@@ -65,10 +65,10 @@ export default function Navbar() {
         <a href="#top" aria-label="Volver al inicio de la página" className="flex items-center gap-2.5">
           <img src={club.logo} alt={club.name} className="h-9 w-auto" />
           <span className="leading-none">
-            <span className="block text-[15px] font-extrabold tracking-tight text-white">
+            <span className="block text-base font-extrabold tracking-tight text-white">
               AC <span className="text-acf-red">FRÍO</span>
             </span>
-            <span className="mt-1 block text-[8px] font-semibold uppercase tracking-[0.26em] text-acf-dim">
+            <span className="mt-1 block text-[10px] font-semibold uppercase tracking-[0.26em] text-acf-dim">
               FÚTBOL 7 · EST. 2026
             </span>
           </span>
@@ -94,7 +94,7 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           <a
             href="#partidos"
-            className="hidden items-center rounded-full bg-acf-red px-4 py-2 text-[12px] font-bold tracking-tight text-white transition-colors hover:bg-acf-red-dark sm:flex"
+            className="hidden items-center rounded-full bg-acf-red px-4 py-2 text-row font-bold tracking-tight text-white transition-colors hover:bg-acf-red-dark sm:flex"
           >
             Próximo Partido
           </a>

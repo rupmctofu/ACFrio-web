@@ -16,19 +16,19 @@ export default function Dashboard() {
   return (
     <section id="partidos" className="relative pb-16 pt-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
-          <div className="order-2 flex flex-col gap-5 lg:order-none lg:col-span-4">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <div className="order-2 flex flex-col gap-6 lg:order-none lg:col-span-4">
             <Standings className="flex-1" />
             <ScorersCard />
             <FormCard />
           </div>
 
-          <div className="order-1 flex flex-col gap-5 lg:order-none lg:col-span-5">
+          <div className="order-1 flex flex-col gap-6 lg:order-none lg:col-span-5">
             <ClubCard />
             <NextMatchCard className="flex-1" />
           </div>
 
-          <div className="order-3 flex flex-col gap-5 lg:order-none lg:col-span-3">
+          <div className="order-3 flex flex-col gap-6 lg:order-none lg:col-span-3">
             <FixturesCard />
             <CupCard />
           </div>

@@ -16,17 +16,17 @@ export default function ClubCard({ className = "" }) {
 
   return (
     <article
-      className={`flex items-center gap-4 rounded-card border border-acf-line bg-acf-panel px-5 py-4 shadow-acf ${className}`}
+      className={`flex items-center gap-5 rounded-card border border-acf-line bg-acf-panel px-6 py-5 shadow-acf ${className}`}
     >
-      <img src={club.logo} alt="" className="h-14 w-auto shrink-0" />
+      <img src={club.logo} alt="" className="h-16 w-auto shrink-0" />
       <div className="min-w-0">
-        <h2 className="truncate text-[15px] font-extrabold leading-tight tracking-tight text-white">
+        <h2 className="truncate text-title font-extrabold leading-tight tracking-tight text-white">
           {club.name}
         </h2>
-        <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-acf-grey">
+        <p className="mt-1.5 text-micro font-semibold uppercase tracking-[0.2em] text-acf-grey">
           {club.tagline}
         </p>
-        <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.14em] text-acf-dim">
+        <p className="mt-1.5 text-micro font-medium uppercase tracking-[0.14em] text-acf-dim">
           {facts.join(" · ")}
         </p>
       </div>

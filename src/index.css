@@ -30,6 +30,20 @@
   --font-display: "Bebas Neue", sans-serif;
   --font-body: "Inter", sans-serif;
 
+  /*
+   * Type scale (one coherent step up, so the site reads at arm's length).
+   * Every size in the UI comes from one of these tokens; changing the pass
+   * means changing the number here, not in the components.
+   *   micro / hint  11px — uppercase micro-labels and the hint under a card title
+   *   row / figure  13px — body text, table rows and standings figures
+   *   title         19px — card titles (sentence case)
+   */
+  --text-micro: 11px;
+  --text-hint: 11px;
+  --text-row: 13px;
+  --text-figure: 13px;
+  --text-title: 19px;
+
   --radius-card: 22px;
   --radius-tile: 14px;
 

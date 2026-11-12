@@ -3,9 +3,9 @@ import teamData from "../../data/teamData.json";
 import { CLUB_SLUG, teamCrest, teamInitials } from "../../data/competition";
 
 const SIZES = {
-  sm: "h-6 w-6 rounded-md text-[9px]",
-  md: "h-9 w-9 rounded-lg text-[11px]",
-  lg: "h-20 w-20 rounded-2xl text-xl sm:h-24 sm:w-24 sm:text-2xl",
+  sm: "h-7 w-7 rounded-md text-[10px]",
+  md: "h-10 w-10 rounded-lg text-[12px]",
+  lg: "h-24 w-24 rounded-2xl text-xl sm:h-28 sm:w-28 sm:text-2xl",
 };
 
 /** The club shows its own logo; every rival shows the crest the source publishes. */

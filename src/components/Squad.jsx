@@ -19,7 +19,7 @@ function PlayerCard({ player }) {
   return (
     <article
       data-card
-      className="group relative shrink-0 snap-start min-w-[17rem] w-[78vw] max-w-[19rem] overflow-hidden rounded-card border border-acf-line bg-acf-panel transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-acf"
+      className="group relative shrink-0 snap-start min-w-[19rem] w-[78vw] max-w-[21rem] overflow-hidden rounded-card border border-acf-line bg-acf-panel transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-acf"
     >
       {/* Shirt number as a watermark, only when the club has confirmed it */}
       {player.number ? (
@@ -28,23 +28,23 @@ function PlayerCard({ player }) {
         </span>
       ) : null}
 
-      <div className="relative flex items-center justify-between px-4 pt-4">
+      <div className="relative flex items-center justify-between px-5 pt-5">
         {pos ? (
-          <span className="rounded-full border border-acf-line px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-acf-snow/70">
+          <span className="rounded-full border border-acf-line px-3 py-1.5 text-micro font-semibold uppercase tracking-[0.18em] text-acf-snow/70">
             {pos}
           </span>
         ) : (
           <span />
         )}
         {player.number ? (
-          <span className="font-display text-lg leading-none text-acf-dim">
+          <span className="font-display text-xl leading-none text-acf-dim">
             #{player.number}
           </span>
         ) : null}
       </div>
 
-      <div className="relative mt-1 flex items-center justify-center">
-        <div className="relative h-64 w-full sm:h-72">
+      <div className="relative mt-2 flex items-center justify-center">
+        <div className="relative h-72 w-full sm:h-80">
           <img
             src={player.photo}
             alt={player.name}
@@ -61,15 +61,15 @@ function PlayerCard({ player }) {
         </div>
       </div>
 
-      <div className="relative px-4 pb-5 pt-4">
-        <h3 className="text-lg font-extrabold leading-tight tracking-tight text-white">
+      <div className="relative px-5 pb-6 pt-5">
+        <h3 className="text-xl font-extrabold leading-tight tracking-tight text-white">
           {player.name}
         </h3>
         {player.nickname ? (
-          <p className="mt-1 text-[11px] text-acf-dim">«{player.nickname}»</p>
+          <p className="mt-1.5 text-row text-acf-dim">«{player.nickname}»</p>
         ) : null}
         {player.position ? (
-          <p className="mt-3 text-[9px] font-semibold uppercase tracking-[0.22em] text-acf-dim">
+          <p className="mt-3 text-micro font-semibold uppercase tracking-[0.22em] text-acf-dim">
             {player.position}
           </p>
         ) : null}
@@ -104,7 +104,7 @@ export default function Squad() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-acf-red">
+            <p className="text-micro font-semibold uppercase tracking-[0.3em] text-acf-red">
               La Plantilla
             </p>
             <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
@@ -115,7 +115,7 @@ export default function Squad() {
             <span className="font-display text-4xl leading-none tabular-nums text-white sm:text-5xl">
               {squad.length}
             </span>
-            <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.22em] text-acf-dim">
+            <p className="mt-1 text-micro font-semibold uppercase tracking-[0.22em] text-acf-dim">
               Jugadores
             </p>
           </div>
@@ -128,7 +128,7 @@ export default function Squad() {
               <button
                 key={pos}
                 onClick={() => setFilter(pos)}
-                className={`rounded-full px-4 py-2 text-[12px] font-semibold tracking-tight transition-colors ${
+                className={`rounded-full px-4 py-2.5 text-row font-semibold tracking-tight transition-colors ${
                   filter === pos
                     ? "bg-acf-red text-white"
                     : "border border-acf-line text-acf-snow/60 hover:text-white"

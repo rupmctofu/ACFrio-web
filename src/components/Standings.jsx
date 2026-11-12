@@ -10,9 +10,14 @@ import { Crest } from "./cards/Crest.jsx";
 
 /* Micro-label of the header row: the smallest size that still reads at ~300px. */
 const HEAD_CELL =
-  "py-2 text-[9px] font-semibold uppercase tracking-[0.12em] text-acf-dim";
-/* One figure of the row: one size up from before, tabular so columns align. */
-const FIGURE = "px-1 py-2.5 text-center text-xs tabular-nums text-acf-snow/60";
+  "py-2.5 text-micro font-semibold uppercase tracking-[0.12em] text-acf-dim";
+/* Same gutter shift as the figures, so header and body columns stay identical. */
+const HEAD_GUTTER = "px-0.5 @min-[21rem]:px-1";
+/* One figure of the row: one size up from before, tabular so columns align.
+   In the narrow card (below the goal-difference threshold) the gutter between
+   figures tightens, which is what the team names need to stay readable. */
+const FIGURE =
+  "px-0.5 py-3 text-center text-figure tabular-nums text-acf-snow/60 @min-[21rem]:px-1";
 /*
  * Goal difference is derivable from the goals column (GF:GC), so it is the one
  * column that is dropped first. The card sits in a 4/12 column on desktop and
@@ -32,7 +37,7 @@ function Row({ row }) {
       }`}
     >
       <td
-        className={`w-7 py-2.5 pl-3 pr-1 text-center font-display text-base leading-none tabular-nums ${
+        className={`w-7 py-3 pl-3 pr-1 text-center font-display text-lg leading-none tabular-nums ${
           isAcf ? "text-acf-red" : "text-acf-snow/40"
         }`}
       >
@@ -40,12 +45,12 @@ function Row({ row }) {
       </td>
       {/* `w-full max-w-0` keeps the name column from claiming its max-content
           width: the table then fits the card instead of scrolling sideways. */}
-      <td className="w-full max-w-0 py-2.5 pr-1">
-        <span className="flex items-center gap-1.5">
+      <td className="w-full max-w-0 py-3 pr-1">
+        <span className="flex items-center gap-2">
           <Crest slug={row.slug} size="sm" />
           <span
             title={fullName}
-            className={`truncate text-[11px] font-bold uppercase leading-none tracking-[0.04em] ${
+            className={`truncate text-row font-bold uppercase leading-none tracking-[0.04em] ${
               isAcf ? "text-white" : "text-acf-snow/80"
             }`}
           >
@@ -66,7 +71,7 @@ function Row({ row }) {
         {row.goalDiff > 0 ? `+${row.goalDiff}` : row.goalDiff}
       </td>
       <td
-        className={`w-12 py-2 pl-2 pr-3 text-right font-display text-2xl leading-none tabular-nums ${
+        className={`w-14 py-2.5 pl-2 pr-3 text-right font-display text-[28px] leading-none tabular-nums ${
           isAcf ? "text-acf-red" : "text-white"
         }`}
       >
@@ -95,13 +100,13 @@ export default function Standings({ className = "" }) {
             <tr className="border-b border-acf-line">
               <th className={`${HEAD_CELL} w-7 pl-3 pr-1 text-center`}>#</th>
               <th className={`${HEAD_CELL} text-left`}>Equipo</th>
-              <th className={`${HEAD_CELL} px-1 text-center`}>PJ</th>
-              <th className={`${HEAD_CELL} px-1 text-center`}>G</th>
-              <th className={`${HEAD_CELL} px-1 text-center`}>E</th>
-              <th className={`${HEAD_CELL} px-1 text-center`}>P</th>
-              <th className={`${HEAD_CELL} px-1 text-center`}>GF:GC</th>
-              <th className={`${HEAD_CELL} px-1 text-center ${GOAL_DIFF_CELL}`}>DG</th>
-              <th className={`${HEAD_CELL} w-12 pl-2 pr-3 text-right`}>Pts</th>
+              <th className={`${HEAD_CELL} ${HEAD_GUTTER} text-center`}>PJ</th>
+              <th className={`${HEAD_CELL} ${HEAD_GUTTER} text-center`}>G</th>
+              <th className={`${HEAD_CELL} ${HEAD_GUTTER} text-center`}>E</th>
+              <th className={`${HEAD_CELL} ${HEAD_GUTTER} text-center`}>P</th>
+              <th className={`${HEAD_CELL} ${HEAD_GUTTER} text-center`}>GF:GC</th>
+              <th className={`${HEAD_CELL} ${HEAD_GUTTER} text-center ${GOAL_DIFF_CELL}`}>DG</th>
+              <th className={`${HEAD_CELL} w-14 pl-2 pr-3 text-right`}>Pts</th>
             </tr>
           </thead>
           <tbody>
@@ -112,11 +117,13 @@ export default function Standings({ className = "" }) {
         </table>
       </div>
 
-      <p className="mt-auto border-t border-acf-line-soft px-5 py-3 text-[9px] font-semibold uppercase tracking-[0.16em] text-acf-dim">
-        {hasResults
-          ? "3 puntos por victoria · 1 por empate"
-          : "La fuente oficial todavía no ha publicado resultados."}
-      </p>
+      {/* The points rule is what the reader already knows: only the missing-results
+          notice carries information, so the footnote appears only in that case. */}
+      {hasResults ? null : (
+        <p className="mt-auto border-t border-acf-line-soft px-6 py-3.5 text-micro font-semibold uppercase tracking-[0.16em] text-acf-dim">
+          La fuente oficial todavía no ha publicado resultados.
+        </p>
+      )}
     </Card>
   );
 }
