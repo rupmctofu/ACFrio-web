@@ -1,5 +1,6 @@
 import { Activity } from "lucide-react";
 import {
+  CLUB_SLUG,
   clubScore,
   fixtureDateLabel,
   opponentOf,
@@ -38,30 +39,42 @@ export default function FormCard({ className = "" }) {
             return (
               <li
                 key={`${fixture.competitionKey}-${fixture.matchday}`}
-                className="flex items-center gap-2.5 rounded-tile bg-acf-panel-light/70 px-3 py-2.5"
+                className="rounded-tile bg-acf-panel-light/70 px-3 py-2.5"
               >
-                <span
-                  className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-extrabold ${tone.className}`}
-                >
-                  {tone.letter}
-                </span>
-                <Crest slug={opponent.slug} size="sm" />
-                <span className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
                   <span
                     title={teamFullName(opponent.slug)}
-                    className="block truncate text-[10px] font-bold uppercase tracking-[0.06em] text-acf-snow/80"
+                    className="min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.06em] text-acf-snow/80"
                   >
                     {teamName(opponent.slug)}
                   </span>
-                  <span className="mt-0.5 block text-[8px] font-semibold uppercase tracking-[0.18em] text-acf-dim">
-                    {fixtureDateLabel(fixture)}
+                  <span className="flex shrink-0 items-center gap-1.5">
+                    <span
+                      className={`inline-flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-extrabold ${tone.className}`}
+                    >
+                      {tone.letter}
+                    </span>
+                    <span className="text-[8px] font-semibold uppercase tracking-[0.18em] text-acf-dim">
+                      {fixtureDateLabel(fixture)}
+                    </span>
                   </span>
-                </span>
-                <span className="whitespace-nowrap font-display text-xl leading-none tabular-nums text-white">
-                  {score.own}
-                  <span className="mx-1 text-acf-dim">–</span>
-                  {score.rival}
-                </span>
+                </div>
+
+                {/* Rival on the left, ours on the right, so the score reads in crest order.
+                    Equal outer columns keep the score centred. */}
+                <div className="mt-2 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                  <div className="flex justify-start">
+                    <Crest slug={opponent.slug} size="sm" />
+                  </div>
+                  <span className="whitespace-nowrap font-display text-xl leading-none tabular-nums text-white">
+                    {score.rival}
+                    <span className="mx-1 text-acf-dim">–</span>
+                    {score.own}
+                  </span>
+                  <div className="flex justify-end">
+                    <Crest slug={CLUB_SLUG} size="sm" />
+                  </div>
+                </div>
               </li>
             );
           })}
