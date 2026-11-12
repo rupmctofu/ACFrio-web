@@ -155,6 +155,20 @@ supplies them (T9, T11).
   slider shows each player as a chromo floating on the dark card, and the gray-background collage crops go.
   Chepa is confirmed as the goalkeeper (the only position confirmed so far), and the satire feed's
   "we are looking for a keeper" joke became a Chepa excuse.
+- **L16** (owner): final batch before shipping — attendance becomes a ranked 0-100 bar list, tarjetas must scale
+  beyond two entries, FormCard retitles "Últimos 3 partidos", the fixtures slider "no se mueve hacia ningún lado"
+  (reproduced: mandatory snap ate every sub-half-card wheel delta and pulled the list back while the page was
+  blocked — fixed with a held-snap gesture plus drag and chevrons), the hero replaces its four tiles with one
+  sentence ("Martes 17 de noviembre a las 22:30 en el Camp ANNEX 3", Condición dropped: every team is from
+  Vilanova), a LIGA/COPA red badge at the header's right, a photo gallery (the owner's own 10 candid photos in
+  `galeria/`, processed to `public/assets/gallery/galeria-01..10.jpg`, 986 KB; the 4 videos excluded) and a
+  horizontal edge-to-edge pitch at the top of Plantilla: line-only SVG, 14 floating cutouts, a ball passed
+  boots-to-boots 26px below each receiver so faces stay visible.
+- **L15** (owner, correction): the centre column should not hold a long list of news. "que en el centro la
+  primera pastilla fuera una pastilla pequeña y que fueran pasando las noticias… con el fondo rojo full rojo
+  el texto en negro y que fuera como Breaking News y que vaya pasando el texto de izquierda derecha como un
+  lower third de estos de los noticiarios". The 38 items become a TV-style marquee ticker: full-red pill,
+  black text, continuous right-to-left scroll. The list card is replaced by it.
 - **L14** (owner, attendance): "en el primer partido estuvieron todos"; J2 was dictated with informal
   spellings (Jonai, Jerry, Neil, Martin, Giovanni, Christian, Robert) that map to the squad's canonical
   names; "Idari no es nadie, solo que queria decir 'y Dani' i el micro no entendia". Record: J1 all 14,

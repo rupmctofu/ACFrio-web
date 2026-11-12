@@ -24,8 +24,7 @@ export default function FormCard({ className = "" }) {
 
   return (
     <Card
-      title="Forma"
-      hint={results.length ? `Últimos ${results.length} partidos` : "Sin partidos jugados"}
+      title={`Últimos ${results.length || 3} partidos`}
       icon={Activity}
       className={className}
     >

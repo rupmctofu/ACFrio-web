@@ -175,8 +175,32 @@ body {
   animation: ticker-scroll 700s linear infinite;
 }
 
+/* ===== Pitch: a marker floating in place =====
+   The pitch is a line drawing, so the players breathe instead of marching: a
+   small vertical bob, alternate, with a per-player duration and delay set
+   inline. Reduced-motion readers get no motion at all. */
+@keyframes pitch-bob {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-3px);
+  }
+}
+
+.anim-bob {
+  animation-name: pitch-bob;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .anim-ticker {
+    animation: none;
+  }
+
+  .anim-bob {
     animation: none;
   }
 }

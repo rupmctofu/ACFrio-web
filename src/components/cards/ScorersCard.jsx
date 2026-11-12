@@ -41,6 +41,29 @@ function PlayerAvatar({ name, size = "md" }) {
 const goalsLabel = (count) => (count === 1 ? "gol" : "goles");
 
 /**
+ * How many card rows the card shows. Two entries read fine as chips, but a
+ * growing pile turns into a wall of pills, so the list stays a compact column
+ * and the rest is summarised in one muted line.
+ */
+const MAX_CARD_ROWS = 6;
+
+/** A count with its card colour: a small square, the number, and a spoken label. */
+function CardPill({ tone, count, label }) {
+  return (
+    <span className="inline-flex items-center gap-1">
+      <span
+        aria-hidden="true"
+        className={`inline-block h-3 w-2 shrink-0 rounded-[1px] ${tone}`}
+      />
+      <span className="text-micro font-semibold tabular-nums text-acf-grey">
+        <span className="sr-only">{label} </span>
+        {count}
+      </span>
+    </span>
+  );
+}
+
+/**
  * Goalscorers and cards exactly as the club reports them. The official source
  * publishes neither, so goals without a recorded scorer stay as pending: they
  * are never attributed to, or split between, the players already listed.
@@ -95,44 +118,39 @@ export default function ScorersCard({ className = "" }) {
           Tarjetas
         </p>
         {cardRows.length ? (
-          <ul className="mt-2.5 flex flex-wrap items-center gap-2">
-            {cardRows.map((entry) => (
-              <li
-                key={entry.player}
-                className="flex items-center gap-2 rounded-full border border-acf-line py-1 pl-1 pr-3"
-              >
-                <PlayerAvatar name={entry.player} size="sm" />
-                <span className="text-micro font-bold uppercase tracking-[0.08em] text-acf-snow/80">
-                  {entry.player}
-                </span>
-                {entry.yellow > 0 ? (
+          <>
+            <ul className="mt-2.5 flex flex-col gap-1.5">
+              {cardRows.slice(0, MAX_CARD_ROWS).map((entry) => (
+                <li key={entry.player} className="flex items-center gap-2.5">
+                  <PlayerAvatar name={entry.player} size="sm" />
+                  <span className="min-w-0 flex-1 truncate text-row font-bold uppercase tracking-[0.08em] text-acf-snow/80">
+                    {entry.player}
+                  </span>
                   <span
-                    className="flex items-center gap-1"
-                    title={entry.yellowAt ? `Amarilla en la jornada ${entry.yellowAt}` : undefined}
+                    className="flex shrink-0 items-center gap-2"
+                    title={
+                      entry.yellowAt ? `Amarilla en la jornada ${entry.yellowAt}` : undefined
+                    }
                   >
-                    <span
-                      className="inline-block h-3 w-2 shrink-0 rounded-[1px] bg-yellow-400"
-                      aria-hidden="true"
-                    />
-                    <span className="text-micro font-semibold tabular-nums text-acf-grey">
-                      {entry.yellow}
-                    </span>
+                    {entry.yellow > 0 ? (
+                      <CardPill tone="bg-yellow-400" count={entry.yellow} label="Amarillas" />
+                    ) : null}
+                    {entry.red > 0 ? (
+                      <CardPill tone="bg-acf-red" count={entry.red} label="Rojas" />
+                    ) : null}
                   </span>
-                ) : null}
-                {entry.red > 0 ? (
-                  <span className="flex items-center gap-1">
-                    <span
-                      className="inline-block h-3 w-2 shrink-0 rounded-[1px] bg-acf-red"
-                      aria-hidden="true"
-                    />
-                    <span className="text-micro font-semibold tabular-nums text-acf-grey">
-                      {entry.red}
-                    </span>
-                  </span>
-                ) : null}
-              </li>
-            ))}
-          </ul>
+                </li>
+              ))}
+            </ul>
+            {cardRows.length > MAX_CARD_ROWS ? (
+              <p className="mt-2.5 text-micro font-semibold uppercase tracking-[0.16em] text-acf-dim">
+                +{cardRows.length - MAX_CARD_ROWS}{" "}
+                {cardRows.length - MAX_CARD_ROWS === 1
+                  ? "jugador con tarjeta"
+                  : "jugadores con tarjeta"}
+              </p>
+            ) : null}
+          </>
         ) : (
           <p className="mt-2 text-row text-acf-grey">Sin tarjetas reportadas.</p>
         )}

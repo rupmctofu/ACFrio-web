@@ -6,12 +6,13 @@ import FormCard from "./cards/FormCard.jsx";
 import FixturesCard from "./cards/FixturesCard.jsx";
 import CupCard from "./cards/CupCard.jsx";
 import AttendanceCard from "./cards/AttendanceCard.jsx";
+import GalleryCard from "./cards/GalleryCard.jsx";
 
 /**
  * Home grid: the centre column opens with the satirical breaking-news ticker and
- * the next match below it; standings, scorers and form sit on the left, calendar,
- * cup and attendance on the right. Every card reads only synced or club-reported
- * data.
+ * the next match below it, then the club's own photo gallery; standings, scorers
+ * and form sit on the left, calendar, cup and attendance on the right. Every card
+ * reads only synced or club-reported data.
  *
  * The card hierarchy is deliberate: the next match owns the hero surface and the
  * scorers card the accent surface (see `.surface-hero` / `.surface-accent` in
@@ -32,6 +33,7 @@ export default function Dashboard() {
           <div className="order-1 flex flex-col gap-6 lg:order-none lg:col-span-5">
             <BreakingTicker />
             <NextMatchCard />
+            <GalleryCard />
           </div>
 
           <div className="order-3 flex flex-col gap-6 lg:order-none lg:col-span-3">

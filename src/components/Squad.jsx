@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import teamData from "../data/teamData.json";
+import PitchCard from "./cards/PitchCard.jsx";
 
 const POSITIONS = ["Todos", "Portero", "Defensa", "Medio", "Delantero"];
 
@@ -49,7 +50,12 @@ function PlayerCard({ player }) {
             src={player.photo}
             alt={player.name}
             loading="lazy"
-            className="relative max-h-full w-auto object-contain"
+            className="anim-bob relative max-h-full w-auto object-contain"
+            style={{
+              // Staggered per card so the row breathes out of phase, like the pitch.
+              animationDuration: `${3 + (player.id % 4) * 0.45}s`,
+              animationDelay: `${(player.id % 5) * -0.7}s`,
+            }}
             onError={(e) => {
               e.currentTarget.src =
                 "data:image/svg+xml," +
@@ -120,6 +126,9 @@ export default function Squad() {
             </p>
           </div>
         </div>
+
+        {/* El once sobre el campo: abre la sección con la plantilla, no con un título. */}
+        <PitchCard />
 
         {/* Filtro por posición: sólo se ofrecen las posiciones con plantilla real,
             así el club va confirmando posiciones y el filtro las va mostrando. */}

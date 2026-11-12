@@ -84,3 +84,27 @@ export function playerPhoto(name) {
   // the card art (the same cutout at full size) stays for the squad slider.
   return match.photo?.replace("/players/", "/players/avatar/") ?? null;
 }
+
+/**
+ * Attendance per player, most attended first, as the owner asked: a 0-100 bar
+ * where the denominator is the club's played matches from the official table,
+ * so the bar is arithmetic, never a guess. Players the club has not reported
+ * yet simply do not appear until a name arrives.
+ */
+export function perPlayerAttendance() {
+  const counts = new Map();
+  for (const match of record.attendance) {
+    for (const name of match.players) {
+      counts.set(name, (counts.get(name) ?? 0) + 1);
+    }
+  }
+  const played = clubRow(league)?.played ?? 0;
+  return [...counts.entries()]
+    .map(([name, count]) => ({
+      name,
+      count,
+      pct: played > 0 ? Math.round((count / played) * 100) : 0,
+      photo: playerPhoto(name),
+    }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}

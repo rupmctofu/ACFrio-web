@@ -1,11 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { Clock, ExternalLink, MapPin } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import {
   CLUB_SLUG,
-  fixtureDateLabel,
   fixtureKickoffIso,
-  fixtureTimeLabel,
-  homeAwayLabel,
   matchdayLabel,
   nextFixture,
   opponentOf,
@@ -74,6 +71,46 @@ function Detail({ label, children }) {
     </div>
   );
 }
+/**
+ * When and where the fixture is played, as one sentence instead of four tiles.
+ * The date keeps the Spanish long form the site reads out ("martes, 17 de
+ * noviembre"), with the stand-alone capital a sentence needs. The home/away
+ * condition is deliberately absent: every team is from the same town, so it
+ * told the reader nothing.
+ */
+const longDate = new Intl.DateTimeFormat("es-ES", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+});
+
+function fixtureSentence(fixture) {
+  const date = fixture?.date
+    ? new Date(`${fixture.date}T${fixture.time ?? "00:00"}:00`)
+    : null;
+  if (!date || Number.isNaN(date.getTime())) return null;
+
+  const label = longDate.format(date);
+  return label.charAt(0).toUpperCase() + label.slice(1).replace(",", "");
+}
+
+/** A piece of the sentence the reader should not miss: the real date, hour or field. */
+function Strong({ children }) {
+  return <strong className="font-bold text-white">{children}</strong>;
+}
+
+function KickoffSentence({ fixture }) {
+  const day = fixtureSentence(fixture);
+  if (!day) return null;
+
+  return (
+    <p className="text-balance text-center text-row leading-relaxed text-acf-snow">
+      <Strong>{day}</Strong>
+      {fixture.time ? <> a las <Strong>{fixture.time}</Strong></> : null}
+      {fixture.field ? <> en el <Strong>{fixture.field}</Strong></> : null}
+    </p>
+  );
+}
 
 /**
  * The centre card of the grid and the one hero-level surface of the page
@@ -95,6 +132,13 @@ export default function NextMatchCard({ className = "" }) {
         <h2 className="text-title font-extrabold leading-tight tracking-tight text-white">
           Próximo partido
         </h2>
+        {next ? (
+          // The competition badge sits on the header row so the card names its
+          // competition without spending a line on it.
+          <span className="ml-auto shrink-0 rounded-full bg-acf-red px-2.5 py-1 text-micro font-bold uppercase tracking-[0.16em] text-acf-dark">
+            {next.competitionKey === "cup" ? "COPA" : "LIGA"}
+          </span>
+        ) : null}
       </header>
 
       {next ? (
@@ -108,8 +152,9 @@ export default function NextMatchCard({ className = "" }) {
           </div>
 
           <div>
-            {/* The date and the kickoff time are already stated with their own labels
-                in the details below, so the centre of the card only names the fixture. */}
+            {/* The date, the hour and the field are stated once, in the sentence
+                below the countdown, so the centre of the card only names the
+                fixture. */}
             <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-5">
               <TeamSide slug={CLUB_SLUG} highlight />
               <div className="text-center">
@@ -133,20 +178,9 @@ export default function NextMatchCard({ className = "" }) {
             ) : null}
           </div>
 
-          {/* One column on a phone: the field name is real data, so it never has
-              to be squeezed into a half-width tile. */}
-          <dl className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-            <Detail label="Fecha">{fixtureDateLabel(next)}</Detail>
-            <Detail label="Hora">
-              <Clock className="h-3.5 w-3.5 shrink-0 text-acf-grey" />
-              {fixtureTimeLabel(next)}
-            </Detail>
-            <Detail label="Campo">
-              <MapPin className="h-3.5 w-3.5 shrink-0 text-acf-grey" />
-              <span className="truncate">{next.field ?? "Por confirmar"}</span>
-            </Detail>
-            <Detail label="Condición">{homeAwayLabel(next)}</Detail>
-          </dl>
+          {/* One readable line replaces the four detail tiles the owner asked to
+              drop, and it ends the hero's own rhythm instead of a tile grid. */}
+          <KickoffSentence fixture={next} />
 
           <a
             href={next.competitionSource}
