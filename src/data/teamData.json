@@ -76,7 +76,8 @@
     {
       "id": 13,
       "name": "Chepa",
-      "photo": "/assets/players/chepa.png"
+      "photo": "/assets/players/chepa.png",
+      "position": "Portero"
     },
     {
       "id": 14,

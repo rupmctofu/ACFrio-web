@@ -121,10 +121,12 @@ export default function Squad() {
           </div>
         </div>
 
-        {/* Filtro por posición */}
+        {/* Filtro por posición: sólo se ofrecen las posiciones con plantilla real,
+            así el club va confirmando posiciones y el filtro las va mostrando. */}
         {hasPositions ? (
           <div className="mb-8 flex flex-wrap gap-2">
-            {POSITIONS.map((pos) => (
+            {["Todos", ...new Set(squad.filter((p) => p.position).map((p) => p.position))].map(
+              (pos) => (
               <button
                 key={pos}
                 onClick={() => setFilter(pos)}
