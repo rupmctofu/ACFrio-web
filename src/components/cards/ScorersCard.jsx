@@ -44,6 +44,7 @@ const goalsLabel = (count) => (count === 1 ? "gol" : "goles");
  * Goalscorers and cards exactly as the club reports them. The official source
  * publishes neither, so goals without a recorded scorer stay as pending: they
  * are never attributed to, or split between, the players already listed.
+ * This is the one accent-level surface of the page (`.surface-accent`).
  */
 export default function ScorersCard({ className = "" }) {
   const rows = scorers();
@@ -56,7 +57,7 @@ export default function ScorersCard({ className = "" }) {
       title="Goleadores"
       hint={`Temporada ${season}`}
       icon={Goal}
-      className={className}
+      className={`surface-accent ${className}`}
       bodyClassName="flex flex-col"
     >
       {rows.length ? (

@@ -8,5 +8,6 @@
   ],
   "cards": [
     { "player": "Albert", "yellow": 1, "red": 0 }
-  ]
+  ],
+  "attendance": []
 }

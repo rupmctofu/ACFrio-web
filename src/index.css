@@ -20,6 +20,24 @@
   --color-acf-line: rgba(255, 255, 255, 0.08);
   --color-acf-line-soft: rgba(255, 255, 255, 0.05);
 
+  /*
+   * Surface hierarchy: three deliberate levels instead of per-card values.
+   *   hero   — the next match. A step lighter than the base panel, a club-red
+   *            hairline and a soft red ambient that fades out below the crests.
+   *   accent — the scorers panel. The red the owner asked for, as a low-alpha
+   *            gradient over the base panel so the figures stay the loudest thing.
+   *   base   — --color-acf-panel, untouched.
+   * Only one card sits at each tinted level; see `.surface-hero` /
+   * `.surface-accent` below.
+   */
+  --color-acf-surface-hero: #1c1c1f;
+  --color-acf-surface-hero-line: rgba(230, 28, 36, 0.34);
+  --color-acf-surface-hero-glow: rgba(230, 28, 36, 0.16);
+  --color-acf-surface-hero-mid: rgba(230, 28, 36, 0.05);
+  --color-acf-surface-accent-from: rgba(230, 28, 36, 0.18);
+  --color-acf-surface-accent-to: rgba(230, 28, 36, 0.08);
+  --color-acf-surface-accent-line: rgba(230, 28, 36, 0.3);
+
   /* Text. */
   --color-acf-white: #ffffff;
   --color-acf-snow: #e9e9ec;
@@ -81,6 +99,42 @@ body {
 ::selection {
   background: var(--color-acf-red);
   color: #ffffff;
+}
+
+/* ===== Card surface hierarchy =====
+ * The tinted levels are plain CSS on purpose: the shell of a card keeps its
+ * `bg-acf-panel` / `border-acf-line` defaults, so the level has to own the
+ * surface from outside the Tailwind layers. No component repeats a colour.
+ */
+.surface-hero {
+  border-color: var(--color-acf-surface-hero-line);
+  background-color: var(--color-acf-surface-hero);
+  background-image: radial-gradient(
+    120% 75% at 50% 0%,
+    var(--color-acf-surface-hero-glow) 0%,
+    var(--color-acf-surface-hero-mid) 46%,
+    transparent 78%
+  );
+}
+
+.surface-accent {
+  border-color: var(--color-acf-surface-accent-line);
+  background-image: linear-gradient(
+    180deg,
+    var(--color-acf-surface-accent-from) 0%,
+    var(--color-acf-surface-accent-to) 100%
+  );
+}
+
+/*
+ * Both tinted surfaces are lighter than the base panel, which costs the dim
+ * tone its (already marginal) contrast. Inside these two cards it resolves to
+ * the grey tone instead: #8f8f97 is 5.0:1 on the top of the scorers tint and
+ * 4.7:1 under the hero glow, where #5b5b63 would sit near 2.4:1.
+ */
+.surface-hero,
+.surface-accent {
+  --color-acf-dim: var(--color-acf-grey);
 }
 
 /* ===== Squad slider ===== */
