@@ -2,12 +2,42 @@ import { Goal } from "lucide-react";
 import {
   cards,
   isComplete,
+  playerPhoto,
   scorers,
   season,
   unassignedGoals,
   updatedAt,
 } from "../../data/club-record";
 import Card from "./Card.jsx";
+
+/**
+ * The player's portrait, with an initials circle as the fallback. The owner asked
+ * for faces here, so no rank number is drawn in their place.
+ */
+function PlayerAvatar({ name, size = "md" }) {
+  const photo = playerPhoto(name);
+  const box = size === "sm" ? "h-5 w-5" : "h-7 w-7";
+
+  if (photo) {
+    return (
+      <img
+        src={photo}
+        alt=""
+        className={`${box} shrink-0 rounded-full object-cover`}
+        loading="lazy"
+      />
+    );
+  }
+
+  return (
+    <span
+      aria-hidden="true"
+      className={`${box} flex shrink-0 items-center justify-center rounded-full border border-acf-line bg-acf-panel-light text-[9px] font-bold text-acf-grey`}
+    >
+      {name.slice(0, 1).toUpperCase()}
+    </span>
+  );
+}
 
 /** dd/mm/yyyy out of the record's ISO date, without adding a date dependency. */
 function updatedLabel(iso) {
@@ -39,10 +69,8 @@ export default function ScorersCard({ className = "" }) {
       {rows.length ? (
         <ul className="divide-y divide-acf-line-soft">
           {rows.map((scorer, index) => (
-            <li key={scorer.player} className="flex items-center gap-3 px-5 py-3">
-              <span className="w-4 shrink-0 font-display text-xl leading-none tabular-nums text-acf-dim">
-                {index + 1}
-              </span>
+            <li key={scorer.player} className="flex items-center gap-3 px-5 py-2.5">
+              <PlayerAvatar name={scorer.player} />
               <span className="min-w-0 flex-1 truncate text-[11px] font-bold uppercase tracking-[0.1em] text-white">
                 {scorer.player}
               </span>
@@ -77,8 +105,9 @@ export default function ScorersCard({ className = "" }) {
             {cardRows.map((entry) => (
               <li
                 key={entry.player}
-                className="flex items-center gap-1.5 rounded-full border border-acf-line px-2.5 py-1"
+                className="flex items-center gap-1.5 rounded-full border border-acf-line py-1 pl-1 pr-2.5"
               >
+                <PlayerAvatar name={entry.player} size="sm" />
                 <span className="text-[9px] font-bold uppercase tracking-[0.08em] text-acf-snow/80">
                   {entry.player}
                 </span>

@@ -7,6 +7,7 @@
  * reported as pending instead of being invented.
  */
 import record from "./club-record.json";
+import teamData from "./teamData.json";
 import { league, clubRow } from "./competition";
 
 export const season = record.season;
@@ -39,3 +40,15 @@ export function cards() {
 }
 
 export const isComplete = () => unassignedGoals() === 0;
+
+const normalize = (value) => value.trim().toLowerCase();
+
+/**
+ * The portrait of a player named in the club record, matched against the squad
+ * by name. Returns null when the club has not listed that player, so callers
+ * show initials instead of a photo that may belong to someone else.
+ */
+export function playerPhoto(name) {
+  const match = teamData.squad.find((player) => normalize(player.name) === normalize(name));
+  return match?.photo ?? null;
+}
