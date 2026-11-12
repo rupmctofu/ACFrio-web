@@ -188,6 +188,25 @@ body {
   }
 }
 
+
+/* ===== Pitch sway: the markers drift on both axes, diagonal and slow =====
+   The receive pulse scales the wrapper while this moves the cutout itself. */
+@keyframes pitch-sway {
+  from {
+    transform: translate(-4px, 2px);
+  }
+  to {
+    transform: translate(4px, -3px);
+  }
+}
+
+.anim-sway {
+  animation-name: pitch-sway;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
 .anim-bob {
   animation-name: pitch-bob;
   animation-timing-function: ease-in-out;
@@ -201,6 +220,10 @@ body {
   }
 
   .anim-bob {
+    animation: none;
+  }
+
+  .anim-sway {
     animation: none;
   }
 }

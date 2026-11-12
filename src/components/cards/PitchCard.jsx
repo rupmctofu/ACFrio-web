@@ -291,7 +291,7 @@ export default function PitchCard({ className = "" }) {
               loading="lazy"
               style={reduced ? undefined : bobOf(index)}
               className={`h-10 w-10 object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.6)] sm:h-14 sm:w-14 ${
-                reduced ? "" : "anim-bob"
+                reduced ? "" : "anim-sway"
               }`}
             />
           </div>

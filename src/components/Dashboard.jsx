@@ -24,22 +24,26 @@ export default function Dashboard() {
     <section id="partidos" className="relative pb-16 pt-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-          <div className="order-2 flex flex-col gap-6 lg:order-none lg:col-span-4">
-            <Standings />
-            <ScorersCard />
-            <FormCard />
+          {/* On phones the columns dissolve (display: contents) and every card
+              gets its own order, so the owner's mobile sequence is: match,
+              calendar, scorers, attendance, then the rest, gallery last. On
+              desktop the three columns return untouched. */}
+          <div className="flex max-lg:contents flex-col gap-6 lg:col-span-4">
+            <Standings className="max-lg:order-6" />
+            <ScorersCard className="max-lg:order-4" />
+            <FormCard className="max-lg:order-7" />
           </div>
 
-          <div className="order-1 flex flex-col gap-6 lg:order-none lg:col-span-5">
-            <BreakingTicker />
-            <NextMatchCard />
-            <GalleryCard />
+          <div className="flex max-lg:contents flex-col gap-6 lg:col-span-5">
+            <BreakingTicker className="max-lg:order-1" />
+            <NextMatchCard className="max-lg:order-2" />
+            <GalleryCard className="max-lg:order-9" />
           </div>
 
-          <div className="order-3 flex flex-col gap-6 lg:order-none lg:col-span-3">
-            <FixturesCard />
-            <CupCard />
-            <AttendanceCard />
+          <div className="flex max-lg:contents flex-col gap-6 lg:col-span-3">
+            <FixturesCard className="max-lg:order-3" />
+            <CupCard className="max-lg:order-8" />
+            <AttendanceCard className="max-lg:order-5" />
           </div>
         </div>
       </div>
