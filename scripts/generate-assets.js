@@ -17,6 +17,7 @@ const svgLogo = readFileSync(SVG_LOGO_PATH);
 const RED = "#E61C24";
 const RED_DARK = "#B0141B";
 const DARK = "#0D0D0D";
+const ICON_BLACK = "#000000";
 const PANEL = "#161616";
 const WHITE = "#FFFFFF";
 const GREY = "#8A8A8A";
@@ -25,30 +26,135 @@ function ensureDir(dir) {
   mkdirSync(dir, { recursive: true });
 }
 
-async function generateIcon(size, outputPath) {
-  const resized = await sharp(svgLogo)
-    .resize(size, size, { fit: "contain", background: DARK })
+/**
+ * Renders the crest centred on a transparent canvas of the requested size.
+ * `inset` is the fraction of margin kept on every side, so the shield never
+ * touches the edge and maskable icons survive the platform safe zone.
+ */
+async function renderCrest(size, inset = 0) {
+  const inner = Math.max(1, Math.round(size * (1 - inset * 2)));
+  const crest = await sharp(svgLogo)
+    .resize(inner, inner, {
+      fit: "contain",
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
     .png()
     .toBuffer();
-  writeFileSync(outputPath, resized);
+
+  return sharp({
+    create: {
+      width: size,
+      height: size,
+      channels: 4,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    },
+  })
+    .composite([{ input: crest, gravity: "center" }])
+    .png()
+    .toBuffer();
+}
+
+/**
+ * App icon: the red crest over an opaque black tile. Flattening matters because
+ * the crest artwork carries transparent holes; left unflattened, the desktop
+ * would show the wallpaper through the shield instead of black.
+ */
+async function renderIcon(size, inset = 0.08) {
+  const crest = await renderCrest(size, inset);
+
+  return sharp({
+    create: {
+      width: size,
+      height: size,
+      channels: 4,
+      background: ICON_BLACK,
+    },
+  })
+    .composite([{ input: crest, gravity: "center" }])
+    .flatten({ background: ICON_BLACK })
+    .png()
+    .toBuffer();
+}
+
+async function generateIcon(size, outputPath, inset) {
+  writeFileSync(outputPath, await renderIcon(size, inset));
   console.log(`  ✓ ${outputPath}`);
 }
 
+/** Builds a real multi-size ICO container from PNG payloads. */
+function buildIco(entries) {
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0);
+  header.writeUInt16LE(1, 2);
+  header.writeUInt16LE(entries.length, 4);
+
+  const directory = Buffer.alloc(16 * entries.length);
+  let offset = header.length + directory.length;
+
+  entries.forEach(({ size, png }, index) => {
+    const at = index * 16;
+    const dimension = size >= 256 ? 0 : size;
+    directory.writeUInt8(dimension, at);
+    directory.writeUInt8(dimension, at + 1);
+    directory.writeUInt8(0, at + 2);
+    directory.writeUInt8(0, at + 3);
+    directory.writeUInt16LE(1, at + 4);
+    directory.writeUInt16LE(32, at + 6);
+    directory.writeUInt32LE(png.length, at + 8);
+    directory.writeUInt32LE(offset, at + 12);
+    offset += png.length;
+  });
+
+  return Buffer.concat([
+    header,
+    directory,
+    ...entries.map((entry) => entry.png),
+  ]);
+}
+
 async function generateFaviconIco() {
-  const sizes = [16, 32];
-  const buffers = await Promise.all(
-    sizes.map((s) =>
-      sharp(svgLogo)
-        .resize(s, s, { fit: "contain", background: DARK })
-        .png()
-        .toBuffer()
-    )
+  const sizes = [16, 32, 48];
+  const entries = await Promise.all(
+    sizes.map(async (size) => ({ size, png: await renderIcon(size, 0.06) }))
   );
-  const icoBuffer = await sharp(buffers[1])
-    .png()
-    .toBuffer();
-  writeFileSync(join(PUBLIC, "favicon.ico"), icoBuffer);
-  console.log(`  ✓ ${join(PUBLIC, "favicon.ico")}`);
+  const output = join(PUBLIC, "favicon.ico");
+  writeFileSync(output, buildIco(entries));
+  console.log(`  ✓ ${output}`);
+}
+
+/**
+ * Vector favicon: rounded black tile with the textured crest embedded as PNG.
+ * Browsers and Windows shortcuts prefer the SVG icon, so it must be branded.
+ */
+async function generateFaviconSvg() {
+  const size = 512;
+  const radius = 112;
+  const embeddedSize = 256;
+  const crest = await renderCrest(embeddedSize, 0.06);
+  const scale = size / embeddedSize;
+  const shieldWidth = Math.round((486 / 630) * embeddedSize * (1 - 0.12) * scale);
+  const shieldHeight = Math.round(embeddedSize * (1 - 0.12) * scale);
+  const x = Math.round((size - shieldWidth) / 2);
+  const y = Math.round((size - shieldHeight) / 2);
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">` +
+    `<rect width="${size}" height="${size}" rx="${radius}" ry="${radius}" fill="${ICON_BLACK}"/>` +
+    `<image x="${x}" y="${y}" width="${shieldWidth}" height="${shieldHeight}" href="data:image/png;base64,${crest.toString("base64")}"/>` +
+    `</svg>`;
+
+  const output = join(PUBLIC, "favicon.svg");
+  writeFileSync(output, svg);
+  console.log(`  ✓ ${output} (${Math.round(svg.length / 1024)} KB)`);
+}
+
+async function generateIcons() {
+  console.log("Generating icons...");
+  await generateFaviconIco();
+  await generateFaviconSvg();
+  await generateIcon(180, join(PUBLIC, "apple-touch-icon.png"));
+  await generateIcon(192, join(PUBLIC, "android-chrome-192.png"));
+  await generateIcon(512, join(PUBLIC, "android-chrome-512.png"));
+  await generateIcon(512, join(PUBLIC, "maskable-512.png"), 0.18);
 }
 
 async function drawShieldOnCanvas(ctx, x, y, shieldSize) {
@@ -288,11 +394,12 @@ async function main() {
   ensureDir(join(PUBLIC, "assets", "large-images"));
   ensureDir(join(PUBLIC));
 
-  console.log("Generating icons...");
-  await generateFaviconIco();
-  await generateIcon(180, join(PUBLIC, "apple-touch-icon.png"));
-  await generateIcon(192, join(PUBLIC, "android-chrome-192.png"));
-  await generateIcon(512, join(PUBLIC, "android-chrome-512.png"));
+  await generateIcons();
+
+  if (process.argv[2] === "icons") {
+    console.log("\nIcons regenerated successfully!");
+    return;
+  }
 
   console.log("Generating OG image...");
   await generateOGImage();
