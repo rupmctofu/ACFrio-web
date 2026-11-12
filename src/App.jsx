@@ -1,5 +1,4 @@
 import Navbar from "./components/Navbar.jsx";
-import Hero from "./components/Hero.jsx";
 import Dashboard from "./components/Dashboard.jsx";
 import Squad from "./components/Squad.jsx";
 import teamData from "./data/teamData.json";
@@ -38,14 +37,26 @@ function Footer() {
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-acf-dark text-acf-snow">
-      <Navbar />
-      <main>
-        <Hero />
-        <Dashboard />
-        <Squad />
-      </main>
-      <Footer />
+    <div className="relative min-h-screen bg-acf-dark text-acf-snow">
+      {/* Decorative: the squad photo, pre-blurred and kept faint. Cards are opaque,
+          so it only breathes through the gutters, and the scrim keeps text legible. */}
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <img
+          src="/assets/backgrounds/team-blur.jpg"
+          alt=""
+          className="h-full w-full scale-110 object-cover opacity-60"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-acf-dark/55 via-acf-dark/75 to-acf-dark/95" />
+      </div>
+
+      <div className="relative z-10">
+        <Navbar />
+        <main>
+          <Dashboard />
+          <Squad />
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 }

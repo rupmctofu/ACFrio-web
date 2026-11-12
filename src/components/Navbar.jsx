@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import teamData from "../data/teamData.json";
 
 const navLinks = [
-  { label: "Inicio", href: "#inicio" },
   { label: "Partidos", href: "#partidos" },
   { label: "Clasificación", href: "#clasificacion" },
   { label: "Copa", href: "#copa" },
   { label: "Plantilla", href: "#plantilla" },
 ];
+
+/** Fixed header height plus a small breath: the line the sections cross. */
+const HEADER_READ_LINE = 72;
 
 const PILL_BASE =
   "block rounded-full px-3.5 py-1.5 text-[12px] font-semibold tracking-tight transition-colors";
@@ -17,11 +19,12 @@ const PILL_IDLE = "text-acf-snow/60 hover:text-white";
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeId, setActiveId] = useState("inicio");
+  const [activeId, setActiveId] = useState(null);
   const { club } = teamData;
 
   // One listener drives both the header backdrop and the active nav pill: the
-  // last section whose top has passed the header is the one being read.
+  // section whose top is closest above the header line is the one the reader
+  // entered most recently, so the pill advances as the cards scroll by.
   useEffect(() => {
     const sections = navLinks
       .map((link) => document.getElementById(link.href.slice(1)))
@@ -29,11 +32,16 @@ export default function Navbar() {
 
     const update = () => {
       setScrolled(window.scrollY > 24);
-      let current = sections[0]?.id ?? "inicio";
+      let currentId = null;
+      let currentTop = Number.POSITIVE_INFINITY;
       for (const section of sections) {
-        if (section.getBoundingClientRect().top <= 120) current = section.id;
+        const { top } = section.getBoundingClientRect();
+        if (top <= HEADER_READ_LINE && top < currentTop) {
+          currentTop = top;
+          currentId = section.id;
+        }
       }
-      setActiveId(current);
+      setActiveId(currentId);
     };
 
     update();
@@ -54,7 +62,7 @@ export default function Navbar() {
       }`}
     >
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <a href="#inicio" className="flex items-center gap-2.5">
+        <a href="#top" aria-label="Volver al inicio de la página" className="flex items-center gap-2.5">
           <img src={club.logo} alt={club.name} className="h-9 w-auto" />
           <span className="leading-none">
             <span className="block text-[15px] font-extrabold tracking-tight text-white">
