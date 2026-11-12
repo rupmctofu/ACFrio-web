@@ -44,12 +44,12 @@ function PlayerCard({ player }) {
       </div>
 
       <div className="relative mt-2 flex items-center justify-center">
-        <div className="relative h-72 w-full sm:h-80">
+        <div className="relative flex h-72 w-full items-end justify-center sm:h-80">
           <img
             src={player.photo}
             alt={player.name}
             loading="lazy"
-            className="relative h-full w-full object-cover object-top"
+            className="relative max-h-full w-auto object-contain"
             onError={(e) => {
               e.currentTarget.src =
                 "data:image/svg+xml," +
