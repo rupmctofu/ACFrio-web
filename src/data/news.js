@@ -1,15 +1,13 @@
 /**
- * Selectors over the vestuario satire feed (src/data/news.json).
- *
- * Every item is invented on purpose: the owner asked for joke news about the
- * squad. The `disclaimer` travels with the data and the card shows it, so no
- * headline can be mistaken for reporting.
+ * The ticker feed: data-derived headlines first (they track the season on every
+ * sync), then the evergreen vestuario jokes. Every item is still presented as
+ * humour; the disclaimer travels with the data.
  */
 import news from "./news.json";
+import { derivedNews } from "./news-derived";
 
 export const newsDisclaimer = news.disclaimer;
 
-/** Newest first: the JSON is authored in reading order, newest at the top. */
-export const newsItems = () => news.items;
+export const newsItems = () => [...derivedNews(), ...news.items];
 
-export const newsTags = () => [...new Set(news.items.map((item) => item.tag))];
+export const newsTags = () => [...new Set(newsItems().map((item) => item.tag))];

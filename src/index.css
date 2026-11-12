@@ -172,7 +172,7 @@ body {
 }
 
 .anim-ticker {
-  animation: ticker-scroll 700s linear infinite;
+  animation: ticker-scroll 800s linear infinite;
 }
 
 /* ===== Pitch: a marker floating in place =====
