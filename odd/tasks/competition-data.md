@@ -37,6 +37,20 @@ supplies them (T9, T11).
   near-black canvas, rounded cards on a soft dark surface with a hairline border, heavy sentence-case
   headings, small uppercase micro-labels, outline pill tags and one inverted accent block. The clipped
   corner disappears from the whole card language, not only from buttons.
+- **S12** — Owner: "Podríamos eliminar la parte inicial donde sale luego de hace frío con el próximo partido,
+  clasificación… que no fuera como un header en top, sino que fuera una pastilla en la columna central, así
+  las de la izquierda derecha subirían y que todo sea un grid… que la columna central tuviera primero una
+  pastilla con nuestro logo quitar los botones de próxima partida de clasificación y que debajo ponga
+  próximo partido". The full-width hero disappears: the grid starts right under the site header, the centre
+  column opens with a compact club card carrying the logo, the next-match card sits directly below it, the
+  two hero buttons are gone, and the side columns align to the same top edge.
+- **S13** — Owner: "el equipo Bardens Aires and New Projects lo puedes llamar solo Dans Aires porque ocupa
+  mucho… lo de los puntos de la clasificación se ve todo muy pequeñito… creo que ganaríamos un poco de
+  espacio ahí y el scroll del calendario horizontal que sea automático cuando haces scroll normal, porque
+  tengo que apretar shift o control". The standings show a shorter display name for BAR DANSAIRES & NIU
+  PROJECTES, larger figures and more room; the fixtures slider scrolls horizontally from a plain vertical
+  wheel without breaking the page scroll at its ends. The official name stays in the data and only the
+  display label is shortened.
 
 ## Source facts (measured, not assumed)
 
@@ -70,6 +84,8 @@ supplies them (T9, T11).
   fabricated player stats) and any decorative fake data. Covers S9. Done.
 - **T11** — Real player photos from the club's own contact sheet. Covers S10. Done.
 - **T12** — Restyle to the RIDGELINE design language with the club red as the single accent. Covers S11.
+- **T13** — Remove the hero, add the club card at the top of the centre column, align the columns. Covers S12.
+- **T14** — Short display name, larger standings figures and wheel-driven fixtures slider. Covers S13.
 
 ## Log
 
@@ -113,3 +129,9 @@ supplies them (T9, T11).
   Measured from the reference: near-black canvas, rounded cards (~24px) on a slightly lighter surface
   without a hard border, heavy sentence-case headings, micro uppercase labels, outline pill tags, big
   numbers as design elements, one solid accent block, and a single accent colour (lime there, club red here).
+- **L11** (owner): the short name is "Dansaires" in one word — corrected from the first guess "Dans Aires".
+  The alias stays keyed by the official slug so the published name is untouched, and it is used as the
+  accessible title wherever the short label is shown.
+- **L12** (owner): the squad photo goes behind the page "muy difuminada y burry", and some pill tags should
+  read a little reddish. Implemented as a pre-blurred 31KB copy (no live blur cost) under a gradient scrim,
+  and as a red tint on our own team's pill so the colour distinguishes us from rivals instead of decorating.

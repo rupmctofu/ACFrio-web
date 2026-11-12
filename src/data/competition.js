@@ -17,17 +17,36 @@ export const findCompetition = (key) => competitions.find((item) => item.key ===
 export const league = findCompetition("league");
 export const cup = findCompetition("cup");
 
-export const teamName = (slug) => competition.teams[slug]?.name ?? slug;
+/**
+ * Short display labels for official names that eat the width of a card.
+ * Keyed by the source slug, so `competition.json` keeps the published name
+ * byte for byte and only the label a card prints gets shorter. An entry is
+ * added only when the owner has given the short form: nothing is generated
+ * here, and nothing is shortened that was not asked for.
+ *
+ * History: "BAR DANSAIRES & NIU PROJECTES" -> "Dans Aires" (owner, S13).
+ */
+const SHORT_NAMES = {
+  "bar-dansaires-niu-projectes": "Dansaires",
+};
+
+/** The official name the source publishes, untouched by any display alias. */
+export const teamFullName = (slug) => competition.teams[slug]?.name ?? slug;
+
+/** The label a card prints: the short alias when one exists, else the full name. */
+export const teamName = (slug) => SHORT_NAMES[slug] ?? teamFullName(slug);
+
 export const teamCrest = (slug) => competition.teams[slug]?.crest ?? null;
 
 const INITIAL_STOPWORDS = new Set(["FC", "CF", "CD", "UD", "SC", "C.F.", "F.C."]);
 
 /**
  * Initials for a club the source publishes no crest for. Real letters from the
- * real name, never a drawn placeholder badge.
+ * real (official) name, never a drawn placeholder badge: the badge stays tied
+ * to the data rather than to a display alias.
  */
 export function teamInitials(slug) {
-  const name = teamName(slug);
+  const name = teamFullName(slug);
   const letters = name
     .replace(/[^A-Za-zÀ-ÿ0-9 ]/g, " ")
     .split(/\s+/)

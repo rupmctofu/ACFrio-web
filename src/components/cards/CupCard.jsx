@@ -1,5 +1,5 @@
 import { Trophy } from "lucide-react";
-import { cupTable, teamName } from "../../data/competition";
+import { CLUB_SLUG, cupTable, teamFullName, teamName } from "../../data/competition";
 import Card from "./Card.jsx";
 import { Crest } from "./Crest.jsx";
 
@@ -46,10 +46,10 @@ export default function CupCard({ className = "" }) {
                     <span className="flex items-center gap-1.5">
                       <Crest slug={row.slug} size="sm" />
                       <span
-                        title={row.name}
+                        title={teamFullName(row.slug)}
                         className="truncate text-[11px] font-bold uppercase tracking-[0.04em] text-acf-snow/80"
                       >
-                        {row.name}
+                        {teamName(row.slug)}
                       </span>
                     </span>
                   </td>
@@ -74,20 +74,28 @@ export default function CupCard({ className = "" }) {
             la primera jornada.
           </p>
           <ul className="flex flex-wrap gap-1.5 px-5 pb-5">
-            {rows.map((row) => (
+            {rows.map((row) => {
+              // Our team gets the accent tint so it stands out from the rivals at a glance.
+              const isClub = row.slug === CLUB_SLUG;
+              return (
               <li
                 key={row.slug}
-                className="flex max-w-full items-center gap-1.5 rounded-full border border-acf-line px-2.5 py-1"
+                className={`flex max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 ${
+                  isClub ? "border-acf-red/40 bg-acf-red/12" : "border-acf-line"
+                }`}
               >
                 <Crest slug={row.slug} size="sm" />
                 <span
-                  title={teamName(row.slug)}
-                  className="min-w-0 truncate text-[9px] font-bold uppercase tracking-[0.06em] text-acf-snow/70"
+                  title={teamFullName(row.slug)}
+                  className={`min-w-0 truncate text-[9px] font-bold uppercase tracking-[0.06em] ${
+                    isClub ? "text-white" : "text-acf-snow/70"
+                  }`}
                 >
                   {teamName(row.slug)}
                 </span>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </>
       )}

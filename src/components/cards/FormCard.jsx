@@ -5,6 +5,7 @@ import {
   opponentOf,
   recentResults,
   resultOf,
+  teamFullName,
   teamName,
 } from "../../data/competition";
 import Card from "./Card.jsx";
@@ -47,7 +48,7 @@ export default function FormCard({ className = "" }) {
                 <Crest slug={opponent.slug} size="sm" />
                 <span className="min-w-0 flex-1">
                   <span
-                    title={teamName(opponent.slug)}
+                    title={teamFullName(opponent.slug)}
                     className="block truncate text-[10px] font-bold uppercase tracking-[0.06em] text-acf-snow/80"
                   >
                     {teamName(opponent.slug)}

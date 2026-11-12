@@ -1,13 +1,29 @@
 import { BarChart3 } from "lucide-react";
-import { CLUB_SLUG, leagueTable } from "../data/competition";
+import {
+  CLUB_SLUG,
+  leagueTable,
+  teamFullName,
+  teamName,
+} from "../data/competition";
 import Card from "./cards/Card.jsx";
 import { Crest } from "./cards/Crest.jsx";
 
+/* Micro-label of the header row: the smallest size that still reads at ~300px. */
 const HEAD_CELL =
-  "py-2 text-[8px] font-semibold uppercase tracking-[0.14em] text-acf-dim";
+  "py-2 text-[9px] font-semibold uppercase tracking-[0.12em] text-acf-dim";
+/* One figure of the row: one size up from before, tabular so columns align. */
+const FIGURE = "px-1 py-2.5 text-center text-xs tabular-nums text-acf-snow/60";
+/*
+ * Goal difference is derivable from the goals column (GF:GC), so it is the one
+ * column that is dropped first. The card sits in a 4/12 column on desktop and
+ * full width everywhere else, so the decision is made from the card's own
+ * width, not the viewport's: below 21rem there is no room for it.
+ */
+const GOAL_DIFF_CELL = "hidden @min-[21rem]:table-cell";
 
 function Row({ row }) {
   const isAcf = row.slug === CLUB_SLUG;
+  const fullName = teamFullName(row.slug);
 
   return (
     <tr
@@ -16,45 +32,41 @@ function Row({ row }) {
       }`}
     >
       <td
-        className={`py-2 pl-3 pr-1 text-center font-display text-lg leading-none tabular-nums ${
+        className={`w-7 py-2.5 pl-3 pr-1 text-center font-display text-base leading-none tabular-nums ${
           isAcf ? "text-acf-red" : "text-acf-snow/40"
         }`}
       >
         {row.rank ?? "—"}
       </td>
-      <td className="py-2 pr-1">
+      {/* `w-full max-w-0` keeps the name column from claiming its max-content
+          width: the table then fits the card instead of scrolling sideways. */}
+      <td className="w-full max-w-0 py-2.5 pr-1">
         <span className="flex items-center gap-1.5">
           <Crest slug={row.slug} size="sm" />
           <span
-            title={row.name}
-            className={`truncate text-[11px] font-bold uppercase tracking-[0.04em] ${
+            title={fullName}
+            className={`truncate text-[11px] font-bold uppercase leading-none tracking-[0.04em] ${
               isAcf ? "text-white" : "text-acf-snow/80"
             }`}
           >
-            {row.name}
+            {teamName(row.slug)}
           </span>
+          {/* The short label is a display alias: the official name stays readable. */}
+          <span className="sr-only">{fullName}</span>
         </span>
       </td>
-      <td className="px-0.5 py-2 text-center text-[11px] tabular-nums text-acf-snow/50">
-        {row.played}
-      </td>
-      <td className="px-0.5 py-2 text-center text-[11px] tabular-nums text-acf-snow/50">
-        {row.won}
-      </td>
-      <td className="px-0.5 py-2 text-center text-[11px] tabular-nums text-acf-snow/50">
-        {row.drawn}
-      </td>
-      <td className="px-0.5 py-2 text-center text-[11px] tabular-nums text-acf-snow/50">
-        {row.lost}
-      </td>
-      <td className="whitespace-nowrap px-0.5 py-2 text-center text-[11px] tabular-nums text-acf-snow/50">
+      <td className={FIGURE}>{row.played}</td>
+      <td className={FIGURE}>{row.won}</td>
+      <td className={FIGURE}>{row.drawn}</td>
+      <td className={FIGURE}>{row.lost}</td>
+      <td className={`${FIGURE} whitespace-nowrap`}>
         {row.goalsFor}:{row.goalsAgainst}
       </td>
-      <td className="px-0.5 py-2 text-center text-[11px] tabular-nums text-acf-snow/50">
+      <td className={`${FIGURE} ${GOAL_DIFF_CELL}`}>
         {row.goalDiff > 0 ? `+${row.goalDiff}` : row.goalDiff}
       </td>
       <td
-        className={`py-2 pl-1 pr-3 text-right font-display text-lg leading-none tabular-nums ${
+        className={`w-12 py-2 pl-2 pr-3 text-right font-display text-2xl leading-none tabular-nums ${
           isAcf ? "text-acf-red" : "text-white"
         }`}
       >
@@ -77,19 +89,19 @@ export default function Standings({ className = "" }) {
       className={className}
       bodyClassName="flex flex-col"
     >
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[20rem] border-collapse">
+      <div className="@container overflow-x-auto">
+        <table className="w-full border-collapse">
           <thead>
             <tr className="border-b border-acf-line">
-              <th className={`${HEAD_CELL} pl-3 pr-1 text-center`}>#</th>
-              <th className={`${HEAD_CELL} pr-1 text-left`}>Equipo</th>
-              <th className={`${HEAD_CELL} px-0.5 text-center`}>PJ</th>
-              <th className={`${HEAD_CELL} px-0.5 text-center`}>G</th>
-              <th className={`${HEAD_CELL} px-0.5 text-center`}>E</th>
-              <th className={`${HEAD_CELL} px-0.5 text-center`}>P</th>
-              <th className={`${HEAD_CELL} px-0.5 text-center`}>GF:GC</th>
-              <th className={`${HEAD_CELL} px-0.5 text-center`}>DG</th>
-              <th className={`${HEAD_CELL} pl-1 pr-3 text-right`}>Pts</th>
+              <th className={`${HEAD_CELL} w-7 pl-3 pr-1 text-center`}>#</th>
+              <th className={`${HEAD_CELL} text-left`}>Equipo</th>
+              <th className={`${HEAD_CELL} px-1 text-center`}>PJ</th>
+              <th className={`${HEAD_CELL} px-1 text-center`}>G</th>
+              <th className={`${HEAD_CELL} px-1 text-center`}>E</th>
+              <th className={`${HEAD_CELL} px-1 text-center`}>P</th>
+              <th className={`${HEAD_CELL} px-1 text-center`}>GF:GC</th>
+              <th className={`${HEAD_CELL} px-1 text-center ${GOAL_DIFF_CELL}`}>DG</th>
+              <th className={`${HEAD_CELL} w-12 pl-2 pr-3 text-right`}>Pts</th>
             </tr>
           </thead>
           <tbody>
