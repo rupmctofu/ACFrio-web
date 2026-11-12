@@ -13,23 +13,23 @@ const COMPETITION_TAG = { league: "Liga", cup: "Copa" };
 
 function FixtureSlide({ fixture }) {
   return (
-    <li className="min-w-[11.5rem] snap-start border border-acf-line bg-acf-dark/60 p-3 clip-edge">
-      <p className="font-display text-lg leading-none tracking-wide text-acf-red">
+    <li className="min-w-[11.5rem] snap-start rounded-tile border border-acf-line-soft bg-acf-panel-light/60 p-3">
+      <p className="text-[11px] font-extrabold uppercase leading-none tracking-[0.1em] text-white">
         {fixtureDateLabel(fixture)}
       </p>
-      <p className="mt-1 text-[9px] font-bold uppercase tracking-[0.12em] text-acf-grey">
+      <p className="mt-1.5 text-[8px] font-semibold uppercase tracking-[0.16em] text-acf-dim">
         {fixtureTimeLabel(fixture)} · J{fixture.matchday} ·{" "}
         {COMPETITION_TAG[fixture.competitionKey] ?? fixture.competitionName}
       </p>
 
-      <div className="mt-2.5 space-y-1.5">
+      <div className="mt-3 space-y-1.5">
         {[fixture.home, fixture.away].map((team) => (
           <div key={team.slug} className="flex items-center gap-1.5">
             <Crest slug={team.slug} size="sm" />
             <span
               title={teamName(team.slug)}
-              className={`truncate text-[10px] font-bold uppercase ${
-                team.slug === CLUB_SLUG ? "text-acf-red" : "text-acf-snow/70"
+              className={`truncate text-[10px] font-bold uppercase tracking-[0.04em] ${
+                team.slug === CLUB_SLUG ? "text-acf-red" : "text-acf-snow/60"
               }`}
             >
               {teamName(team.slug)}
@@ -38,7 +38,7 @@ function FixtureSlide({ fixture }) {
         ))}
       </div>
 
-      <p className="mt-2 truncate text-[9px] uppercase tracking-[0.12em] text-acf-grey">
+      <p className="mt-2.5 truncate text-[8px] font-semibold uppercase tracking-[0.16em] text-acf-dim">
         {fixture.field ?? "Campo por confirmar"}
       </p>
     </li>
@@ -58,7 +58,7 @@ export default function FixturesCard({ className = "" }) {
       bodyClassName="flex"
     >
       {fixtures.length ? (
-        <ul className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto px-4 py-4 squad-scrollbar">
+        <ul className="flex w-full snap-x snap-mandatory gap-2.5 overflow-x-auto px-5 pb-5 pt-1 squad-scrollbar">
           {fixtures.map((fixture) => (
             <FixtureSlide
               key={`${fixture.competitionKey}-${fixture.matchday}-${fixture.date}`}
@@ -67,7 +67,7 @@ export default function FixturesCard({ className = "" }) {
           ))}
         </ul>
       ) : (
-        <p className="p-5 text-sm text-acf-grey">
+        <p className="px-5 py-4 text-sm text-acf-grey">
           La fuente oficial no publica más partidos programados.
         </p>
       )}

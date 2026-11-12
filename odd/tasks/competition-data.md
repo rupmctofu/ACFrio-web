@@ -31,7 +31,12 @@ supplies them (T9, T11).
   como para decorar, la quitamos y nos basamos en cosas chulas que nos gusten y que sean interesantes".
   Invented or decorative content is removed rather than restyled.
 - **S10** — Owner: "puedes coger todas las fotos de los jugadores si no las tengo yo te las puedo pasar".
-  Real player photos may replace the current placeholder portraits when the owner provides them.
+  Real player photos replace the placeholder portraits.
+- **S11** — Owner: "me gusta esta web como ui/ux pero con el accent color rojo en vez del verde chillón"
+  (RIDGELINE golf dashboard, Behance). Adopt that design language with the club red as the single accent:
+  near-black canvas, rounded cards on a soft dark surface with a hairline border, heavy sentence-case
+  headings, small uppercase micro-labels, outline pill tags and one inverted accent block. The clipped
+  corner disappears from the whole card language, not only from buttons.
 
 ## Source facts (measured, not assumed)
 
@@ -63,8 +68,8 @@ supplies them (T9, T11).
   remaining two goals.
 - **T10** — Remove the invented sections (La Armadura, Vestuario awards, MVP, scorers, "Pachanga Arena",
   fabricated player stats) and any decorative fake data. Covers S9. Done.
-- **T11** — Real player photos when the owner provides them. Covers S10. Blocked: the images arrived only
-  inside the chat and are not on disk, so they cannot be cut or served yet.
+- **T11** — Real player photos from the club's own contact sheet. Covers S10. Done.
+- **T12** — Restyle to the RIDGELINE design language with the club red as the single accent. Covers S11.
 
 ## Log
 
@@ -99,3 +104,12 @@ supplies them (T9, T11).
 - **L8** (owner): "albert ha marcado 2 mas" — the two pending goals belong to Albert, so the record reads
   Albert 3, Jonay 1, which is exactly the 4 league goals the official table reports. The scorers card
   drops its pending and partial lines on its own through `isComplete()`.
+- **L9** (owner): the squad photos live in `G:\Mi unidad\Rup\AC FRIO\Collage`; the per-player files are not
+  edited, so the portraits are cut from `collage OK.jpg` (7 faces on the top row, 6 on the bottom) plus
+  `Cristian.jpg`. "foto rata" is Pablo's nickname, confirmed by the owner. Position and shirt number remain
+  unconfirmed and are therefore not shown.
+- **L10** (owner, reference): "me gusta esta web como ui/ux pero con el accent color rojo en vez del verde
+  chillón" with https://www.behance.net/gallery/257747751/RIDGELINE-Golf-Dashboard-App-Website-Design.
+  Measured from the reference: near-black canvas, rounded cards (~24px) on a slightly lighter surface
+  without a hard border, heavy sentence-case headings, micro uppercase labels, outline pill tags, big
+  numbers as design elements, one solid accent block, and a single accent colour (lime there, club red here).

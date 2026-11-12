@@ -4,48 +4,47 @@ import teamData from "../data/teamData.json";
 
 const POSITIONS = ["Todos", "Portero", "Defensa", "Medio", "Delantero"];
 
-const positionStyle = {
-  Portero: { bg: "bg-yellow-600", text: "POR" },
-  Defensa: { bg: "bg-blue-600", text: "DEF" },
-  Medio: { bg: "bg-green-600", text: "MED" },
-  Delantero: { bg: "bg-red-600", text: "DEL" },
+/** Position chips stay neutral: the club red is the only accent in the system. */
+const POSITION_LABEL = {
+  Portero: "POR",
+  Defensa: "DEF",
+  Medio: "MED",
+  Delantero: "DEL",
 };
 
 function PlayerCard({ player }) {
   // Position and shirt number are shown only when the club has confirmed them.
-  const pos = player.position ? positionStyle[player.position] : null;
+  const pos = player.position ? POSITION_LABEL[player.position] : null;
 
   return (
     <article
       data-card
-      className="group relative bg-acf-panel border border-acf-line hover:border-acf-red/60 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-red overflow-hidden clip-edge-tl shrink-0 snap-start min-w-[17rem] w-[78vw] max-w-[19rem]"
+      className="group relative shrink-0 snap-start min-w-[17rem] w-[78vw] max-w-[19rem] overflow-hidden rounded-card border border-acf-line bg-acf-panel transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-acf"
     >
-      {/* Fondo del dorsal en marca de agua */}
+      {/* Shirt number as a watermark, only when the club has confirmed it */}
       {player.number ? (
-        <span className="absolute -right-4 bottom-0 font-display text-[10rem] leading-none text-white/[0.04] select-none pointer-events-none transition-all duration-500 group-hover:text-white/[0.07]">
+        <span className="pointer-events-none absolute -right-3 bottom-0 select-none font-display text-[9rem] leading-none text-white/[0.04] transition-colors duration-500 group-hover:text-white/[0.07]">
           {player.number}
         </span>
       ) : null}
 
-      {/* Cabecera con degradado posicional */}
-      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
-
-      <div className="relative flex items-center justify-between px-4 pt-3.5">
+      <div className="relative flex items-center justify-between px-4 pt-4">
         {pos ? (
-          <span className={`${pos.bg} text-white text-[10px] font-bold px-2 py-0.5 tracking-widest clip-edge`}>
-            {pos.text}
+          <span className="rounded-full border border-acf-line px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.18em] text-acf-snow/70">
+            {pos}
           </span>
         ) : (
           <span />
         )}
         {player.number ? (
-          <span className="font-display text-lg text-acf-grey">#{player.number}</span>
+          <span className="font-display text-lg leading-none text-acf-dim">
+            #{player.number}
+          </span>
         ) : null}
       </div>
 
-      {/* Foto de medio cuerpo con transparencia */}
       <div className="relative mt-1 flex items-center justify-center">
-        <div className="relative h-64 sm:h-72 w-full">
+        <div className="relative h-64 w-full sm:h-72">
           <img
             src={player.photo}
             alt={player.name}
@@ -55,22 +54,22 @@ function PlayerCard({ player }) {
               e.currentTarget.src =
                 "data:image/svg+xml," +
                 encodeURIComponent(
-                  `<svg xmlns='http://www.w3.org/2000/svg' width='160' height='200'><circle cx='80' cy='70' r='42' fill='%232a2a2a'/><rect y='120' width='160' height='80' fill='%23e61c24'/></svg>`
+                  `<svg xmlns='http://www.w3.org/2000/svg' width='160' height='200'><circle cx='80' cy='70' r='42' fill='%231c1c1f'/><rect y='120' width='160' height='80' fill='%23e61c24'/></svg>`
                 );
             }}
           />
         </div>
       </div>
 
-      <div className="relative px-4 pb-5">
-        <h3 className="font-display text-2xl leading-tight tracking-wide text-white group-hover:text-acf-red transition-colors">
+      <div className="relative px-4 pb-5 pt-4">
+        <h3 className="text-lg font-extrabold leading-tight tracking-tight text-white">
           {player.name}
         </h3>
         {player.nickname ? (
-          <p className="text-xs text-acf-snow/60 italic">«{player.nickname}»</p>
+          <p className="mt-1 text-[11px] text-acf-dim">«{player.nickname}»</p>
         ) : null}
         {player.position ? (
-          <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.2em] text-acf-grey">
+          <p className="mt-3 text-[9px] font-semibold uppercase tracking-[0.22em] text-acf-dim">
             {player.position}
           </p>
         ) : null}
@@ -101,37 +100,43 @@ export default function Squad() {
   };
 
   return (
-    <section id="plantilla" className="relative scroll-mt-20 py-16 texture-grain">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10">
+    <section id="plantilla" className="relative scroll-mt-20 py-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-acf-red font-display text-3xl tracking-widest">LA PLANTILLA</p>
-            <h2 className="font-display text-4xl sm:text-5xl tracking-wide uppercase">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-acf-red">
+              La Plantilla
+            </p>
+            <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
               Plantilla 2026/2027
             </h2>
           </div>
           <div className="text-center sm:text-right">
-            <span className="font-display text-3xl text-acf-red">{squad.length}</span>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-acf-grey">Jugadores</p>
+            <span className="font-display text-4xl leading-none tabular-nums text-white sm:text-5xl">
+              {squad.length}
+            </span>
+            <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.22em] text-acf-dim">
+              Jugadores
+            </p>
           </div>
         </div>
 
         {/* Filtro por posición */}
         {hasPositions ? (
-          <div className="flex flex-wrap gap-2 mb-8">
-          {POSITIONS.map((pos) => (
-            <button
-              key={pos}
-              onClick={() => setFilter(pos)}
-              className={`px-4 py-2 text-sm font-bold transition-all ${
-                filter === pos
-                  ? "bg-acf-red text-white shadow-red"
-                  : "bg-acf-panel border border-acf-line text-acf-snow/60 hover:text-white hover:border-acf-line"
-              }`}
-            >
-              {pos}
-            </button>
-          ))}
+          <div className="mb-8 flex flex-wrap gap-2">
+            {POSITIONS.map((pos) => (
+              <button
+                key={pos}
+                onClick={() => setFilter(pos)}
+                className={`rounded-full px-4 py-2 text-[12px] font-semibold tracking-tight transition-colors ${
+                  filter === pos
+                    ? "bg-acf-red text-white"
+                    : "border border-acf-line text-acf-snow/60 hover:text-white"
+                }`}
+              >
+                {pos}
+              </button>
+            ))}
           </div>
         ) : null}
 
@@ -139,7 +144,7 @@ export default function Squad() {
         <div className="relative">
           <div
             ref={trackRef}
-            className="flex gap-6 overflow-x-auto overscroll-x-contain scroll-smooth snap-x snap-mandatory pb-2 squad-scrollbar squad-fade-right"
+            className="flex snap-x snap-mandatory gap-5 overflow-x-auto overscroll-x-contain scroll-smooth pb-2 squad-scrollbar squad-fade-right"
           >
             {filtered.map((player) => (
               <PlayerCard key={player.id} player={player} />
@@ -150,17 +155,17 @@ export default function Squad() {
             type="button"
             onClick={() => scrollByCards(-1)}
             aria-label="Anteriores"
-            className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 items-center justify-center h-11 w-11 bg-acf-panel border border-acf-line text-acf-snow/70 hover:text-acf-red hover:border-acf-red transition-colors z-10"
+            className="absolute -left-4 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-acf-line bg-acf-panel text-acf-grey transition-colors hover:text-white md:flex"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-4 w-4" />
           </button>
           <button
             type="button"
             onClick={() => scrollByCards(1)}
             aria-label="Siguientes"
-            className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 items-center justify-center h-11 w-11 bg-acf-panel border border-acf-line text-acf-snow/70 hover:text-acf-red hover:border-acf-red transition-colors z-10"
+            className="absolute -right-4 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-acf-line bg-acf-panel text-acf-grey transition-colors hover:text-white md:flex"
           >
-            <ChevronRight className="h-5 w-5" />
+            <ChevronRight className="h-4 w-4" />
           </button>
         </div>
       </div>

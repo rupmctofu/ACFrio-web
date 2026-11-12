@@ -11,7 +11,7 @@ import CupCard from "./cards/CupCard.jsx";
  */
 export default function Dashboard() {
   return (
-    <section id="partidos" className="relative pb-16 texture-grain">
+    <section id="partidos" className="relative pb-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-12">
           <div className="order-2 flex flex-col gap-5 lg:order-none lg:col-span-4">

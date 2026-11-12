@@ -3,9 +3,9 @@ import teamData from "../../data/teamData.json";
 import { CLUB_SLUG, teamCrest, teamInitials } from "../../data/competition";
 
 const SIZES = {
-  sm: "h-6 w-6 text-[9px]",
-  md: "h-9 w-9 text-[11px]",
-  lg: "h-20 w-20 text-xl sm:h-24 sm:w-24 sm:text-2xl",
+  sm: "h-6 w-6 rounded-md text-[9px]",
+  md: "h-9 w-9 rounded-lg text-[11px]",
+  lg: "h-20 w-20 rounded-2xl text-xl sm:h-24 sm:w-24 sm:text-2xl",
 };
 
 /** The club shows its own logo; every rival shows the crest the source publishes. */
@@ -20,7 +20,7 @@ export function Crest({ slug, size = "sm", className = "" }) {
   const src = crestSrc(slug);
   const [failed, setFailed] = useState(false);
   const box =
-    `inline-flex shrink-0 items-center justify-center rounded border border-acf-line bg-acf-dark font-display text-acf-grey ${SIZES[size]} ${className}`;
+    `inline-flex shrink-0 items-center justify-center border border-acf-line bg-acf-dark font-semibold uppercase text-acf-grey ${SIZES[size]} ${className}`;
 
   if (!src || failed) {
     return (
@@ -36,7 +36,7 @@ export function Crest({ slug, size = "sm", className = "" }) {
         src={src}
         alt=""
         loading="lazy"
-        className="h-full w-full object-contain p-0.5"
+        className="h-full w-full rounded-[inherit] object-contain p-0.5"
         onError={() => setFailed(true)}
       />
     </span>

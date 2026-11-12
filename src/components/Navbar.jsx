@@ -9,78 +9,94 @@ const navLinks = [
   { label: "Plantilla", href: "#plantilla" },
 ];
 
-function formatKickoff(iso) {
-  const date = new Date(iso);
-  const day = date.toLocaleDateString("es-ES", { weekday: "short", day: "numeric", month: "short" });
-  const time = date.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
-  return `${day} · ${time}`;
-}
+const PILL_BASE =
+  "block rounded-full px-3.5 py-1.5 text-[12px] font-semibold tracking-tight transition-colors";
+const PILL_ACTIVE = "bg-acf-red text-white";
+const PILL_IDLE = "text-acf-snow/60 hover:text-white";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeId, setActiveId] = useState("inicio");
   const { club } = teamData;
 
+  // One listener drives both the header backdrop and the active nav pill: the
+  // last section whose top has passed the header is the one being read.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
+    const sections = navLinks
+      .map((link) => document.getElementById(link.href.slice(1)))
+      .filter(Boolean);
+
+    const update = () => {
+      setScrolled(window.scrollY > 24);
+      let current = sections[0]?.id ?? "inicio";
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top <= 120) current = section.id;
+      }
+      setActiveId(current);
+    };
+
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
   }, []);
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed left-0 right-0 top-0 z-50 transition-colors duration-300 ${
         scrolled
-          ? "bg-acf-dark/90 backdrop-blur-md border-b border-acf-line shadow-acf"
-          : "bg-transparent"
+          ? "border-b border-acf-line bg-acf-dark/85 backdrop-blur-md"
+          : "border-b border-transparent bg-transparent"
       }`}
     >
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <a href="#inicio" className="flex items-center gap-2.5 group">
-          <img
-            src={club.logo}
-            alt={club.name}
-            className="h-11 w-auto transition-transform duration-300 group-hover:scale-105"
-          />
-          <span className="font-display text-2xl tracking-wider leading-none">
-            AC<span className="text-red-gradient"> FRÍO</span>
-            <span className="block text-[9px] font-body font-semibold tracking-[0.35em] text-acf-grey">
+      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <a href="#inicio" className="flex items-center gap-2.5">
+          <img src={club.logo} alt={club.name} className="h-9 w-auto" />
+          <span className="leading-none">
+            <span className="block text-[15px] font-extrabold tracking-tight text-white">
+              AC <span className="text-acf-red">FRÍO</span>
+            </span>
+            <span className="mt-1 block text-[8px] font-semibold uppercase tracking-[0.26em] text-acf-dim">
               FÚTBOL 7 · EST. 2026
             </span>
           </span>
         </a>
 
-        <ul className="hidden lg:flex items-center gap-7">
-          {navLinks.map((link) => (
-            <li key={link.href}>
-              <a
-                href={link.href}
-                className="text-sm font-medium text-acf-snow/70 hover:text-white transition-colors relative group py-1.5"
-              >
-                {link.label}
-                <span className="absolute left-0 -bottom-0.5 h-[2px] w-0 bg-acf-red transition-all duration-300 group-hover:w-full" />
-              </a>
-            </li>
-          ))}
+        <ul className="hidden items-center gap-0.5 rounded-full border border-acf-line bg-acf-panel/70 p-1 lg:flex">
+          {navLinks.map((link) => {
+            const active = activeId === link.href.slice(1);
+            return (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  aria-current={active ? "true" : undefined}
+                  className={`${PILL_BASE} ${active ? PILL_ACTIVE : PILL_IDLE}`}
+                >
+                  {link.label}
+                </a>
+              </li>
+            );
+          })}
         </ul>
 
         <div className="flex items-center gap-3">
           <a
             href="#partidos"
-            className="hidden sm:flex items-center gap-2 bg-acf-red hover:bg-acf-red-dark text-white text-sm font-bold px-4 py-2 transition-colors anim-pulse-red"
+            className="hidden items-center rounded-full bg-acf-red px-4 py-2 text-[12px] font-bold tracking-tight text-white transition-colors hover:bg-acf-red-dark sm:flex"
           >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
-            </span>
             Próximo Partido
           </a>
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="lg:hidden p-2 text-white hover:text-acf-red transition-colors"
+            className="rounded-full border border-acf-line p-2 text-acf-snow transition-colors hover:text-white lg:hidden"
             aria-label="Abrir menú"
+            aria-expanded={menuOpen}
           >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               {menuOpen ? (
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               ) : (
@@ -92,19 +108,23 @@ export default function Navbar() {
       </nav>
 
       {menuOpen && (
-        <div className="lg:hidden bg-acf-panel border-t border-acf-line">
-          <ul className="px-4 py-3 space-y-1">
-            {navLinks.map((link) => (
-              <li key={link.href}>
-                <a
-                  href={link.href}
-                  onClick={() => setMenuOpen(false)}
-                  className="block px-3 py-2.5 text-sm font-medium text-acf-snow/80 hover:text-white hover:bg-acf-panel-light transition-colors"
-                >
-                  {link.label}
-                </a>
-              </li>
-            ))}
+        <div className="border-t border-acf-line bg-acf-dark/95 backdrop-blur-md lg:hidden">
+          <ul className="space-y-1 px-4 py-3">
+            {navLinks.map((link) => {
+              const active = activeId === link.href.slice(1);
+              return (
+                <li key={link.href}>
+                  <a
+                    href={link.href}
+                    onClick={() => setMenuOpen(false)}
+                    aria-current={active ? "true" : undefined}
+                    className={`${PILL_BASE} ${active ? PILL_ACTIVE : PILL_IDLE}`}
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
