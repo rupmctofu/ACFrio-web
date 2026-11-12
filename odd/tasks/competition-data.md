@@ -86,6 +86,22 @@ supplies them (T9, T11).
 - **T12** — Restyle to the RIDGELINE design language with the club red as the single accent. Covers S11.
 - **T13** — Remove the hero, add the club card at the top of the centre column, align the columns. Covers S12.
 - **T14** — Short display name, larger standings figures and wheel-driven fixtures slider. Covers S13.
+- **T15** — Surface hierarchy (hero next match, red-tinted Goleadores), club card removed. Covers S14, S15.
+- **T16** — Attendance card with honest empty state. Covers S16. Blocked on the club's attendance list.
+- **T17** — Satirical news feed in the centre column. Covers S17.
+
+- **S14** — Owner: "me gustaría que alguna de las tarjetas tuviera un fondo un poco distinto, por ejemplo el
+  de goleadores… más rojo… Lo de próximo partido… más destacado". Three surface levels: hero (next match),
+  accent (Goleadores, red-tinted), base (the rest).
+- **S15** — Owner: "la primera ficha… con el logo no me dice nada". The club card is removed; the next-match
+  card crowns the centre column. Club identity already lives in the fixed header.
+- **S16** — Owner: "otra ficha que pusiera partidos asistidos y… quién ha venido a jugar en cada uno de los
+  partidos". An attendance card fed by the club's own record; the official source publishes none, so it
+  starts as an honest empty state and the club fills it by hand.
+- **S17** — Owner: "que fuera como unas noticias y que vayan saliendo noticias ahí en medio en broma sobre
+  tal jugador se ha lesionado, tal jugador puesto una excusa mala para no venir… que te inventes unas treinta
+  o cuarenta noticias". The centre column gains a satirical news feed under the next-match card, written by
+  the assistant, labelled as vestuario humour.
 
 ## Log
 
@@ -135,3 +151,12 @@ supplies them (T9, T11).
 - **L12** (owner): the squad photo goes behind the page "muy difuminada y burry", and some pill tags should
   read a little reddish. Implemented as a pre-blurred 31KB copy (no live blur cost) under a gradient scrim,
   and as a red tint on our own team's pill so the colour distinguishes us from rivals instead of decorating.
+- **L13** (owner): the re-exported cutouts at 264px with real transparency become the card art — the squad
+  slider shows each player as a chromo floating on the dark card, and the gray-background collage crops go.
+  Chepa is confirmed as the goalkeeper (the only position confirmed so far), and the satire feed's
+  "we are looking for a keeper" joke became a Chepa excuse.
+- **L14** (owner, attendance): "en el primer partido estuvieron todos"; J2 was dictated with informal
+  spellings (Jonai, Jerry, Neil, Martin, Giovanni, Christian, Robert) that map to the squad's canonical
+  names; "Idari no es nadie, solo que queria decir 'y Dani' i el micro no entendia". Record: J1 all 14,
+  J2 eleven (Jonay, Marcos, Rup, Albert, Chepa, Geri, Nil, Martí, Gio, Pablo, Cristian), J3 nine (Jonay,
+  Marcos, Rup, Albert, Nil, Martí, Gio, Pablo, Dani). Every player attended at least one match.

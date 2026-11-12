@@ -3,11 +3,74 @@
   "updatedAt": "2026-11-12",
   "source": "Datos facilitados por el club. La fuente oficial (CEGARRAF) no publica goleadores ni tarjetas.",
   "scorers": [
-    { "player": "Albert", "goals": 3 },
-    { "player": "Jonay", "goals": 1 }
+    {
+      "player": "Albert",
+      "goals": 3
+    },
+    {
+      "player": "Jonay",
+      "goals": 1
+    }
   ],
   "cards": [
-    { "player": "Albert", "yellow": 1, "red": 0 }
+    {
+      "player": "Albert",
+      "yellow": 1,
+      "red": 0
+    }
   ],
-  "attendance": []
+  "attendance": [
+    {
+      "matchday": 1,
+      "competition": "league",
+      "players": [
+        "Pablo",
+        "Nil",
+        "Martí",
+        "Marcos",
+        "Jonay",
+        "Rup",
+        "Albert",
+        "Gio",
+        "Geri",
+        "Dani",
+        "Ander",
+        "Cristo",
+        "Chepa",
+        "Cristian"
+      ]
+    },
+    {
+      "matchday": 2,
+      "competition": "league",
+      "players": [
+        "Jonay",
+        "Marcos",
+        "Rup",
+        "Albert",
+        "Chepa",
+        "Geri",
+        "Nil",
+        "Martí",
+        "Gio",
+        "Pablo",
+        "Cristian"
+      ]
+    },
+    {
+      "matchday": 3,
+      "competition": "league",
+      "players": [
+        "Jonay",
+        "Marcos",
+        "Rup",
+        "Albert",
+        "Nil",
+        "Martí",
+        "Gio",
+        "Pablo",
+        "Dani"
+      ]
+    }
+  ]
 }
