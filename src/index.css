@@ -158,3 +158,25 @@ body {
     transparent 100%
   );
 }
+
+/* ===== Breaking news ticker: seamless right-to-left marquee =====
+   The track holds the feed twice and translates exactly half of itself, so the
+   loop never jumps. Reduced-motion readers get a static start instead. */
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.anim-ticker {
+  animation: ticker-scroll 700s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-ticker {
+    animation: none;
+  }
+}

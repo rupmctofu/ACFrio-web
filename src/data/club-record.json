@@ -16,7 +16,14 @@
     {
       "player": "Albert",
       "yellow": 1,
-      "red": 0
+      "red": 0,
+      "yellowAt": 2
+    },
+    {
+      "player": "Jonay",
+      "yellow": 1,
+      "red": 0,
+      "yellowAt": 3
     }
   ],
   "attendance": [

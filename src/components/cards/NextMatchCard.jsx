@@ -98,17 +98,16 @@ export default function NextMatchCard({ className = "" }) {
       </header>
 
       {next ? (
-        <div className="flex flex-1 flex-col px-6 pb-6">
-          {/* The pill, the matchup and the countdown take the free vertical space
-              of the card and stay optically centred, so on the tall desktop column
-              the hero breathes instead of leaving a gap above the details. */}
-          <div className="mb-6 flex justify-center">
+        <div className="flex flex-col gap-7 px-6 pb-6">
+          {/* The hero stretches to the column height, so its five blocks are
+              distributed evenly instead of gathering around one dead band. */}
+          <div className="flex justify-center">
             <span className="rounded-full border border-acf-line px-3.5 py-1.5 text-micro font-semibold uppercase tracking-[0.16em] text-acf-grey">
               {matchdayLabel(next)}
             </span>
           </div>
 
-          <div className="flex flex-1 flex-col justify-center">
+          <div>
             {/* The date and the kickoff time are already stated with their own labels
                 in the details below, so the centre of the card only names the fixture. */}
             <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-5">
@@ -122,7 +121,7 @@ export default function NextMatchCard({ className = "" }) {
             </div>
 
             {countdown ? (
-              <div className="mt-7 flex items-start justify-center gap-1 border-t border-acf-line-soft pt-7 sm:gap-2">
+              <div className="flex items-start justify-center gap-1 border-t border-acf-line-soft pt-7 sm:gap-2">
                 <CountdownUnit value={countdown.days} label="Días" />
                 <span className="mt-2 text-lg font-semibold text-acf-dim">:</span>
                 <CountdownUnit value={countdown.hours} label="Horas" />
@@ -136,7 +135,7 @@ export default function NextMatchCard({ className = "" }) {
 
           {/* One column on a phone: the field name is real data, so it never has
               to be squeezed into a half-width tile. */}
-          <dl className="mb-6 mt-7 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+          <dl className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
             <Detail label="Fecha">{fixtureDateLabel(next)}</Detail>
             <Detail label="Hora">
               <Clock className="h-3.5 w-3.5 shrink-0 text-acf-grey" />
@@ -153,7 +152,7 @@ export default function NextMatchCard({ className = "" }) {
             href={next.competitionSource}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-auto flex items-center justify-center gap-2 rounded-tile bg-acf-red px-6 py-4 text-[15px] font-extrabold tracking-tight text-acf-dark transition hover:brightness-110"
+            className="flex items-center justify-center gap-2 rounded-tile bg-acf-red px-6 py-4 text-[15px] font-extrabold tracking-tight text-acf-dark transition hover:brightness-110"
           >
             Calendario oficial
             <ExternalLink className="h-4 w-4" />

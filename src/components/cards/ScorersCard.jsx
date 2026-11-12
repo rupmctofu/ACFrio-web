@@ -106,7 +106,10 @@ export default function ScorersCard({ className = "" }) {
                   {entry.player}
                 </span>
                 {entry.yellow > 0 ? (
-                  <span className="flex items-center gap-1">
+                  <span
+                    className="flex items-center gap-1"
+                    title={entry.yellowAt ? `Amarilla en la jornada ${entry.yellowAt}` : undefined}
+                  >
                     <span
                       className="inline-block h-3 w-2 shrink-0 rounded-[1px] bg-yellow-400"
                       aria-hidden="true"
