@@ -12,7 +12,8 @@ const positionStyle = {
 };
 
 function PlayerCard({ player }) {
-  const pos = positionStyle[player.position];
+  // Position and shirt number are shown only when the club has confirmed them.
+  const pos = player.position ? positionStyle[player.position] : null;
 
   return (
     <article
@@ -20,28 +21,36 @@ function PlayerCard({ player }) {
       className="group relative bg-acf-panel border border-acf-line hover:border-acf-red/60 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-red overflow-hidden clip-edge-tl shrink-0 snap-start min-w-[17rem] w-[78vw] max-w-[19rem]"
     >
       {/* Fondo del dorsal en marca de agua */}
-      <span className="absolute -right-4 bottom-0 font-display text-[10rem] leading-none text-white/[0.04] select-none pointer-events-none transition-all duration-500 group-hover:text-white/[0.07]">
-        {player.number}
-      </span>
+      {player.number ? (
+        <span className="absolute -right-4 bottom-0 font-display text-[10rem] leading-none text-white/[0.04] select-none pointer-events-none transition-all duration-500 group-hover:text-white/[0.07]">
+          {player.number}
+        </span>
+      ) : null}
 
       {/* Cabecera con degradado posicional */}
       <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
 
       <div className="relative flex items-center justify-between px-4 pt-3.5">
-        <span className={`${pos.bg} text-white text-[10px] font-bold px-2 py-0.5 tracking-widest clip-edge`}>
-          {pos.text}
-        </span>
-        <span className="font-display text-lg text-acf-grey">#{player.number}</span>
+        {pos ? (
+          <span className={`${pos.bg} text-white text-[10px] font-bold px-2 py-0.5 tracking-widest clip-edge`}>
+            {pos.text}
+          </span>
+        ) : (
+          <span />
+        )}
+        {player.number ? (
+          <span className="font-display text-lg text-acf-grey">#{player.number}</span>
+        ) : null}
       </div>
 
       {/* Foto de medio cuerpo con transparencia */}
       <div className="relative mt-1 flex items-center justify-center">
         <div className="relative h-64 sm:h-72 w-full">
           <img
-            src={player.cutout}
+            src={player.photo}
             alt={player.name}
             loading="lazy"
-            className="relative h-full w-full object-contain object-top drop-shadow-red"
+            className="relative h-full w-full object-cover object-top"
             onError={(e) => {
               e.currentTarget.src =
                 "data:image/svg+xml," +
@@ -57,10 +66,14 @@ function PlayerCard({ player }) {
         <h3 className="font-display text-2xl leading-tight tracking-wide text-white group-hover:text-acf-red transition-colors">
           {player.name}
         </h3>
-        <p className="text-xs text-acf-snow/60 italic">«{player.nickname}»</p>
-        <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.2em] text-acf-grey">
-          {player.position}
-        </p>
+        {player.nickname ? (
+          <p className="text-xs text-acf-snow/60 italic">«{player.nickname}»</p>
+        ) : null}
+        {player.position ? (
+          <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.2em] text-acf-grey">
+            {player.position}
+          </p>
+        ) : null}
       </div>
     </article>
   );
@@ -75,6 +88,9 @@ export default function Squad() {
     () => (filter === "Todos" ? squad : squad.filter((p) => p.position === filter)),
     [filter, squad]
   );
+
+  // The club has not given positions yet, so the filter only appears once some exist.
+  const hasPositions = useMemo(() => squad.some((player) => player.position), [squad]);
 
   const scrollByCards = (dir) => {
     const track = trackRef.current;
@@ -91,7 +107,7 @@ export default function Squad() {
           <div>
             <p className="text-acf-red font-display text-3xl tracking-widest">LA PLANTILLA</p>
             <h2 className="font-display text-4xl sm:text-5xl tracking-wide uppercase">
-              Los 12 del Frío
+              Plantilla 2026/2027
             </h2>
           </div>
           <div className="text-center sm:text-right">
@@ -101,7 +117,8 @@ export default function Squad() {
         </div>
 
         {/* Filtro por posición */}
-        <div className="flex flex-wrap gap-2 mb-8">
+        {hasPositions ? (
+          <div className="flex flex-wrap gap-2 mb-8">
           {POSITIONS.map((pos) => (
             <button
               key={pos}
@@ -115,7 +132,8 @@ export default function Squad() {
               {pos}
             </button>
           ))}
-        </div>
+          </div>
+        ) : null}
 
         {/* Slider horizontal de jugadores */}
         <div className="relative">
