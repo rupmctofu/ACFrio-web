@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import teamData from "../data/teamData.json";
-import matchData from "../data/matchData.json";
 
 const navLinks = [
   { label: "Inicio", href: "#inicio" },

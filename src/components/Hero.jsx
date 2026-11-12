@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CalendarDays, ArrowDown } from "lucide-react";
 import teamData from "../data/teamData.json";
-import matchData from "../data/matchData.json";
+import {
+  nextFixture,
+  opponentOf,
+  teamName,
+  fixtureKickoffIso,
+  matchdayLabel,
+} from "../data/competition";
 
 function useCountdown(targetIso) {
   const target = useMemo(() => new Date(targetIso).getTime(), [targetIso]);
@@ -85,20 +91,22 @@ function CountdownUnit({ value, label, accent = false }) {
 
 export default function Hero() {
   const { club } = teamData;
-  const { nextMatch } = matchData;
-  const { days, hours, minutes, seconds } = useCountdown(nextMatch.date);
+  const next = useMemo(() => nextFixture(), []);
+  const kickoffIso = next ? fixtureKickoffIso(next) : null;
+  const { days, hours, minutes, seconds } = useCountdown(kickoffIso);
   const fogRef = useRef(null);
   const [fogFallback, setFogFallback] = useState(false);
   const handleFogFallback = useCallback(() => setFogFallback(true), []);
   useVantaFog(fogRef, handleFogFallback);
 
   const matchDate = useMemo(() => {
-    return new Date(nextMatch.date).toLocaleDateString("es-ES", {
+    if (!kickoffIso) return "por confirmar";
+    return new Date(kickoffIso).toLocaleDateString("es-ES", {
       weekday: "long",
       day: "numeric",
       month: "long",
     });
-  }, [nextMatch.date]);
+  }, [kickoffIso]);
 
   return (
     <section
@@ -173,7 +181,8 @@ export default function Hero() {
           <div className="flex items-center justify-center gap-3 mb-6">
             <CalendarDays className="h-4 w-4 text-acf-red" />
             <p className="text-xs sm:text-sm text-acf-grey uppercase tracking-[0.15em] sm:tracking-[0.3em] font-semibold">
-              Próximo partido · {matchDate} · {nextMatch.round}
+              Próximo partido · {matchDate} · {next ? matchdayLabel(next) : "calendario pendiente"}
+              {next ? ` · vs ${teamName(opponentOf(next).slug)}` : ""}
             </p>
           </div>
           <div className="flex items-center justify-center gap-1 sm:gap-3 md:gap-5">
