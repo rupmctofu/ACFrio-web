@@ -1,0 +1,44 @@
+import { useState } from "react";
+import teamData from "../../data/teamData.json";
+import { CLUB_SLUG, teamCrest, teamInitials } from "../../data/competition";
+
+const SIZES = {
+  sm: "h-6 w-6 text-[9px]",
+  md: "h-9 w-9 text-[11px]",
+  lg: "h-20 w-20 text-xl sm:h-24 sm:w-24 sm:text-2xl",
+};
+
+/** The club shows its own logo; every rival shows the crest the source publishes. */
+export const crestSrc = (slug) =>
+  slug === CLUB_SLUG ? teamData.club.logo : teamCrest(slug);
+
+/**
+ * Crest with an initials fallback: two clubs in the league publish no crest, and
+ * a missing image must never become an invented badge.
+ */
+export function Crest({ slug, size = "sm", className = "" }) {
+  const src = crestSrc(slug);
+  const [failed, setFailed] = useState(false);
+  const box =
+    `inline-flex shrink-0 items-center justify-center rounded border border-acf-line bg-acf-dark font-display text-acf-grey ${SIZES[size]} ${className}`;
+
+  if (!src || failed) {
+    return (
+      <span className={box} aria-hidden="true">
+        {teamInitials(slug)}
+      </span>
+    );
+  }
+
+  return (
+    <span className={box} aria-hidden="true">
+      <img
+        src={src}
+        alt=""
+        loading="lazy"
+        className="h-full w-full object-contain p-0.5"
+        onError={() => setFailed(true)}
+      />
+    </span>
+  );
+}

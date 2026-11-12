@@ -4,10 +4,9 @@ import teamData from "../data/teamData.json";
 const navLinks = [
   { label: "Inicio", href: "#inicio" },
   { label: "Partidos", href: "#partidos" },
-  { label: "Plantilla", href: "#plantilla" },
-  { label: "La Armadura", href: "#armadura" },
   { label: "Clasificación", href: "#clasificacion" },
-  { label: "El Vestuario", href: "#vestuario" },
+  { label: "Copa", href: "#copa" },
+  { label: "Plantilla", href: "#plantilla" },
 ];
 
 function formatKickoff(iso) {
@@ -68,7 +67,7 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           <a
             href="#partidos"
-            className="hidden sm:flex items-center gap-2 bg-acf-red hover:bg-acf-red-dark text-white text-sm font-bold px-4 py-2 clip-edge transition-colors anim-pulse-red"
+            className="hidden sm:flex items-center gap-2 bg-acf-red hover:bg-acf-red-dark text-white text-sm font-bold px-4 py-2 transition-colors anim-pulse-red"
           >
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />

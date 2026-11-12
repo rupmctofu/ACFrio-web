@@ -1,10 +1,7 @@
 import Navbar from "./components/Navbar.jsx";
 import Hero from "./components/Hero.jsx";
-import MatchCenter from "./components/MatchCenter.jsx";
+import Dashboard from "./components/Dashboard.jsx";
 import Squad from "./components/Squad.jsx";
-import Armor from "./components/Armor.jsx";
-import Vestuario from "./components/Vestuario.jsx";
-import Standings from "./components/Standings.jsx";
 import teamData from "./data/teamData.json";
 
 function Footer() {
@@ -26,7 +23,8 @@ function Footer() {
           </div>
 
           <p className="text-center text-xs text-acf-grey">
-            © 2026 {club.name} · {club.founded ? `Fundado en ${club.founded}` : ""} · Pachanga Arena
+            © 2026 {club.name}
+            {club.founded ? ` · Fundado en ${club.founded}` : ""}
           </p>
 
           <p className="font-display text-base sm:text-lg text-acf-grey tracking-wider sm:tracking-widest text-center">
@@ -44,11 +42,8 @@ export default function App() {
       <Navbar />
       <main>
         <Hero />
-        <MatchCenter />
+        <Dashboard />
         <Squad />
-        <Armor />
-        <Standings />
-        <Vestuario />
       </main>
       <Footer />
     </div>

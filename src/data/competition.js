@@ -20,6 +20,25 @@ export const cup = findCompetition("cup");
 export const teamName = (slug) => competition.teams[slug]?.name ?? slug;
 export const teamCrest = (slug) => competition.teams[slug]?.crest ?? null;
 
+const INITIAL_STOPWORDS = new Set(["FC", "CF", "CD", "UD", "SC", "C.F.", "F.C."]);
+
+/**
+ * Initials for a club the source publishes no crest for. Real letters from the
+ * real name, never a drawn placeholder badge.
+ */
+export function teamInitials(slug) {
+  const name = teamName(slug);
+  const letters = name
+    .replace(/[^A-Za-zÀ-ÿ0-9 ]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean)
+    .filter((word) => !INITIAL_STOPWORDS.has(word.toUpperCase()))
+    .map((word) => word[0].toUpperCase())
+    .join("")
+    .slice(0, 3);
+  return letters || name.slice(0, 2).toUpperCase();
+}
+
 /** Which side of the fixture the club plays, or null when it is not involved. */
 export function clubSide(fixture) {
   if (fixture.home.slug === CLUB_SLUG) return "home";
@@ -42,28 +61,72 @@ const withCompetition = (competition, fixture) => ({
 const clubFixturesOf = (competition) =>
   competition.fixtures.filter((fixture) => clubSide(fixture) !== null);
 
-/** The next fixture of the club across every competition, by kickoff. */
-export function nextFixture() {
-  const candidates = [];
+const byKickoffAsc = (a, b) => kickoff(a).localeCompare(kickoff(b));
+const byKickoffDesc = (a, b) => kickoff(b).localeCompare(kickoff(a));
+
+/** Every club fixture of the given status, across every competition. */
+function clubFixturesWithStatus(status) {
+  const collected = [];
   for (const item of competitions) {
     for (const fixture of clubFixturesOf(item)) {
-      if (fixture.status === "scheduled") candidates.push(withCompetition(item, fixture));
+      if (fixture.status === status) collected.push(withCompetition(item, fixture));
     }
   }
-  candidates.sort((a, b) => kickoff(a).localeCompare(kickoff(b)));
-  return candidates[0] ?? null;
+  return collected;
+}
+
+/** The next fixture of the club across every competition, by kickoff. */
+export function nextFixture() {
+  return clubFixturesWithStatus("scheduled").sort(byKickoffAsc)[0] ?? null;
 }
 
 /** The most recent played fixture of the club across every competition. */
 export function lastFixture() {
-  const candidates = [];
-  for (const item of competitions) {
-    for (const fixture of clubFixturesOf(item)) {
-      if (fixture.status === "played") candidates.push(withCompetition(item, fixture));
-    }
+  return clubFixturesWithStatus("played").sort(byKickoffDesc)[0] ?? null;
+}
+
+/** The following fixtures of the club, soonest first, ready for a slider. */
+export function nextFixtures(limit = 6) {
+  const all = clubFixturesWithStatus("scheduled").sort(byKickoffAsc);
+  return limit == null ? all : all.slice(0, limit);
+}
+
+/** The last played fixtures of the club, most recent first, for the form card. */
+export function recentResults(limit = 3) {
+  const all = clubFixturesWithStatus("played").sort(byKickoffDesc);
+  return limit == null ? all : all.slice(0, limit);
+}
+
+/**
+ * A competition table plus the honest count of what the source has published.
+ * `hasResults` is false until a matchday is played, because a table of zeros is
+ * the source's initial order, not a ranking worth presenting as one.
+ */
+export function tableSummary(competition) {
+  if (!competition) {
+    return { competition: null, rows: [], playedMatches: 0, matchCount: 0, hasResults: false };
   }
-  candidates.sort((a, b) => kickoff(b).localeCompare(kickoff(a)));
-  return candidates[0] ?? null;
+  const playedMatches = competition.fixtures.filter(
+    (fixture) => fixture.status === "played"
+  ).length;
+  return {
+    competition,
+    rows: competition.table,
+    playedMatches,
+    matchCount: competition.fixtures.length,
+    hasResults: playedMatches > 0,
+  };
+}
+
+export const leagueTable = () => tableSummary(league);
+export const cupTable = () => tableSummary(cup);
+
+/** "Local" or "Visitante" from the club's point of view, or null. */
+export function homeAwayLabel(fixture) {
+  const side = clubSide(fixture);
+  if (side === "home") return "Local";
+  if (side === "away") return "Visitante";
+  return null;
 }
 
 /** The row of the club in a competition table. */
@@ -101,14 +164,19 @@ export const matchdayLabel = (fixture) =>
 export const scoreLabel = (fixture) =>
   fixture.score ? `${fixture.score.home} - ${fixture.score.away}` : null;
 
-/** True when the club won, drew or lost the given played fixture. */
-export function resultOf(fixture) {
-  if (!fixture.score) return null;
+/** The club's own goals and the rival's in a played fixture, or null. */
+export function clubScore(fixture) {
+  if (!fixture?.score) return null;
   const side = clubSide(fixture);
   if (!side) return null;
-  const own = fixture.score[side];
-  const rival = fixture.score[side === "home" ? "away" : "home"];
-  if (own > rival) return "win";
-  if (own < rival) return "loss";
+  return { own: fixture.score[side], rival: fixture.score[side === "home" ? "away" : "home"] };
+}
+
+/** True when the club won, drew or lost the given played fixture. */
+export function resultOf(fixture) {
+  const score = clubScore(fixture);
+  if (!score) return null;
+  if (score.own > score.rival) return "win";
+  if (score.own < score.rival) return "loss";
   return "draw";
 }

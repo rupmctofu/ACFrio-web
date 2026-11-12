@@ -1,8 +1,10 @@
 # Competition data: real calendar, standings and cup
 
 Feature: replace the invented AC FRÍO competition data in the web with the real 3ª Divisió Grup B and
-Copa 2027 Grup B published by CEGARRAF, and rework the visual language. Branch `feature/competition-data`.
-Status: T1–T7 in progress; the visual rework (T8) waits for the owner's reference image.
+Copa 2027 Grup B published by CEGARRAF, and rework the home into a grid of cards. Branch
+`feature/competition-data`. Status: home grid, standings, form, fixtures slider, cup and scorers card are
+live on real data; the scorers card stays partial and the player photos stay placeholders until the owner
+supplies them (T9, T11).
 
 ## Specs
 
@@ -21,7 +23,21 @@ Status: T1–T7 in progress; the visual rework (T8) waits for the owner's refere
 - **S7** — Owner: "Me gustaría darle un rework a cómo se ve visualmente te miró una referencia y te
   paso". The visual rework follows the owner's reference image, which is still pending.
 
+- **S8** — Owner: "estos serían un par de ejemplos no te guíes de los colores, sino de la estructura".
+  The home becomes a grid of cards (bento): the centre card is the next match with the club's own
+  crest; the side cards carry the standings, a scorers card, a slider of the following fixtures with
+  their dates, and the cup.
+- **S9** — Owner: "quitar toda la información que no sea relevante, que te la hayas inventado, que sea
+  como para decorar, la quitamos y nos basamos en cosas chulas que nos gusten y que sean interesantes".
+  Invented or decorative content is removed rather than restyled.
+- **S10** — Owner: "puedes coger todas las fotos de los jugadores si no las tengo yo te las puedo pasar".
+  Real player photos may replace the current placeholder portraits when the owner provides them.
+
 ## Source facts (measured, not assumed)
+
+- The "actas" published by the hub (`ACTA-1/2/3-*.pdf`) are **committee minutes** (sanctions, resolutions),
+  not match reports. No goalscorer data exists anywhere on the official source, so a scorers card can
+  only come from data the owner provides.
 
 - Official hub: `https://www.cegarraf.cat/esport-popular/lliga-comarcal-futbol-7/` (WordPress, no API).
 - Calendar and table live on `cegarraf.gespic.com` at plain **GET** paths: `/calendari/<season>/ceg/futbol/senior/<competition>` and `/classificacio/...`.
@@ -41,7 +57,14 @@ Status: T1–T7 in progress; the visual rework (T8) waits for the owner's refere
 - **T5** — Cup section (table + fixtures). Covers S5.
 - **T6** — Next-match card on the home screen from real data. Covers S1.
 - **T7** — Remove the clipped corner from buttons only. Covers S6.
-- **T8** — Visual rework from the owner's reference image. Covers S7. Blocked: the image was announced, not received.
+- **T8** — Bento home: grid of cards with the next match at the centre and standings, scorers, form,
+  fixtures slider and cup around it. Covers S8. Done.
+- **T9** — Scorers card. Covers S8. Built on the club's own record; partial until the owner names the
+  remaining two goals.
+- **T10** — Remove the invented sections (La Armadura, Vestuario awards, MVP, scorers, "Pachanga Arena",
+  fabricated player stats) and any decorative fake data. Covers S9. Done.
+- **T11** — Real player photos when the owner provides them. Covers S10. Blocked: the images arrived only
+  inside the chat and are not on disk, so they cannot be cut or served yet.
 
 ## Log
 
@@ -56,3 +79,20 @@ Status: T1–T7 in progress; the visual rework (T8) waits for the owner's refere
   not apply server-side: plain GET returns the full season.
 - **L3** (measured): current site data is invented — `matchData.json` carries "Los Charcos FC", Jornada 9,
   2026-09-18, and `Standings.jsx` derives its table with a `useMemo` over those fake results.
+- **L4** (owner, reference images + verbatim): "en cuanto a la interfaz, estos serían un par de ejemplos no
+  te guíes de los colores, sino de la estructura. Me gustaría que fueran como en cajas donde la del centro
+  tal vez fuera como próximo partido tal no se quede con nuestro logo y que en los laterales hubiera, por
+  ejemplo, la clasificación otra cajita que fuera como top goleadores, otro que igual fueron Slider que
+  pudiera sirviendo los siguientes partidos y las fechas otra que subiera la Copa. Es toda esta información
+  que fueran cajitas y fuera visualmente creo que puedes coger todas las fotos de los jugadores si no las
+  tengo yo te las puedo pasar sí y quitar toda la información que no sea relevante, que te la hayas
+  inventado, que sea como para decorar, la quitamos y nos basamos en cosas chulas que nos gusten y que sean
+  interesantes"
+- **L5** (owner, club data): goalscorers so far "Jonay 1, Albert 1", with two goals still to name;
+  "Albert tiene una tarjeta amarilla". Squad faces arrive as a two-row contact sheet read left to right:
+  top row Pablo, Nil, Martí, Marcos, Jonay, Rup, Albert; second row Gio, Geri, Dani, Ander, Cristo, Chepa;
+  plus Cristian in a separate image. Neither image is on disk, so T11 cannot start.
+- **L6** (evidence): the six cards render in the browser in this order — Clasificación, Goleadores, Forma,
+  Próximo partido, Calendario, La Copa — and every figure matches `competition.json`.
+- **L7** (commits): `8468049` data sync, `5ab6a27` real fixtures and standings, `94742d7` club goalscorers
+  and cards, plus the home grid commit that follows this entry.
