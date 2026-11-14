@@ -33,6 +33,10 @@ const SPOTS = {
   Jonay: { x: 73, y: 43 },
   Pablo: { x: 70, y: 61 },
   Cristian: { x: 74, y: 79 },
+  // Provisional: Genís has no confirmed position yet, so he sits in the empty
+  // lane between the midfield band and the forward line. Move him once the
+  // club says where he plays.
+  Genís: { x: 60, y: 50 },
 };
 
 const markers = teamData.squad
