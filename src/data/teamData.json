@@ -16,73 +16,93 @@
     {
       "id": 1,
       "name": "Pablo",
+      "number": 4,
       "photo": "/assets/players/pablo.png"
     },
     {
       "id": 2,
       "name": "Nil",
+      "number": 21,
       "photo": "/assets/players/nil.png"
     },
     {
       "id": 3,
       "name": "Martí",
+      "number": 9,
       "photo": "/assets/players/marti.png"
     },
     {
       "id": 4,
       "name": "Marcos",
+      "number": 10,
       "photo": "/assets/players/marcos.png"
     },
     {
       "id": 5,
       "name": "Jonay",
+      "number": 5,
       "photo": "/assets/players/jonay.png"
     },
     {
       "id": 6,
       "name": "Rup",
+      "number": 8,
       "photo": "/assets/players/rup.png"
     },
     {
       "id": 7,
       "name": "Albert",
+      "number": 6,
       "photo": "/assets/players/albert.png"
     },
     {
       "id": 8,
       "name": "Gio",
+      "number": 26,
       "photo": "/assets/players/gio.png"
     },
     {
       "id": 9,
       "name": "Geri",
+      "number": 2,
       "photo": "/assets/players/geri.png"
     },
     {
       "id": 10,
       "name": "Dani",
+      "number": 7,
       "photo": "/assets/players/dani.png"
     },
     {
       "id": 11,
       "name": "Ander",
+      "number": 14,
       "photo": "/assets/players/ander.png"
     },
     {
       "id": 12,
       "name": "Cristo",
+      "number": 11,
       "photo": "/assets/players/cristo.png"
     },
     {
       "id": 13,
       "name": "Chepa",
+      "number": 1,
       "photo": "/assets/players/chepa.png",
       "position": "Portero"
     },
     {
       "id": 14,
       "name": "Cristian",
+      "number": 23,
       "photo": "/assets/players/cristian.png"
+    },
+    {
+      "id": 15,
+      "name": "Genís",
+      "photo": "/assets/players/genis.png",
+      "placeholder": true
     }
   ],
   "fanZone": {
