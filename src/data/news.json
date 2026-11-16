@@ -1,6 +1,5 @@
 {
   "season": "2026-2027",
-  "disclaimer": "Humor de vestuario. Los titulares salen del grupo del club y el club se ríe de sí mismo.",
   "items": [
     {
       "id": 1,
@@ -75,7 +74,7 @@
     {
       "id": 15,
       "tag": "Instalaciones",
-      "text": "Tenemos treinta y cinco años y jugamos en un instituto. El campo lo elige la liga."
+      "text": "Jugamos en el campo de un instituto. El club lo llama instalación deportiva."
     },
     {
       "id": 16,
@@ -136,6 +135,156 @@
       "id": 27,
       "tag": "Cita",
       "text": "«No creo que haga falta ficha para traer agua» — Ander"
+    },
+    {
+      "id": 28,
+      "tag": "Vestuario",
+      "text": "El grupo se bautizó dream team antes de tener balón, campo y ficha."
+    },
+    {
+      "id": 29,
+      "tag": "Táctica",
+      "text": "Se discutió el 3-3 con falso 9 durante semanas sin pisar un campo."
+    },
+    {
+      "id": 30,
+      "tag": "Objetivos",
+      "text": "Objetivo de temporada ratificado por unanimidad: quedar penúltimos."
+    },
+    {
+      "id": 31,
+      "tag": "Arbitraje",
+      "text": "El arbitraje se paga por adelantado. Las quejas, después."
+    },
+    {
+      "id": 32,
+      "tag": "Economía",
+      "text": "Cada semana faltan tres bizums y siempre son los mismos tres."
+    },
+    {
+      "id": 33,
+      "tag": "Normas",
+      "text": "Pablo recuerda la ficha antes de cada partido y el grupo ya lo ignora."
+    },
+    {
+      "id": 34,
+      "tag": "Normas",
+      "text": "Espavilar: el verbo que el club conjuga cada semana y nadie ejecuta."
+    },
+    {
+      "id": 35,
+      "tag": "Fichajes",
+      "text": "La encuesta de fichajes ganó «originales 4 ever» y no se fichó a nadie."
+    },
+    {
+      "id": 36,
+      "tag": "Material",
+      "text": "Las espinilleras se debaten cada semana y nadie las ha comprado."
+    },
+    {
+      "id": 37,
+      "tag": "Material",
+      "text": "Todo lo compra el director deportivo y todo se divide entre todos."
+    },
+    {
+      "id": 38,
+      "tag": "Portería",
+      "text": "Para elegir portero se usa el método del último que toca el palo."
+    },
+    {
+      "id": 39,
+      "tag": "Manías",
+      "text": "Nil descarta la portería: dice que le tiran vaselina y no piensa volver."
+    },
+    {
+      "id": 40,
+      "tag": "Apodos",
+      "text": "Cristian es Cristi-andando y él lo defiende como estilo de juego."
+    },
+    {
+      "id": 41,
+      "tag": "Apodos",
+      "text": "Marcos juega con Magik serigrafiado y nadie ha pedido explicaciones."
+    },
+    {
+      "id": 42,
+      "tag": "Apodos",
+      "text": "Se busca al Rup esporádico que enamoró al grupo y no ha vuelto."
+    },
+    {
+      "id": 43,
+      "tag": "Vestuario",
+      "text": "Genís entró con un «bienvenido a este despropósito» y nadie lo corrigió."
+    },
+    {
+      "id": 44,
+      "tag": "Manías",
+      "text": "Geri avisa de que llega justo y trae la excusinha preparada."
+    },
+    {
+      "id": 45,
+      "tag": "Normas",
+      "text": "Preguntar «¿tú quién eres?» en el grupo cuesta la ficha."
+    },
+    {
+      "id": 46,
+      "tag": "Táctica",
+      "text": "El plan oscila entre el Brasil de 2002 y el Bordalás más puro."
+    },
+    {
+      "id": 47,
+      "tag": "Táctica",
+      "text": "Se exige presión uno a uno y bloque alto a un equipo que no entrena."
+    },
+    {
+      "id": 48,
+      "tag": "Táctica",
+      "text": "Los tres que corren van por la misma banda y nadie mueve a nadie."
+    },
+    {
+      "id": 49,
+      "tag": "Vestuario",
+      "text": "Doce troncos para unos, doce guerreros para el director deportivo."
+    },
+    {
+      "id": 50,
+      "tag": "Normas",
+      "text": "Nadie pide el cambio y todos piden jugar: dos normas incompatibles."
+    },
+    {
+      "id": 51,
+      "tag": "Plantilla",
+      "text": "El 10 prometió toque toque en agosto y en noviembre sigue sin pasar."
+    },
+    {
+      "id": 52,
+      "tag": "Equipación",
+      "text": "La segunda equipación ya existe: es la misma camiseta del revés."
+    },
+    {
+      "id": 53,
+      "tag": "Logística",
+      "text": "Faltan siete camisetas blancas para poder jugar entre nosotros."
+    },
+    {
+      "id": 54,
+      "tag": "Logística",
+      "text": "«Pasad ubi» es el mensaje más repetido del club y el menos útil."
+    },
+    {
+      "id": 55,
+      "tag": "Instalaciones",
+      "text": "La reserva del campo se cierra por teléfono y el club no llega a llamar."
+    },
+    {
+      "id": 56,
+      "tag": "Himno",
+      "text": "El himno oficial pide descenso y el club lo canta con orgullo."
+    },
+    {
+      "id": 57,
+      "tag": "Vestuario",
+      "text": "El GPS registra cuatro kilómetros y 3,9 de ellos andando."
     }
   ]
 }

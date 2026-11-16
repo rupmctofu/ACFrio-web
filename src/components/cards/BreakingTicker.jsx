@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { newsDisclaimer, newsItems } from "../../data/news";
+import { newsItems } from "../../data/news";
 
 /**
  * TV-style lower third: the vestuario feed scrolls right to left inside a red
@@ -40,7 +40,7 @@ export default function BreakingTicker({ className = "" }) {
 
   return (
     <div
-      aria-label={`${newsDisclaimer} El titular se desplaza de derecha a izquierda.`}
+      aria-label="Titulares del club. El texto se desplaza de derecha a izquierda."
       className={`flex h-10 items-center overflow-hidden rounded-full bg-acf-red ${className}`}
     >
       <div className="min-w-0 flex-1 overflow-hidden">

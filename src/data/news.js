@@ -3,12 +3,10 @@
  * squad's own chat. The order is shuffled on every load, so a reader who comes
  * back does not see the same headline in the same place; the data-derived ones
  * are no longer pinned to the front for the same reason.
- * Each item is humour; the disclaimer travels with the data.
+ * Every item is a joke the squad tells about itself.
  */
 import news from "./news.json";
 import { derivedNews } from "./news-derived";
-
-export const newsDisclaimer = news.disclaimer;
 
 /** Fisher-Yates, so every headline can land anywhere. */
 const shuffled = (list) => {

@@ -38,3 +38,4 @@ telegram_ask_result.txt
 .taste-skill-audit/
 .chat-scratch/
 src/Whatsapp/
+src/*.zip
