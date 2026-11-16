@@ -1,141 +1,141 @@
 {
   "season": "2026-2027",
-  "disclaimer": "Humor de vestuario. Ninguna noticia es real: son bromas del club sobre sí mismo.",
+  "disclaimer": "Humor de vestuario. Los titulares salen del grupo del club y el club se ríe de sí mismo.",
   "items": [
     {
       "id": 1,
-      "tag": "Lesiones",
-      "text": "El parte médico confirma la baja más repetida de la temporada: 'tobillo misterioso'. Nadie lo ha visto, pero doler duele."
+      "tag": "Fichajes",
+      "text": "Genís llega a la portería con los guantes puestos y sin preguntar por el titular."
     },
     {
       "id": 2,
-      "tag": "Excusas",
-      "text": "Ranking oficial de excusas para no venir: 1º 'tengo un bautizo', 2º 'me pilla lejos', 3º 'es que hoy hacía frío'. En un club que se llama AC FRÍO."
+      "tag": "Normas",
+      "text": "La liga exige que el portero vista distinto. El club se enteró tarde."
+    },
+    {
+      "id": 3,
+      "tag": "Economía",
+      "text": "22,15 euros por cabeza de inscripción. La ficha, 62, aparte. El fútbol es gratis."
+    },
+    {
+      "id": 4,
+      "tag": "Material",
+      "text": "Dos balones nuevos: 32 euros. El tercero lo pone el que los pinche."
+    },
+    {
+      "id": 5,
+      "tag": "Instalaciones",
+      "text": "El césped del anexo está alto. El club lo llama nivel exquisito."
     },
     {
       "id": 6,
-      "tag": "Instalaciones",
-      "text": "Camp ANNEX 3 sigue siendo el único campo donde los saques de banda salen a la carretera. La valla interviene más que el VAR."
+      "tag": "Horarios",
+      "text": "Jugamos a las 22:30. Rup avisa de que no son horas para un señor."
     },
     {
       "id": 7,
-      "tag": "Horarios",
-      "text": "Seguimos jugando a las 22:30 de un jueves. La liga lo llama 'horario estelar', nuestras parejas lo llaman de otra forma."
+      "tag": "Resultados",
+      "text": "Debut sin entrenar: tres entradas al campo y vuelta al vestuario. Cero calentamiento."
+    },
+    {
+      "id": 8,
+      "tag": "Resultados",
+      "text": "5-2. El vestuario lo lee como un avance: ya marcan dos goles."
+    },
+    {
+      "id": 9,
+      "tag": "Arbitraje",
+      "text": "A Martí le anularon un gol. El club pide VAR, disculpas y una explicación."
+    },
+    {
+      "id": 10,
+      "tag": "Vestuario",
+      "text": "Nueve convocados, dos cambios. El que sale antes gana la discusión."
     },
     {
       "id": 11,
-      "tag": "Fichajes",
-      "text": "Cristian llega en noviembre como refuerzo de invierno. Su ficha: entender el offside más rápido que la media del vestuario."
+      "tag": "Equipación",
+      "text": "Tacos AG o MG. Las SG y TF, prohibidas: el campo manda más que la liga."
     },
     {
       "id": 12,
-      "tag": "Cuerpo médico",
-      "text": "El masajista solicita el ascenso a jugador. La junta estudia la petición entre hielo y compresas."
+      "tag": "Economía",
+      "text": "Equipación 28,35 euros. En el bizum, nombre y número: Hacienda también juega."
+    },
+    {
+      "id": 13,
+      "tag": "Portería",
+      "text": "Camiseta de portero talla 456 y dorsal 80. Nadie preguntó nada."
     },
     {
       "id": 14,
-      "tag": "Calendario",
-      "text": "Copa los martes, liga los jueves. El cuerpo ya no sabe qué día es; el cepillo de dientes tampoco."
+      "tag": "Fichajes",
+      "text": "Un refuerzo vino a entrenar, vio el panorama y no fichó. Genís sí."
     },
     {
       "id": 15,
-      "tag": "Meteorología",
-      "text": "El club niega cualquier contacto con el frío polar: 'nosotros somos el frío'. La previsión confirma 0°C como temperatura ambiente."
+      "tag": "Instalaciones",
+      "text": "Tenemos treinta y cinco años y jugamos en un instituto. El campo lo elige la liga."
     },
     {
       "id": 16,
-      "tag": "Táctica",
-      "text": "Nueva táctica ensayada en la tercera copa: presionar alto, en el bar. Resultados prometedores."
+      "tag": "Entrenos",
+      "text": "Primer entrenamiento: doce de noviembre, después de tres partidos."
     },
     {
       "id": 17,
-      "tag": "Cuerpo médico",
-      "text": "Parte de lesiones oficial: nadie. Parte no oficial: todos, con distintos grados de drama."
+      "tag": "Directiva",
+      "text": "Reparto de cargos: Jonay capitán, Nil entrenador, Ander presidente. Cobrar, nadie."
     },
     {
       "id": 18,
-      "tag": "Material",
-      "text": "Las nuevas equipaciones repelen agua, barro y responsabilidades. Testado por el propio equipo en tres jornadas."
+      "tag": "Vestuario",
+      "text": "Dos himnos en una semana. En el campo, ni uno."
     },
     {
       "id": 19,
-      "tag": "Logística",
-      "text": "Geri firma el mejor dato físico de la jornada: 90 minutos corridos del aparcamiento al campo."
+      "tag": "Lesiones",
+      "text": "Parte médico: nariz, isquio, rodilla, espalda y un dedo. Todo leve."
     },
     {
       "id": 20,
-      "tag": "Calentamiento",
-      "text": "Ander pierde el calentamiento por segunda semana. El tercer tercio del partido, sin embargo, es intocable."
+      "tag": "Economía",
+      "text": "La cuota de noviembre: 2.000 euros. El club lo llama temporada, nosotros susto."
     },
     {
       "id": 21,
-      "tag": "FIFA",
-      "text": "Nil debuta con doblete en el FIFA. El mundo real queda 'en revisión' hasta nuevo parte."
+      "tag": "Instalaciones",
+      "text": "Votación del nombre: AC FRÍO. Ganó por goleada, como todo en WhatsApp."
     },
     {
       "id": 22,
-      "tag": "Reglamento",
-      "text": "Solicitud de excepción al reglamento: fumar en la frontal del área. Denegada. Se recurrirá."
+      "tag": "Desplazamientos",
+      "text": "Vilanova, césped artificial, miércoles o jueves. La liga aún lo está pensando."
     },
     {
       "id": 23,
-      "tag": "Material",
-      "text": "Dani estrena botas y el césped presenta denuncia por maltrato. El colegio de saca-espinas declina pronunciarse."
+      "tag": "Cita",
+      "text": "«Nuestra esencia es el caos, no lo perdamos chicos» — Cristian"
     },
     {
       "id": 24,
-      "tag": "Corazón",
-      "text": "Gio renueva su gala de correr por gusto: corazón de sobra, cronómetro en contra."
+      "tag": "Cita",
+      "text": "«Nos han visto calentar y no entendían nada» — Geri"
     },
     {
       "id": 25,
-      "tag": "Redes",
-      "text": "Cristo abre canal propio: 'Las jugadas que no fueron'. Primer episodio: la suya del miércoles."
+      "tag": "Cita",
+      "text": "«Quién ha dicho que esto era una democracia?» — Cristóbal"
+    },
+    {
+      "id": 26,
+      "tag": "Cita",
+      "text": "«Hoy las peleas serán a ver quién sale» — Martí"
     },
     {
       "id": 27,
-      "tag": "VAR",
-      "text": "Marcos pide revisión por VAR del bar de abajo del fuera de juego que nos anularon. El VAR del bar atiende en horario de copas."
-    },
-    {
-      "id": 29,
-      "tag": "Mascotas",
-      "text": "Rata niega cualquier relación con la jugada perdida del domingo: 'yo estaba en otra ratonera'."
-    },
-    {
-      "id": 30,
-      "tag": "Ilusión",
-      "text": "Rumor de vestuario: 'el año que viene ascendemos'. La cuota de fe se renueva semana a semana, sin coste."
-    },
-    {
-      "id": 32,
-      "tag": "Físico",
-      "text": "Estudio interno: el equipo corre más en el grupo de WhatsApp que en el campo. Se adjuntan capturas como prueba."
-    },
-    {
-      "id": 33,
-      "tag": "Portería",
-      "text": "Chepa confirma que el gol del rival entró 'porque la luz molestaba'. El club se lo cree: siempre hace sol a las 22:30."
-    },
-    {
-      "id": 35,
-      "tag": "Ficha",
-      "text": "Jonay marca el gol más frío de la jornada y se niega a celebrarlo: 'soy profesional'."
-    },
-    {
-      "id": 36,
-      "tag": "Ilusión",
-      "text": "Chepa sube a rematar un córner y vuelve con la pelada a punto. La jugada entra directo al archivo histórico."
-    },
-    {
-      "id": 37,
-      "tag": "Material",
-      "text": "Las medias del equipo ya han aguantado más lavados que goles en contra. Buen signo, dicen en taquilla."
-    },
-    {
-      "id": 38,
-      "tag": "Planificación",
-      "text": "El entrenador anuncia rotaciones: 'los que corran el jueves, juegan el jueves'. Sin quejas de momento."
+      "tag": "Cita",
+      "text": "«No creo que haga falta ficha para traer agua» — Ander"
     }
   ]
 }
