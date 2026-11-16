@@ -22,7 +22,7 @@ import GalleryCard from "./cards/GalleryCard.jsx";
 export default function Dashboard() {
   return (
     <section id="partidos" className="relative pb-16 pt-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="wrap">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* On phones the columns dissolve (display: contents) and every card
               gets its own order, so the owner's mobile sequence is: match,

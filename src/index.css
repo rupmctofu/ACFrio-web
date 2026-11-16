@@ -81,6 +81,31 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ===== Layout: one container for every band =====
+ * The navbar, the match bands, the squad and the footer all put their content
+ * in `.wrap`, so the left and right edges line up down the whole page at every
+ * width. These are the same values the components used to repeat inline
+ * (max-w-7xl, px-4, sm:px-6, lg:px-8), so the pass changes nothing on screen.
+ */
+.wrap {
+  width: 100%;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+  .wrap {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wrap {
+    padding-inline: 2rem;
+  }
+}
+
 /* ===== Scrollbar ===== */
 ::-webkit-scrollbar {
   width: 10px;
@@ -137,28 +162,6 @@ body {
   --color-acf-dim: var(--color-acf-grey);
 }
 
-/* ===== Squad slider ===== */
-.squad-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.squad-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.squad-fade-right {
-  mask-image: linear-gradient(
-    to right,
-    black calc(100% - 3rem),
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    black calc(100% - 3rem),
-    transparent 100%
-  );
-}
-
 /* ===== Breaking news ticker: seamless right-to-left marquee =====
    The track holds the feed twice and translates exactly half of itself, so the
    loop never jumps. Reduced-motion readers get a static start instead. */
@@ -172,7 +175,9 @@ body {
 }
 
 .anim-ticker {
-  animation: ticker-scroll 800s linear infinite;
+  /* The component sets the real duration from the measured width (a constant
+     pixels-per-second rate); this value only covers the first paint. */
+  animation: ticker-scroll 60s linear infinite;
 }
 
 /* ===== Pitch: a marker floating in place =====

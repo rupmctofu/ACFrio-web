@@ -200,7 +200,7 @@ export default function PitchCard({ className = "" }) {
   return (
     <figure
       aria-label="La plantilla sobre el campo"
-      className={`relative mb-10 overflow-hidden rounded-card border border-acf-line bg-acf-panel shadow-acf ${className}`}
+      className={`card relative mb-10 overflow-hidden rounded-card border border-acf-line bg-acf-panel shadow-acf ${className}`}
     >
       <div
         ref={frame}

@@ -1,5 +1,4 @@
-import { useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useMemo, useState } from "react";
 import teamData from "../data/teamData.json";
 import PitchCard from "./cards/PitchCard.jsx";
 
@@ -19,8 +18,7 @@ function PlayerCard({ player }) {
 
   return (
     <article
-      data-card
-      className="group relative shrink-0 snap-start min-w-[19rem] w-[78vw] max-w-[21rem] overflow-hidden rounded-card border border-acf-line bg-acf-panel transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-acf"
+      className="card group relative overflow-hidden rounded-card border border-acf-line bg-acf-panel transition-all duration-300 hover:-translate-y-1 hover:border-white/20 hover:shadow-acf"
     >
       {/* Shirt number as a watermark, only when the club has confirmed it */}
       {player.number ? (
@@ -86,7 +84,6 @@ function PlayerCard({ player }) {
 
 export default function Squad() {
   const [filter, setFilter] = useState("Todos");
-  const trackRef = useRef(null);
   const { squad } = teamData;
 
   const filtered = useMemo(
@@ -97,17 +94,9 @@ export default function Squad() {
   // The club has not given positions yet, so the filter only appears once some exist.
   const hasPositions = useMemo(() => squad.some((player) => player.position), [squad]);
 
-  const scrollByCards = (dir) => {
-    const track = trackRef.current;
-    if (!track) return;
-    const card = track.querySelector("[data-card]");
-    const step = card ? card.offsetWidth + 24 : 320;
-    track.scrollBy({ left: dir * step, behavior: "smooth" });
-  };
-
   return (
     <section id="plantilla" className="relative scroll-mt-20 py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="wrap">
         <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-micro font-semibold uppercase tracking-[0.3em] text-acf-red">
@@ -151,33 +140,14 @@ export default function Squad() {
           </div>
         ) : null}
 
-        {/* Slider horizontal de jugadores */}
-        <div className="relative">
-          <div
-            ref={trackRef}
-            className="flex snap-x snap-mandatory gap-5 overflow-x-auto overscroll-x-contain scroll-smooth pb-2 squad-scrollbar squad-fade-right"
-          >
-            {filtered.map((player) => (
-              <PlayerCard key={player.id} player={player} />
-            ))}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => scrollByCards(-1)}
-            aria-label="Anteriores"
-            className="absolute -left-4 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-acf-line bg-acf-panel text-acf-grey transition-colors hover:text-white md:flex"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => scrollByCards(1)}
-            aria-label="Siguientes"
-            className="absolute -right-4 top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-acf-line bg-acf-panel text-acf-grey transition-colors hover:text-white md:flex"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+        {/* Rejilla de jugadores: envuelve dentro del contenedor, así que la sección no
+            tiene carril lateral y sus bordes quedan siempre en las líneas del .wrap.
+            Four columns with a 24px gutter land on the 12-column lines (each card spans
+            three of them), which is what the layout rule measures. */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {filtered.map((player) => (
+            <PlayerCard key={player.id} player={player} />
+          ))}
         </div>
       </div>
     </section>

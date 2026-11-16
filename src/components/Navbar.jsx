@@ -61,7 +61,7 @@ export default function Navbar() {
           : "border-b border-transparent bg-transparent"
       }`}
     >
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <nav className="wrap flex h-16 items-center justify-between gap-4">
         <a href="#top" aria-label="Volver al inicio de la página" className="flex items-center gap-2.5">
           <img src={club.logo} alt={club.name} className="h-9 w-auto" />
           <span className="leading-none">

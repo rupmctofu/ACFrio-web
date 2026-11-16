@@ -125,7 +125,7 @@ export default function NextMatchCard({ className = "" }) {
   return (
     <article
       id="proximo-partido"
-      className={`surface-hero relative flex scroll-mt-24 flex-col overflow-hidden rounded-card border shadow-acf ${className}`}
+      className={`card surface-hero relative flex scroll-mt-24 flex-col overflow-hidden rounded-card border shadow-acf ${className}`}
     >
       <header className="flex items-center gap-2 px-6 pb-3.5 pt-6">
         <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-acf-red" />

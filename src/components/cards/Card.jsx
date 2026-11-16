@@ -15,7 +15,7 @@ export default function Card({
   return (
     <article
       id={id}
-      className={`relative flex scroll-mt-24 flex-col overflow-hidden rounded-card border border-acf-line bg-acf-panel shadow-acf ${className}`}
+      className={`card relative flex scroll-mt-24 flex-col overflow-hidden rounded-card border border-acf-line bg-acf-panel shadow-acf ${className}`}
     >
       <header className="flex items-start justify-between gap-3 px-6 pb-3.5 pt-6">
         <div className="min-w-0">

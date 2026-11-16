@@ -27,3 +27,14 @@ telegram_ask_result.txt
 *.sw?
 
 .vercel
+# Local Pi runtime state
+.atl/
+
+# Worktrees used for design samples
+.worktrees/
+
+# taste-skill checker state
+.taste-skill/
+.taste-skill-audit/
+.chat-scratch/
+src/Whatsapp/

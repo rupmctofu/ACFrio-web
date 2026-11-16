@@ -7,7 +7,7 @@ function Footer() {
   const { club } = teamData;
   return (
     <footer className="border-t border-acf-line">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="wrap py-12">
         <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
           <div className="flex items-center gap-3">
             <img src={club.logo} alt={club.name} className="h-10 w-auto" />
