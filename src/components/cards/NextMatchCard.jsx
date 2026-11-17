@@ -9,6 +9,7 @@ import {
   teamName,
 } from "../../data/competition";
 import { Crest } from "./Crest.jsx";
+import MatchAttendance from "../MatchAttendance.jsx";
 
 /** Seconds until the next kickoff. Nothing is rendered when there is no fixture. */
 function useCountdown(targetIso) {
@@ -181,6 +182,10 @@ export default function NextMatchCard({ className = "" }) {
           {/* One readable line replaces the four detail tiles the owner asked to
               drop, and it ends the hero's own rhythm instead of a tile grid. */}
           <KickoffSentence fixture={next} />
+
+          {/* The headcount lives on the fixture itself: this is the one card a
+              player opens on a Tuesday to say whether he is coming. */}
+          <MatchAttendance fixture={next} />
 
           <a
             href={next.competitionSource}
