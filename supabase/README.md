@@ -16,7 +16,9 @@ headcount. Everything else stays a static build.
 
 1. Create a project at [supabase.com](https://supabase.com) (free plan is enough
    for a 15-player squad).
-2. Open **SQL Editor**, paste all of `supabase/schema.sql` and run it.
+2. Open **SQL Editor**, paste the **contents** of `supabase/schema.sql` (the whole
+   file, not its path — the editor is a Postgres connection, so a filename is a
+   syntax error) and run it.
 3. Then paste `supabase/storage.sql` and run it. It is a separate file because it
    creates the private `actas` bucket and its policies inside `storage.objects`,
    a table owned by Supabase's internal roles. Some projects refuse those
