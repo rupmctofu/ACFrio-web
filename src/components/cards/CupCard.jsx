@@ -66,10 +66,18 @@ export default function CupCard({ className = "" }) {
         </div>
       ) : (
         <>
-          <p className="px-6 pb-5 text-row leading-relaxed text-acf-grey">
-            <span className="font-bold text-acf-snow">
-              {playedMatches} de {matchCount} partidos jugados.
-            </span>{" "}
+          {/* The competition module reads as one figure first: the share of the
+              calendar already played, in the display face, then the explanation. */}
+          <div className="flex items-baseline gap-2 px-6 pb-4">
+            <span className="font-display text-3xl font-medium leading-none tabular-nums text-acf-red">
+              {playedMatches}
+              <span className="text-acf-grey">/{matchCount}</span>
+            </span>
+            <span className="text-micro font-semibold uppercase tracking-[0.16em] text-acf-dim">
+              partidos jugados
+            </span>
+          </div>
+          <p className="px-6 pb-4 text-row leading-relaxed text-acf-grey">
             La fuente oficial no publica puntos, goles ni posiciones hasta que se juegue
             la primera jornada.
           </p>
@@ -80,14 +88,16 @@ export default function CupCard({ className = "" }) {
               return (
               <li
                 key={row.slug}
-                className={`flex max-w-full items-center gap-2 rounded-full border py-1 pl-1 pr-3 ${
-                  isClub ? "border-acf-red/40 bg-acf-red/12" : "border-acf-line"
+                className={`flex max-w-full items-center gap-2 rounded-full border py-1 pl-1 pr-3 transition-colors ${
+                  isClub
+                    ? "border-acf-red/40 bg-acf-red/12"
+                    : "border-acf-line bg-white/[0.03] hover:border-white/20"
                 }`}
               >
                 <Crest slug={row.slug} size="sm" />
                 <span
                   title={teamFullName(row.slug)}
-                  className={`min-w-0 truncate text-[10px] font-bold uppercase tracking-[0.06em] ${
+                  className={`min-w-0 truncate text-[11px] font-bold uppercase tracking-[0.06em] ${
                     isClub ? "text-white" : "text-acf-snow/70"
                   }`}
                 >
