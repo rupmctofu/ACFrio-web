@@ -33,7 +33,7 @@ function Row({ row }) {
   return (
     <tr
       className={`border-t border-acf-line-soft transition-colors ${
-        isAcf ? "bg-acf-red/[0.14]" : "hover:bg-white/[0.03]"
+        isAcf ? "bg-acf-red/[0.16]" : "hover:bg-white/[0.03]"
       }`}
     >
       {/*
@@ -77,8 +77,10 @@ function Row({ row }) {
       <td className={`${FIGURE} ${GOAL_DIFF_CELL}`}>
         {row.goalDiff > 0 ? `+${row.goalDiff}` : row.goalDiff}
       </td>
+      {/* The points are the column the table is read for: Oswald and a size no
+          other figure on the row reaches. The club's own points stay red. */}
       <td
-        className={`w-14 py-2.5 pl-2 pr-3 text-right font-display text-[28px] leading-none tabular-nums ${
+        className={`w-14 py-2.5 pl-2 pr-3 text-right font-display text-[30px] font-medium leading-none tabular-nums ${
           isAcf ? "text-acf-red" : "text-white"
         }`}
       >
