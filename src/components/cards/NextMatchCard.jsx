@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { ExternalLink } from "lucide-react";
 import {
   CLUB_SLUG,
   fixtureKickoffIso,
@@ -115,8 +114,12 @@ function KickoffSentence({ fixture }) {
 
 /**
  * The centre card of the grid and the one hero-level surface of the page
- * (`.surface-hero`). It also carries the single inverted accent block of the
- * site: the red strip that opens the official calendar.
+ * (`.surface-hero`).
+ *
+ * It used to close with the red "Calendario oficial" button, the only inverted
+ * accent block of the site. The owner removed it (L16): the calendar card in the
+ * grid already opens the same source, and the hero now ends on the headcount,
+ * which is what a player actually came here to do.
  */
 export default function NextMatchCard({ className = "" }) {
   const next = useMemo(() => nextFixture(), []);
@@ -186,16 +189,6 @@ export default function NextMatchCard({ className = "" }) {
           {/* The headcount lives on the fixture itself: this is the one card a
               player opens on a Tuesday to say whether he is coming. */}
           <MatchAttendance fixture={next} />
-
-          <a
-            href={next.competitionSource}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 rounded-tile bg-acf-red px-6 py-4 text-[15px] font-extrabold tracking-tight text-acf-dark transition hover:brightness-110"
-          >
-            Calendario oficial
-            <ExternalLink className="h-4 w-4" />
-          </a>
         </div>
       ) : (
         <p className="px-6 pb-6 text-row text-acf-grey">

@@ -16,6 +16,10 @@ AC FRÍO · feature doc. Source of truth for specs, tasks and decisions.
 
 **S6 — The site must keep building and deploying with no Supabase credentials.** When the environment variables are absent the site renders exactly as today, and the attendance surfaces explain that they are not connected instead of failing silently.
 
+**S7 — Answering collapses the buttons.** Once a player has answered, the two buttons give way to a small editable state; pressing "Editar" brings them back. The list shows the faces of those attending.
+
+**S8 — The next match card carries no calendar button.** The official calendar link leaves the hero card; the calendar stays reachable from the calendar card in the grid.
+
 ## Tasks
 
 | ID | Specs | Status | Evidence |
@@ -26,6 +30,7 @@ AC FRÍO · feature doc. Source of truth for specs, tasks and decisions.
 | T4 | S3, S4 | pending | Acta upload and the pending/reviewed badge. `uploadActa`, `fetchActas`, `actaUrl`, `fetchActaState` exist in the data layer with zero call sites. |
 | T5 | S3, S4 | pending | Owner panel: sign in by magic link, file the scan, compare it with the declared list, close the match. |
 | T6 | S1–S6 | pending | Folding the closed actas back into `club-record.json` attendance, and the owner-side how-to. `supabase/README.md` covers setup and filing. |
+| T7 | S7, S8 | done | Answering collapses the buttons behind a small "Editar", the attendee list carries faces, and the calendar button leaves the hero card. |
 
 ## Log
 
@@ -67,4 +72,8 @@ Decision from L6: the declared list is informational only — a headcount. The a
 
 **L15 — test rows to clean up.** The probe left `matches` id 1 (`matchday 999`, rival PROBE) with an `attendance` row for player 1, and the real matchday 1 fixture (id 3) holds the browser test's `in` for Pablo. Both are removable with `delete from public.matches where matchday = 999;` and `delete from public.attendance where match_id = 3;`.
 
-Action taken: `schema.sql` was split. The four policies and the bucket insert moved to `supabase/storage.sql`, because they are the only statements touching `storage.objects`, a table owned by Supabase's internal roles, and a rejection there is the most common failure in this setup. The public schema now runs on its own, unaffected by storage permissions, and the README documents the interface fallback (bucket + four policies with `bucket_id = 'actas' and public.is_owner()`).
+**L16 — owner, requirements change (verbatim).** "vale, quita el boton a \"calendario oficial\". Y una vez alguien clica en \"asistiré, quiero que desparezcan los botones y que en pequeño se pueda editar. Cuando se pulse en editar, vuelven a aparecer los botones. Y que se vean las fotitos de quien asiste"
+
+Reading applied: the collapse follows *any* answer, not only "Asistiré"; leaving the buttons on screen after "No asistiré" would make the same state look different for no reason.
+
+**Context note.** The storage split (before L11) moved the bucket and its four policies to `supabase/storage.sql`, because they are the only statements touching `storage.objects`, a table owned by Supabase's own roles. Both files ran clean, so the interface fallback was not needed.
