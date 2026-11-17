@@ -22,7 +22,7 @@ function PlayerAvatar({ name, size = "md" }) {
       <img
         src={photo}
         alt=""
-        className={`${box} shrink-0 rounded-full object-cover`}
+        className={`${box} shrink-0 rounded-full border border-acf-line object-cover`}
         loading="lazy"
       />
     );
@@ -87,12 +87,23 @@ export default function ScorersCard({ className = "" }) {
         <ul className="divide-y divide-acf-line-soft">
           {rows.map((scorer, index) => (
             <li key={scorer.player} className="flex items-center gap-3 px-6 py-3">
+              {/* The rank comes back as a quiet Oswald figure: the mockup reads
+                  the list top-down, and the number is what makes the order
+                  legible without a trophy icon per row. */}
+              <span
+                aria-hidden="true"
+                className={`w-4 shrink-0 text-center font-display text-lg font-medium leading-none tabular-nums ${
+                  index === 0 ? "text-acf-red" : "text-acf-dim"
+                }`}
+              >
+                {index + 1}
+              </span>
               <PlayerAvatar name={scorer.player} />
               <span className="min-w-0 flex-1 truncate text-row font-bold uppercase tracking-[0.1em] text-white">
                 {scorer.player}
               </span>
               <span
-                className={`shrink-0 font-display text-2xl leading-none tabular-nums ${
+                className={`shrink-0 font-display text-3xl font-medium leading-none tabular-nums ${
                   index === 0 ? "text-acf-red" : "text-white"
                 }`}
               >
