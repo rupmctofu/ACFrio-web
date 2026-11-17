@@ -63,7 +63,7 @@ export default function GalleryCard({ className = "" }) {
     >
       <figure
         aria-label="Galería de fotos del equipo"
-        className="relative mt-1 h-[340px] overflow-hidden sm:h-[380px]"
+        className="relative mt-1 h-[360px] overflow-hidden sm:h-[400px]"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         onFocus={() => setPaused(true)}
@@ -91,6 +91,19 @@ export default function GalleryCard({ className = "" }) {
         <span className="absolute right-4 top-4 rounded-full bg-black/75 px-2.5 py-1 text-micro font-semibold tabular-nums text-white">
           {index + 1} / {SHOTS.length}
         </span>
+
+        {/* Position dots: ten photographs, ten stops. The active one is the
+            only red; the rest follow the pointer only. */}
+        <div aria-hidden="true" className="absolute left-4 top-4 flex items-center gap-1.5">
+          {SHOTS.map((shot, dotIndex) => (
+            <span
+              key={shot.src}
+              className={`h-1 rounded-full transition-all duration-300 ${
+                dotIndex === index ? "w-4 bg-acf-red" : "w-1 bg-white/40"
+              }`}
+            />
+          ))}
+        </div>
 
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4">
           <p className="min-w-0 truncate text-row font-extrabold uppercase tracking-[0.08em] text-white">
