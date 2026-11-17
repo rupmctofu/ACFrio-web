@@ -191,14 +191,14 @@ function MonthGrid({ month, selectedKey, onSelect, onPreview, onPreviewEnd }) {
             className={`flex h-9 flex-col items-center justify-center rounded-tile text-figure font-bold tabular-nums transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red ${
               isSelected
                 ? "bg-acf-red text-acf-dark"
-                : "bg-acf-red/15 text-white hover:bg-acf-red/25"
+                : "bg-acf-red/20 text-white hover:bg-acf-red/35"
             }`}
           >
             {day}
             <span
               aria-hidden="true"
               className={`mt-0.5 h-1 w-1 rounded-full ${
-                isSelected ? "bg-acf-dark" : "bg-acf-red"
+                isSelected ? "bg-acf-dark" : "bg-acf-red-soft"
               }`}
             />
           </button>
@@ -311,7 +311,7 @@ export default function FixturesCard({ className = "" }) {
   return (
     <Card title="Calendario" id="calendario" icon={CalendarDays} className={className} bodyClassName="flex flex-col">
       <div className="flex items-center justify-between gap-2 px-6 pb-3">
-        <p className="text-micro font-bold uppercase tracking-[0.18em] text-white">
+        <p className="font-display text-[15px] font-medium uppercase tracking-[0.14em] text-white">
           {MONTH_FORMAT.format(month.first)}
         </p>
         <div className="flex items-center gap-1.5">
