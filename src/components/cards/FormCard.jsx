@@ -12,10 +12,27 @@ import {
 import Card from "./Card.jsx";
 import { Crest } from "./Crest.jsx";
 
+/*
+ * One tone per result, all inside the club's palette: the win earns the red,
+ * the draw sits on charcoal, the loss stays outline. The row background picks
+ * up the same tint, so the module reads its outcome before its text.
+ */
 const RESULT_TONE = {
-  win: { letter: "V", className: "bg-acf-red text-white" },
-  draw: { letter: "E", className: "bg-white/10 text-white" },
-  loss: { letter: "D", className: "border border-acf-line text-acf-grey" },
+  win: {
+    letter: "V",
+    chip: "bg-acf-red text-white",
+    row: "bg-acf-red/[0.07]",
+  },
+  draw: {
+    letter: "E",
+    chip: "bg-white/10 text-white",
+    row: "bg-white/[0.05]",
+  },
+  loss: {
+    letter: "D",
+    chip: "border border-acf-line text-acf-grey",
+    row: "",
+  },
 };
 
 /** The club's last three played results: real scores, one chip each. */
@@ -38,7 +55,7 @@ export default function FormCard({ className = "" }) {
             return (
               <li
                 key={`${fixture.competitionKey}-${fixture.matchday}`}
-                className="rounded-tile bg-acf-panel-light/70 px-4 py-3"
+                className={`rounded-tile border border-acf-line-soft px-4 py-3 ${tone.row}`}
               >
                 <div className="flex items-center justify-between gap-2">
                   <span
@@ -65,7 +82,11 @@ export default function FormCard({ className = "" }) {
                   <div className="flex justify-start">
                     <Crest slug={opponent.slug} size="sm" />
                   </div>
-                  <span className="whitespace-nowrap font-display text-2xl leading-none tabular-nums text-white">
+                  <span
+                    className={`whitespace-nowrap font-display text-3xl font-medium leading-none tabular-nums ${
+                      resultOf(fixture) === "win" ? "text-acf-red" : "text-white"
+                    }`}
+                  >
                     {score.rival}
                     <span className="mx-1 text-acf-dim">–</span>
                     {score.own}
