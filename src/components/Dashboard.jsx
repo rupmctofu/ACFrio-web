@@ -8,12 +8,15 @@ import FixturesCard from "./cards/FixturesCard.jsx";
 import CupCard from "./cards/CupCard.jsx";
 import AttendanceCard from "./cards/AttendanceCard.jsx";
 import GalleryCard from "./cards/GalleryCard.jsx";
+import NewsCard from "./cards/NewsCard.jsx";
+import BrandModule from "./cards/BrandModule.jsx";
 
 /**
- * Home grid: a full-width news band, then the next match at the top of the
- * centre column with the cup table and the club's own photo gallery under it;
- * standings, scorers and form sit on the left, calendar and attendance on the
- * right. Every card reads only synced or club-reported data.
+ * Home grid: a full-width news band, then the centre column as the page's
+ * protagonist — next match, cup, the club's newsroom and the photo gallery —
+ * while standings, scorers and form sit on the left and calendar, attendance
+ * and the brand module on the right. Every card reads only synced or
+ * club-reported data.
  *
  * The card hierarchy is deliberate: the next match owns the hero surface and the
  * scorers card the accent surface (see `.surface-hero` / `.surface-accent` in
@@ -49,15 +52,17 @@ export default function Dashboard() {
 
           <div className="flex max-lg:contents flex-col gap-6 lg:col-span-5">
             <NextMatchCard className="max-lg:order-2" />
-            {/* The cup sits above the gallery (owner, L21): the competition table
-                belongs with the fixture, not at the bottom of the right column. */}
+            {/* The centre column holds the fixture, its competition, the newsroom
+                and the album: the content a visitor came to look at. */}
             <CupCard className="max-lg:order-8" />
-            <GalleryCard className="max-lg:order-9" />
+            <NewsCard className="max-lg:order-9" />
+            <GalleryCard className="max-lg:order-10" />
           </div>
 
           <div className="flex max-lg:contents flex-col gap-6 lg:col-span-3">
             <FixturesCard className="max-lg:order-3" />
             <AttendanceCard className="max-lg:order-5" />
+            <BrandModule className="max-lg:order-11 mt-auto" />
           </div>
         </div>
       </div>
