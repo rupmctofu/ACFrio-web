@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Local environment values (Vite): the example is committed, the real file is not
+.env
+.env.*
+!.env.example
+
 # Telegram bridge result
 telegram_ask_result.txt
 
