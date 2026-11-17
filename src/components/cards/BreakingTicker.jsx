@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Megaphone } from "lucide-react";
 import { newsItems } from "../../data/news";
 
 /**
@@ -39,10 +40,22 @@ export default function BreakingTicker({ className = "" }) {
   }, [items.length]);
 
   return (
+    /*
+     * The owner's refined ticker: a dark bar with the loudspeaker as the only
+     * red block, so the headlines read like copy instead of an alarm. The live
+     * dot at the right end keeps the broadcast feel of the old pill.
+     */
     <div
       aria-label="Titulares del club. El texto se desplaza de derecha a izquierda."
-      className={`flex h-10 items-center overflow-hidden rounded-full bg-acf-red ${className}`}
+      className={`flex h-11 items-center overflow-hidden rounded-full border border-acf-line bg-acf-panel ${className}`}
     >
+      <span
+        aria-hidden="true"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-acf-red text-acf-dark"
+      >
+        <Megaphone className="h-4 w-4" />
+      </span>
+
       <div className="min-w-0 flex-1 overflow-hidden">
         <div
           ref={trackRef}
@@ -54,9 +67,9 @@ export default function BreakingTicker({ className = "" }) {
               {items.map((item) => (
                 <span
                   key={`${copy}-${item.id}`}
-                  className="flex items-center whitespace-nowrap text-[12px] font-semibold text-acf-dark"
+                  className="flex items-center whitespace-nowrap text-[12px] font-semibold text-acf-snow/85"
                 >
-                  <span className="px-3 text-[7px] tracking-normal" aria-hidden="true">
+                  <span className="px-4 text-[7px] tracking-normal text-acf-red" aria-hidden="true">
                     ●
                   </span>
                   {item.text}
@@ -66,6 +79,8 @@ export default function BreakingTicker({ className = "" }) {
           ))}
         </div>
       </div>
+
+      <span aria-hidden="true" className="mr-4 ml-2 h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-acf-red" />
     </div>
   );
 }

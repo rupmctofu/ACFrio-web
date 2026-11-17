@@ -1,4 +1,5 @@
 import Navbar from "./components/Navbar.jsx";
+import BannerIdentity from "./components/BannerIdentity.jsx";
 import Dashboard from "./components/Dashboard.jsx";
 import Squad from "./components/Squad.jsx";
 import teamData from "./data/teamData.json";
@@ -37,21 +38,16 @@ function Footer() {
 
 export default function App() {
   return (
-    <div className="relative min-h-screen bg-acf-dark text-acf-snow">
-      {/* Decorative: the squad photo, pre-blurred and kept faint. Cards are opaque,
-          so it only breathes through the gutters, and the scrim keeps text legible. */}
-      <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <img
-          src="/assets/backgrounds/team-blur.jpg"
-          alt=""
-          className="h-full w-full scale-110 object-cover opacity-60"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-acf-dark/55 via-acf-dark/75 to-acf-dark/95" />
-      </div>
-
+    <div className="acf-ambience relative min-h-screen bg-acf-dark text-acf-snow">
+      {/*
+       * The identity banner owns the only photograph on the canvas now: the
+       * page itself sits on the owner's flat blacks, with the ambience glows
+       * breathing at the edges. Cards keep their opaque panels either way.
+       */}
       <div className="relative z-10">
         <Navbar />
         <main>
+          <BannerIdentity />
           <Dashboard />
           <Squad />
         </main>
