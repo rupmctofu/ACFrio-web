@@ -19,11 +19,13 @@ headcount. Everything else stays a static build.
 2. Open **SQL Editor**, paste the **contents** of `supabase/schema.sql` (the whole
    file, not its path — the editor is a Postgres connection, so a filename is a
    syntax error) and run it.
-3. Then paste `supabase/storage.sql` and run it. It is a separate file because it
-   creates the private `actas` bucket and its policies inside `storage.objects`,
-   a table owned by Supabase's internal roles. Some projects refuse those
-   statements from the SQL Editor; the section below does the same thing from
-   the interface, and the rest of the setup stays valid.
+3. Then paste the **contents** of `supabase/storage.sql` and run it — the whole
+   file again, not its path: the editor is a Postgres connection, so a filename
+   is a syntax error. It is a separate file because it creates the private
+   `actas` bucket and its policies inside `storage.objects`, a table owned by
+   Supabase's internal roles. Some projects refuse those statements from the SQL
+   Editor; the section below does the same thing from the interface, and the
+   rest of the setup stays valid.
 4. In **Authentication → Sign In / Providers**, keep **Email** enabled and
    **turn off password sign-in** (magic link only). Owner powers are granted by
    the `email` claim of whoever signs in, so leaving password sign-up open would

@@ -17,9 +17,13 @@
 -- All four need the owner check from schema.sql (public.is_owner()), so run
 -- schema.sql first either way.
 
+-- The bucket must be private, always. `do nothing` would leave a bucket that
+-- someone created earlier with Public ON exactly as it was — every scan
+-- readable by anyone who guesses the URL — so the conflict branch pins the
+-- invariant instead of skipping it.
 insert into storage.buckets (id, name, public)
 values ('actas', 'actas', false)
-on conflict (id) do nothing;
+on conflict (id) do update set public = false;
 
 -- Read: only the owner, so a scan is never public.
 drop policy if exists actas_object_owner_read on storage.objects;

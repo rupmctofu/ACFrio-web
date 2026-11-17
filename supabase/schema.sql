@@ -46,6 +46,26 @@ create table if not exists public.matches (
 comment on column public.matches.closed_at is
   'Set by the owner once the declared list was checked against the acta.';
 
+-- Upgrade path, and the reason this file is re-runnable across versions.
+-- A project installed before `season` existed already has the table above, so
+-- `create table if not exists` is a no-op there: it neither adds the column nor
+-- the key. The file would then "run clean" and every `ensure_match` call would
+-- fail with "no unique or exclusion constraint matching the ON CONFLICT
+-- specification", because `on conflict (season, competition, matchday)` has no
+-- index to infer. Both statements below are idempotent, so a fresh install gets
+-- them as harmless no-ops of the declarations above.
+alter table public.matches add column if not exists season text;
+
+create unique index if not exists matches_season_competition_matchday_idx
+  on public.matches (season, competition, matchday);
+
+-- A row left over from before `season` existed keeps a null season, and nulls
+-- are distinct in a unique index, so it would never be reused by a later
+-- `ensure_match`. Stamp it by hand once, with the season it actually belongs to:
+--
+--   update public.matches set season = '2026-2027' where season is null;
+--
+
 -- ---------------------------------------------------------------------------
 -- Declared attendance
 -- ---------------------------------------------------------------------------

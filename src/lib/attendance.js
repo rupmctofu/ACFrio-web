@@ -98,7 +98,18 @@ export async function signOutOwner() {
   await db.auth.signOut();
 }
 
-/** Files the scan and records it as pending review. One acta per match. */
+/**
+ * Files the scan and records it as pending review. One acta per match.
+ *
+ * Two database requests after the upload: the actas upsert and, deliberately,
+ * a second one — `closed_at` means "this list was checked against the paper",
+ * so it cannot survive a NEW sheet. Replacing the scan of a closed match
+ * reopens it in the same breath, otherwise the owner's panel would show
+ * "closed" next to a sheet nobody has checked: a reviewed state that no longer
+ * exists. The reopen is a single conditional PATCH (it only matches rows that
+ * are actually closed), not a read-then-write, so an open match costs nothing
+ * and two racing uploads cannot leave the flag behind.
+ */
 export async function uploadActa({ matchId, file, notes, email }) {
   const db = await client();
   const safeName = file.name.replace(/[^\w.-]+/g, "_");
@@ -119,6 +130,16 @@ export async function uploadActa({ matchId, file, notes, email }) {
     { onConflict: "match_id" },
   );
   if (error) throw fail(error);
+
+  // Conditional and explicit: only a closed match is reopened, so `closed_at`
+  // never outlives the review it stands for.
+  const reopen = await db
+    .from("matches")
+    .update({ closed_at: null })
+    .eq("id", matchId)
+    .not("closed_at", "is", null);
+  if (reopen.error) throw fail(reopen.error);
+
   return path;
 }
 
@@ -165,5 +186,16 @@ export async function closeMatch(matchId) {
   }
 
   const match = await db.from("matches").update({ closed_at: now }).eq("id", matchId);
-  if (match.error) throw fail(match.error);
+  if (match.error) {
+    // The two steps diverged: the acta is already marked as reviewed but the
+    // match is still open. Wrapping the raw error would read like a plain
+    // failure and invite a retry that hides the half-applied state, so the
+    // message names it: nothing is lost, only the flag is missing.
+    const diverged = new Error(
+      "El acta quedó marcada como revisada pero el partido no se ha cerrado: los dos pasos se han separado. Vuelve a intentarlo; si sigue fallando, cierra el partido a mano desde el panel de Supabase.",
+    );
+    diverged.code = match.error.code;
+    diverged.cause = match.error;
+    throw diverged;
+  }
 }
