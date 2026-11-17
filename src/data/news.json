@@ -285,6 +285,81 @@
       "id": 57,
       "tag": "Vestuario",
       "text": "El GPS registra cuatro kilómetros y 3,9 de ellos andando."
+    },
+    {
+      "id": 58,
+      "tag": "Logística",
+      "text": "Se busca a Ander y Cristo. Última aparición: jornada anterior."
+    },
+    {
+      "id": 59,
+      "tag": "Entrenos",
+      "text": "El calentamiento es opcional. La lesión, no."
+    },
+    {
+      "id": 60,
+      "tag": "Horarios",
+      "text": "Recordamos que llegar tarde no cuenta como estrategia."
+    },
+    {
+      "id": 61,
+      "tag": "Manías",
+      "text": "Hay jugadores que vienen a jugar y otros a completar el acta."
+    },
+    {
+      "id": 62,
+      "tag": "Entrenos",
+      "text": "La táctica está clara. Ahora falta ejecutarla."
+    },
+    {
+      "id": 63,
+      "tag": "Cita",
+      "text": "El tercer tiempo sigue siendo nuestra especialidad."
+    },
+    {
+      "id": 64,
+      "tag": "Manías",
+      "text": "Se ruega dejar las excusas junto a las mochilas."
+    },
+    {
+      "id": 65,
+      "tag": "Directiva",
+      "text": "La convocatoria está abierta. El compromiso, aparentemente, no."
+    },
+    {
+      "id": 66,
+      "tag": "Arbitraje",
+      "text": "El VAR no viene. Tendréis que discutirlo vosotros."
+    },
+    {
+      "id": 67,
+      "tag": "Logística",
+      "text": "La reserva del campo se cierra por teléfono. El club sigue sin encontrar el teléfono."
+    },
+    {
+      "id": 68,
+      "tag": "Entrenos",
+      "text": "Hoy se corre. O al menos eso pone en el grupo."
+    },
+    {
+      "id": 69,
+      "tag": "Directiva",
+      "text": "El míster confía en todos. En algunos, con matices."
+    },
+    {
+      "id": 70,
+      "tag": "Entrenos",
+      "text": "Nuevo sistema de juego: 4-3-3 o lo que salga."
+    },
+    {
+      "id": 71,
+      "tag": "Economía",
+      "text": "Quien pierda el pico de la jornada invita al tercer tiempo. Tradicional y vinculante."
+    },
+    {
+      "id": 72,
+      "tag": "Directiva",
+      "text": "La alineación la decide el míster. Las quejas, el grupo de WhatsApp."
     }
   ]
 }
