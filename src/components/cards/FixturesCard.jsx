@@ -75,7 +75,7 @@ function buildMonths(fixtures) {
 }
 
 const ARROW_CLASS =
-  "flex h-8 w-8 items-center justify-center rounded-full border border-acf-line bg-acf-panel text-acf-grey transition-colors hover:text-white disabled:opacity-35 disabled:hover:text-acf-grey";
+  "flex h-8 w-8 items-center justify-center rounded-full border border-acf-line bg-acf-panel text-acf-grey transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-acf-red disabled:opacity-35 disabled:hover:text-acf-grey";
 
 /**
  * One fixture spelled out: the day, who we play, which competition, when and
@@ -101,7 +101,7 @@ function FixtureInfo({ fixture }) {
         >
           {teamName(rival.slug)}
         </p>
-        <span className="shrink-0 rounded-full bg-acf-red px-2 py-0.5 text-micro font-bold uppercase tracking-[0.12em] text-acf-dark">
+        <span className="shrink-0 rounded-full bg-acf-red px-2 py-0.5 text-micro font-bold uppercase tracking-[0.12em] text-white">
           {competition}
         </span>
       </div>
@@ -190,7 +190,7 @@ function MonthGrid({ month, selectedKey, onSelect, onPreview, onPreviewEnd }) {
             aria-label={`${LONG_DAY.format(date)}: ${teamFullName(rival.slug)}, ${fixtureTimeLabel(fixture)}`}
             className={`flex h-9 flex-col items-center justify-center rounded-tile text-figure font-bold tabular-nums transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red ${
               isSelected
-                ? "bg-acf-red text-acf-dark"
+                ? "bg-acf-red text-white"
                 : "bg-acf-red/20 text-white hover:bg-acf-red/35"
             }`}
           >

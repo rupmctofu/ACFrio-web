@@ -38,7 +38,7 @@ export default function NewsCard({ className = "" }) {
       className={className}
       bodyClassName="flex flex-col"
     >
-      <figure
+      <div
         aria-label="Noticia destacada del club"
         className="relative isolate mt-1 h-52 overflow-hidden sm:h-56"
       >
@@ -57,18 +57,23 @@ export default function NewsCard({ className = "" }) {
           {featured.tag}
         </span>
 
-        <figcaption className="absolute inset-x-0 bottom-0 p-4">
+        {/*
+         * The headline rides the photograph under its scrim; it is a headline,
+         * not a caption, so it stays a div and the photo carries no caption at
+         * all — the house rule the checker enforces.
+         */}
+        <div className="absolute inset-x-0 bottom-0 p-4">
           <p className="text-balance text-lg font-extrabold leading-snug tracking-tight text-white sm:text-xl">
             {featured.text}
           </p>
-        </figcaption>
+        </div>
 
         <div className="absolute bottom-4 right-4 flex items-center gap-1.5">
           <button
             type="button"
             onClick={() => step(-1)}
             aria-label="Noticia anterior"
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/25 bg-black/60 text-white transition-colors hover:bg-black/80"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/25 bg-black/60 text-white transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-acf-red"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -76,12 +81,12 @@ export default function NewsCard({ className = "" }) {
             type="button"
             onClick={() => step(1)}
             aria-label="Noticia siguiente"
-            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/25 bg-black/60 text-white transition-colors hover:bg-black/80"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-white/25 bg-black/60 text-white transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-acf-red"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>
-      </figure>
+      </div>
 
       <ul className="divide-y divide-acf-line-soft">
         {secondary.map((item) => (

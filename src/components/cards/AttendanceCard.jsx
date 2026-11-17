@@ -84,10 +84,10 @@ export default function AttendanceCard({ className = "" }) {
                     {/* The percentage is the number the eye comes for: display
                         face on the right edge, the raw count as its quiet label. */}
                     <span className="flex shrink-0 items-baseline gap-1.5">
-                      <span className="text-micro font-semibold tabular-nums tracking-[0.06em] text-acf-dim">
+                      <span className="text-micro font-semibold tabular-nums tracking-[0.06em] text-acf-grey">
                         {row.count}/{played}
                       </span>
-                      <span className="font-display text-xl font-medium leading-none tabular-nums text-acf-red">
+                      <span className="font-display text-xl font-medium leading-none tabular-nums text-acf-red-soft">
                         {row.pct}%
                       </span>
                     </span>

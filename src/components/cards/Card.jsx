@@ -23,7 +23,7 @@ export default function Card({
             {title}
           </h2>
           {hint ? (
-            <p className="mt-2 line-clamp-2 text-hint font-semibold uppercase leading-snug tracking-[0.2em] text-acf-dim">
+            <p className="mt-2 line-clamp-2 text-hint font-semibold uppercase leading-snug tracking-[0.2em] text-acf-grey">
               {hint}
             </p>
           ) : null}

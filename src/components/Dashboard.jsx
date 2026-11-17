@@ -25,7 +25,7 @@ import BrandModule from "./cards/BrandModule.jsx";
  */
 export default function Dashboard() {
   return (
-    <section id="partidos" className="relative pb-16 pt-24">
+    <section id="partidos" className="relative pb-16 pt-10">
       <div className="wrap">
         {/* The passwordless door, first thing in the grid: nobody has to scroll
             past three cards to say who they are. */}

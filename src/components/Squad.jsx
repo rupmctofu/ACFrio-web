@@ -21,7 +21,7 @@ export default function Squad() {
       <div className="wrap">
         <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-micro font-semibold uppercase tracking-[0.3em] text-acf-red">
+            <p className="text-micro font-semibold uppercase tracking-[0.3em] text-acf-red-soft">
               La Plantilla
             </p>
             <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">

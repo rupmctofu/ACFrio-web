@@ -139,7 +139,7 @@ function CompetitionBadge({ competitionKey }) {
   const Icon = isCup ? Trophy : Shield;
 
   return (
-    <span className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full bg-acf-red px-2.5 py-1 text-micro font-bold uppercase tracking-[0.16em] text-acf-dark">
+    <span className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full bg-acf-red px-2.5 py-1 text-micro font-bold uppercase tracking-[0.16em] text-white">
       <Icon className="h-3 w-3" aria-hidden="true" />
       {isCup ? "Copa" : "Liga"}
     </span>

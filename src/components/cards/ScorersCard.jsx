@@ -93,7 +93,7 @@ export default function ScorersCard({ className = "" }) {
               <span
                 aria-hidden="true"
                 className={`w-4 shrink-0 text-center font-display text-lg font-medium leading-none tabular-nums ${
-                  index === 0 ? "text-acf-red" : "text-acf-dim"
+                  index === 0 ? "text-acf-red-soft" : "text-acf-grey"
                 }`}
               >
                 {index + 1}

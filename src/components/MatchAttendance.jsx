@@ -204,7 +204,7 @@ export default function MatchAttendance({ fixture }) {
      */
     const tone =
       variant === "primary"
-        ? "border-acf-red bg-acf-red text-acf-dark hover:bg-acf-red-dark"
+        ? "border-acf-red bg-acf-red text-white hover:bg-acf-red-dark"
         : "border-acf-line bg-white/[0.05] text-white hover:border-white/25";
     return (
       <button
@@ -231,7 +231,7 @@ export default function MatchAttendance({ fixture }) {
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="rounded-full border border-acf-line px-3 py-1 text-micro font-semibold uppercase tracking-[0.14em] text-acf-snow/70 transition-colors duration-200 hover:border-white/25 hover:text-white focus-visible:border-acf-red focus-visible:outline-none"
+            className="rounded-full border border-acf-line px-3 py-1 text-micro font-semibold uppercase tracking-[0.14em] text-acf-snow/70 transition-colors duration-200 hover:border-white/25 hover:text-white focus-visible:border-acf-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-acf-red"
           >
             Editar
           </button>

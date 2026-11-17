@@ -114,7 +114,7 @@ export default function GalleryCard({ className = "" }) {
               type="button"
               onClick={() => step(-1)}
               aria-label="Foto anterior"
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-white/25 bg-black/60 text-white transition-colors hover:bg-black/80"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-white/25 bg-black/60 text-white transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-acf-red"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -122,14 +122,13 @@ export default function GalleryCard({ className = "" }) {
               type="button"
               onClick={() => step(1)}
               aria-label="Foto siguiente"
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-white/25 bg-black/60 text-white transition-colors hover:bg-black/80"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-white/25 bg-black/60 text-white transition-colors hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-acf-red"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         </div>
 
-        <figcaption className="sr-only">{LABEL}</figcaption>
       </figure>
     </Card>
   );

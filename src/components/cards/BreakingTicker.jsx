@@ -51,7 +51,7 @@ export default function BreakingTicker({ className = "" }) {
     >
       <span
         aria-hidden="true"
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-acf-red text-acf-dark"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-acf-red text-white"
       >
         <Megaphone className="h-4 w-4" />
       </span>

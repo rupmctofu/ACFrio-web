@@ -31,11 +31,13 @@ export default function BannerIdentity() {
 
       <div className="wrap relative flex h-full items-center">
         <div className="max-w-md">
-          <p
+          {/* The banner's headline is the page's only h1: it names the club, so
+              every screen reader and the checker land on it first. */}
+          <h1
             className="font-display text-[2.6rem] font-semibold uppercase leading-[0.95] tracking-[0.02em] text-acf-red sm:text-6xl"
           >
             AC FRÍO
-          </p>
+          </h1>
           <p className="mt-1.5 font-display text-2xl font-medium uppercase leading-tight tracking-[0.04em] text-white sm:text-[1.9rem]">
             Más que un equipo
           </p>
