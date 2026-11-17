@@ -106,6 +106,19 @@ body {
   }
 }
 
+/* ===== Horizontal strips =====
+ * The face strip scrolls sideways on phones. Its scrollbar would draw a grey
+ * bar under the row, so it is hidden there; the cut-off face at the edge is
+ * what tells you the strip continues. Desktop uses a grid and never scrolls. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* ===== Scrollbar ===== */
 ::-webkit-scrollbar {
   width: 10px;

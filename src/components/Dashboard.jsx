@@ -1,4 +1,5 @@
 import Standings from "./Standings.jsx";
+import WhoAreYou from "./WhoAreYou.jsx";
 import NextMatchCard from "./cards/NextMatchCard.jsx";
 import BreakingTicker from "./cards/BreakingTicker.jsx";
 import ScorersCard from "./cards/ScorersCard.jsx";
@@ -23,6 +24,10 @@ export default function Dashboard() {
   return (
     <section id="partidos" className="relative pb-16 pt-24">
       <div className="wrap">
+        {/* The passwordless door, first thing in the grid: nobody has to scroll
+            past three cards to say who they are. */}
+        <WhoAreYou />
+
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* On phones the columns dissolve (display: contents) and every card
               gets its own order, so the owner's mobile sequence is: match,
