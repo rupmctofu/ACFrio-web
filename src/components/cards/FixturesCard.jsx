@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import {
-  CLUB_SLUG,
-  fixtureDateLabel,
   fixtureTimeLabel,
+  homeAwayLabel,
   nextFixtures,
+  opponentOf,
   teamFullName,
   teamName,
 } from "../../data/competition";
@@ -13,286 +14,367 @@ import { Crest } from "./Crest.jsx";
 
 const COMPETITION_TAG = { league: "Liga", cup: "Copa" };
 
-/** Quiet time after the last wheel tick before the list settles onto a card. */
-const SETTLE_MS = 180;
+/** Monday first: the week the squad actually lives in. */
+const WEEKDAYS = ["L", "M", "X", "J", "V", "S", "D"];
+
+const MONTH_FORMAT = new Intl.DateTimeFormat("es-ES", { month: "long", year: "numeric" });
+const LONG_DAY = new Intl.DateTimeFormat("es-ES", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+});
+
+/** Width of the floating card, in px. It is fixed, so the clamp below is exact. */
+const PREVIEW_WIDTH = 240;
+/** Margin kept from the viewport edge when the card has to be pushed in. */
+const PREVIEW_MARGIN = 8;
+/** Below this much room above the day, the card opens downwards instead. */
+const PREVIEW_FLIP = 220;
 
 /**
- * Where the slider can still travel. The list snaps card by card, so it rests
- * one padding gutter in from each end instead of exactly at 0 / max: the ends
- * are measured from the live gutter, never from a magic number.
+ * The fixture's own calendar day, read from the date string in local time.
+ * `new Date("2026-11-17")` would parse as UTC midnight and can land on the day
+ * before in a negative offset, so the parts are the authority here.
  */
-function sliderBounds(node, gutter) {
-  const max = Math.max(0, node.scrollWidth - node.clientWidth);
-  const edge = Math.min(gutter, max);
-  return { start: edge, end: Math.max(max - edge, 0) };
+function localDay(fixture) {
+  const [year, month, day] = String(fixture.date ?? "").split("-").map(Number);
+  if (!year || !month || !day) return null;
+  return new Date(year, month - 1, day);
 }
 
-/** True when the slider can still move in the direction of the wheel. */
-function canSlide(node, deltaY, gutter) {
-  if (deltaY === 0) return false;
-  const { start, end } = sliderBounds(node, gutter);
-  if (end <= start) return false; // no travel left: never swallow the gesture
-  return deltaY < 0 ? node.scrollLeft > start : node.scrollLeft < end;
-}
-
-/** Move the slider by one wheel step, clamped to its ends. */
-function slideBy(node, deltaY) {
-  const max = Math.max(0, node.scrollWidth - node.clientWidth);
-  node.scrollLeft = Math.min(max, Math.max(0, node.scrollLeft + deltaY));
-}
+const dayKey = (date) => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 
 /**
- * The resting positions of the list, in its own scroll coordinates: one stop per
- * card, measured from the live rectangles so a resize needs no bookkeeping.
+ * The months that hold at least one fixture, oldest first, each with its days.
+ * A calendar only travels where there is something to read: an empty month is
+ * not a place to navigate to.
  */
-function snapStops(node) {
-  const origin = node.getBoundingClientRect().left;
-  return [...node.children].map(
-    (child) => child.getBoundingClientRect().left - origin + node.scrollLeft,
-  );
-}
+function buildMonths(fixtures) {
+  const months = new Map();
 
-/** One card of travel, measured from the stops rather than from a class name. */
-function cardStep(node) {
-  const stops = snapStops(node);
-  const gap = stops.length > 1 ? stops[1] - stops[0] : 0;
-  return gap > 0 ? gap : Math.max(1, Math.round(node.clientWidth * 0.8));
-}
+  for (const fixture of fixtures) {
+    const date = localDay(fixture);
+    if (!date) continue;
 
-function FixtureSlide({ fixture }) {
-  return (
-    <li className="min-w-[13rem] snap-start rounded-tile border border-acf-line-soft bg-acf-panel-light/60 p-4">
-      <p className="text-row font-extrabold uppercase leading-none tracking-[0.1em] text-white">
-        {fixtureDateLabel(fixture)}
-      </p>
-      <p className="mt-2 text-micro font-semibold uppercase tracking-[0.14em] text-acf-dim">
-        {fixtureTimeLabel(fixture)} · J{fixture.matchday} ·{" "}
-        {COMPETITION_TAG[fixture.competitionKey] ?? fixture.competitionName}
-      </p>
+    const key = `${date.getFullYear()}-${date.getMonth()}`;
+    if (!months.has(key)) {
+      months.set(key, {
+        key,
+        first: new Date(date.getFullYear(), date.getMonth(), 1),
+        days: new Map(),
+      });
+    }
 
-      <div className="mt-3 space-y-2">
-        {[fixture.home, fixture.away].map((team) => (
-          <div key={team.slug} className="flex items-center gap-2">
-            <Crest slug={team.slug} size="sm" />
-            <span
-              title={teamFullName(team.slug)}
-              className={`truncate text-[12px] font-bold uppercase tracking-[0.04em] ${
-                team.slug === CLUB_SLUG ? "text-acf-red" : "text-acf-snow/60"
-              }`}
-            >
-              {teamName(team.slug)}
-            </span>
-          </div>
-        ))}
-      </div>
+    const month = months.get(key);
+    const k = dayKey(date);
+    if (!month.days.has(k)) month.days.set(k, []);
+    month.days.get(k).push(fixture);
+  }
 
-      <p className="mt-3 truncate text-micro font-semibold uppercase tracking-[0.14em] text-acf-dim">
-        {fixture.field ?? "Campo por confirmar"}
-      </p>
-    </li>
-  );
+  return [...months.values()].sort((a, b) => a.first - b.first);
 }
 
 const ARROW_CLASS =
   "flex h-8 w-8 items-center justify-center rounded-full border border-acf-line bg-acf-panel text-acf-grey transition-colors hover:text-white disabled:opacity-35 disabled:hover:text-acf-grey";
 
-/** Horizontal slider of the club's following fixtures with their real dates. */
+/**
+ * One fixture spelled out: the day, who we play, which competition, when and
+ * where. It is the content of both the panel under the grid and the card that
+ * follows the pointer, so the two can never disagree.
+ */
+function FixtureInfo({ fixture }) {
+  const date = localDay(fixture);
+  const rival = opponentOf(fixture);
+  const competition = COMPETITION_TAG[fixture.competitionKey] ?? fixture.competitionName;
+
+  return (
+    <>
+      <p className="text-micro font-semibold uppercase tracking-[0.16em] text-acf-dim">
+        {date ? LONG_DAY.format(date) : "Fecha por confirmar"}
+      </p>
+
+      <div className="mt-2 flex items-center gap-2.5">
+        <Crest slug={rival.slug} size="sm" />
+        <p
+          title={teamFullName(rival.slug)}
+          className="min-w-0 flex-1 text-row font-extrabold uppercase leading-tight tracking-[0.06em] text-white"
+        >
+          {teamName(rival.slug)}
+        </p>
+        <span className="shrink-0 rounded-full bg-acf-red px-2 py-0.5 text-micro font-bold uppercase tracking-[0.12em] text-acf-dark">
+          {competition}
+        </span>
+      </div>
+
+      <p className="mt-2 text-micro font-semibold uppercase tracking-[0.14em] text-acf-dim">
+        {fixtureTimeLabel(fixture)} · {homeAwayLabel(fixture)} · J{fixture.matchday}
+      </p>
+
+      <p className="mt-1 text-micro font-semibold uppercase tracking-[0.14em] text-acf-dim">
+        {fixture.field ?? "Campo por confirmar"}
+      </p>
+    </>
+  );
+}
+
+/**
+ * One month as the calendar people already know how to read: seven columns,
+ * Monday first, a cell per day. Days with a fixture are buttons and carry the
+ * club red; the chosen day is the filled one. Blank cells pad the first and last
+ * week so the columns never shift.
+ */
+function MonthGrid({ month, selectedKey, onSelect, onPreview, onPreviewEnd }) {
+  const year = month.first.getFullYear();
+  const monthIndex = month.first.getMonth();
+  const length = new Date(year, monthIndex + 1, 0).getDate();
+  const lead = (month.first.getDay() + 6) % 7; // Monday-first offset
+  const cells = Math.ceil((lead + length) / 7) * 7;
+  const today = dayKey(new Date());
+
+  return (
+    <div className="grid grid-cols-7 gap-1">
+      {WEEKDAYS.map((label) => (
+        <span
+          key={label}
+          aria-hidden="true"
+          className="pb-1 text-center text-micro font-semibold uppercase tracking-[0.1em] text-acf-dim"
+        >
+          {label}
+        </span>
+      ))}
+
+      {Array.from({ length: cells }, (_, index) => {
+        const day = index - lead + 1;
+        if (day < 1 || day > length) return <span key={`pad-${index}`} />;
+
+        const date = new Date(year, monthIndex, day);
+        const key = dayKey(date);
+        const dayFixtures = month.days.get(key) ?? [];
+        const isToday = key === today;
+
+        if (!dayFixtures.length) {
+          return (
+            <span
+              key={key}
+              className={`flex h-9 items-center justify-center rounded-tile text-figure tabular-nums ${
+                isToday ? "font-bold text-white" : "text-acf-grey"
+              }`}
+            >
+              {day}
+            </span>
+          );
+        }
+
+        const fixture = dayFixtures[0];
+        const rival = opponentOf(fixture);
+        const isSelected = key === selectedKey;
+
+        /* Hover, keyboard focus and a tap all raise the same small card: on a
+           phone there is no hover, so the press is what opens it. */
+        const reveal = (event) =>
+          onPreview(fixture, event.currentTarget.getBoundingClientRect());
+
+        return (
+          <button
+            key={key}
+            type="button"
+            onClick={(event) => {
+              onSelect(key);
+              reveal(event);
+            }}
+            onMouseEnter={reveal}
+            onMouseLeave={onPreviewEnd}
+            onFocus={reveal}
+            onBlur={onPreviewEnd}
+            aria-pressed={isSelected}
+            aria-label={`${LONG_DAY.format(date)}: ${teamFullName(rival.slug)}, ${fixtureTimeLabel(fixture)}`}
+            className={`flex h-9 flex-col items-center justify-center rounded-tile text-figure font-bold tabular-nums transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red ${
+              isSelected
+                ? "bg-acf-red text-acf-dark"
+                : "bg-acf-red/15 text-white hover:bg-acf-red/25"
+            }`}
+          >
+            {day}
+            <span
+              aria-hidden="true"
+              className={`mt-0.5 h-1 w-1 rounded-full ${
+                isSelected ? "bg-acf-dark" : "bg-acf-red"
+              }`}
+            />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * The club's coming fixtures as a real month calendar.
+ *
+ * It used to be a horizontal slider of six cards, which read as a list of dates
+ * and never showed the shape of the month. The owner asked for the calendar a
+ * person already knows how to read (L20): weeks and days, the matchdays marked,
+ * and the chosen day spelled out underneath.
+ *
+ * A marked day also raises the same information in a small card next to it
+ * (owner, L22), on hover and on tap alike. The card is portalled to `body` and
+ * pinned with `position: fixed`, so the card's `overflow-hidden` and any
+ * transform above it cannot clip or displace it.
+ */
 export default function FixturesCard({ className = "" }) {
-  const fixtures = nextFixtures(6);
-  const slider = useRef(null);
-  /* Leading gutter of the list, measured once: it is the rest offset of the end. */
-  const gutter = useRef(0);
-  /* Which way the current gesture is going, so the list settles that way. */
-  const gesture = useRef(0);
-  const settleTimer = useRef(0);
-  const dragState = useRef(null);
-  const [dragging, setDragging] = useState(false);
-  const [edges, setEdges] = useState({ back: false, forward: false });
+  const fixtures = useMemo(() => nextFixtures(null), []);
+  const months = useMemo(() => buildMonths(fixtures), [fixtures]);
 
-  /*
-   * The list snaps card by card, and a mandatory snap re-snaps every scroll the
-   * slider makes. A single wheel notch is ~100px, the card step is ~220px, so
-   * the snap used to pull the list straight back to the card it came from: the
-   * gesture was consumed and nothing moved. Holding the snap off while a
-   * gesture is live makes the list follow the pointer and the wheel pixel by
-   * pixel; putting it back afterwards makes it land on a card, and settling in
-   * the gesture's own direction means one notch always advances one card.
-   */
-  const holdSnap = (node) => {
-    node.style.scrollSnapType = "none";
-  };
+  // Open on the month of the next fixture: the date a player came looking for.
+  const initialMonth = useMemo(() => {
+    const date = fixtures[0] ? localDay(fixtures[0]) : null;
+    if (!date) return 0;
+    const index = months.findIndex(
+      (month) =>
+        month.first.getFullYear() === date.getFullYear() &&
+        month.first.getMonth() === date.getMonth(),
+    );
+    return index < 0 ? 0 : index;
+  }, [months, fixtures]);
 
-  const settle = (node) => {
-    window.clearTimeout(settleTimer.current);
-    const direction = gesture.current;
-    gesture.current = 0;
+  const [monthIndex, setMonthIndex] = useState(initialMonth);
+  const [selectedKey, setSelectedKey] = useState(() => {
+    const date = fixtures[0] ? localDay(fixtures[0]) : null;
+    return date ? dayKey(date) : null;
+  });
+  const [preview, setPreview] = useState(null);
 
-    if (direction !== 0) {
-      const current = node.scrollLeft;
-      const stops = snapStops(node);
-      const reachable = direction > 0
-        ? stops.find((stop) => stop > current + 1)
-        : [...stops].reverse().find((stop) => stop < current - 1);
-      if (reachable !== undefined) node.scrollLeft = reachable;
+  const month = months[monthIndex] ?? null;
+
+  const selected = useMemo(() => {
+    for (const candidate of months) {
+      const dayFixtures = candidate.days.get(selectedKey);
+      if (dayFixtures?.length) return dayFixtures[0];
     }
+    return null;
+  }, [months, selectedKey]);
 
-    node.style.scrollSnapType = "";
-  };
+  /* A pinned card cannot follow the page: any scroll or resize closes it rather
+     than letting it hang over the wrong row. */
+  useEffect(() => {
+    if (!preview) return undefined;
+    const close = () => setPreview(null);
+    window.addEventListener("scroll", close, { passive: true, capture: true });
+    window.addEventListener("resize", close);
+    return () => {
+      window.removeEventListener("scroll", close, { capture: true });
+      window.removeEventListener("resize", close);
+    };
+  }, [preview]);
 
-  const syncEdges = () => {
-    const node = slider.current;
-    if (!node) return;
-    setEdges({
-      back: canSlide(node, -1, gutter.current),
-      forward: canSlide(node, 1, gutter.current),
+  const previewDay = (fixture, rect) => {
+    const centered = rect.left + rect.width / 2 - PREVIEW_WIDTH / 2;
+    const left = Math.min(
+      Math.max(PREVIEW_MARGIN, centered),
+      window.innerWidth - PREVIEW_WIDTH - PREVIEW_MARGIN,
+    );
+    const above = rect.top > PREVIEW_FLIP;
+
+    setPreview({
+      fixture,
+      left,
+      top: above ? rect.top - PREVIEW_MARGIN : rect.bottom + PREVIEW_MARGIN,
+      transform: above ? "translateY(-100%)" : undefined,
     });
   };
 
-  /*
-   * A plain vertical wheel over the slider moves it horizontally. React
-   * registers `wheel` at the root as a passive listener, so `preventDefault()`
-   * inside the JSX handler would be ignored: the handler only scrolls, and a
-   * non-passive native listener owns the decision of whether the gesture
-   * belongs to the slider or to the page.
-   */
-  const handleWheel = (event) => {
-    const node = slider.current;
-    if (!node || !canSlide(node, event.deltaY, gutter.current)) return;
-
-    holdSnap(node);
-    gesture.current = event.deltaY > 0 ? 1 : -1;
-    slideBy(node, event.deltaY);
-    window.clearTimeout(settleTimer.current);
-    settleTimer.current = window.setTimeout(() => settle(node), SETTLE_MS);
+  /* Moving months moves the selection with it, so the detail always belongs to
+     the month on screen. */
+  const goToMonth = (direction) => {
+    const next = monthIndex + direction;
+    if (next < 0 || next >= months.length) return;
+    setMonthIndex(next);
+    setSelectedKey([...months[next].days.keys()][0] ?? null);
+    setPreview(null);
   };
 
-  /* Pointer drag: the same held snap, with the list pinned to the pointer. */
-  const handlePointerDown = (event) => {
-    const node = slider.current;
-    if (!node || event.pointerType === "touch") return; // touch already scrolls
-    dragState.current = { x: event.clientX, left: node.scrollLeft };
-    gesture.current = 0;
-    holdSnap(node);
-    setDragging(true);
-    try {
-      node.setPointerCapture?.(event.pointerId);
-    } catch {
-      // A stale or synthetic pointer id has nothing to capture: the drag still
-      // works, it just may lose the pointer if it leaves the list.
-    }
-  };
-
-  const handlePointerMove = (event) => {
-    const node = slider.current;
-    const state = dragState.current;
-    if (!node || !state) return;
-    const travelled = event.clientX - state.x;
-    if (travelled === 0) return;
-    gesture.current = travelled < 0 ? 1 : -1; // dragging left advances the list
-    node.scrollLeft = state.left - travelled;
-  };
-
-  const endDrag = () => {
-    const node = slider.current;
-    if (!node || !dragState.current) return;
-    dragState.current = null;
-    setDragging(false);
-    settle(node);
-  };
-
-  const moveByCard = (direction) => {
-    const node = slider.current;
-    if (!node) return;
-    node.scrollBy({ left: direction * cardStep(node), behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    const node = slider.current;
-    if (!node) return undefined;
-
-    gutter.current = parseFloat(getComputedStyle(node).paddingLeft) || 0;
-    syncEdges();
-
-    const claimGesture = (event) => {
-      // Only swallow the gesture while the slider can still move: at either end
-      // the page keeps scrolling normally, so the slider never traps the reader.
-      if (canSlide(node, event.deltaY, gutter.current)) event.preventDefault();
-    };
-
-    node.addEventListener("wheel", claimGesture, { passive: false });
-    node.addEventListener("scroll", syncEdges, { passive: true });
-    window.addEventListener("resize", syncEdges);
-
-    return () => {
-      node.removeEventListener("wheel", claimGesture);
-      node.removeEventListener("scroll", syncEdges);
-      window.removeEventListener("resize", syncEdges);
-      window.clearTimeout(settleTimer.current);
-    };
-  }, []);
-
-  return (
-    <Card
-      title="Calendario"
-      hint={fixtures.length ? undefined : "Sin partidos programados"}
-      icon={CalendarDays}
-      className={className}
-      bodyClassName="flex flex-col"
-    >
-      {fixtures.length ? (
-        <>
-          <ul
-            ref={slider}
-            tabIndex={0}
-            aria-label="Siguientes partidos"
-            onWheel={handleWheel}
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={endDrag}
-            onPointerCancel={endDrag}
-            className={`flex w-full cursor-grab snap-x snap-mandatory gap-3 overflow-x-auto px-6 pb-4 pt-1 squad-scrollbar focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-acf-red/60 ${
-              dragging ? "select-none active:cursor-grabbing" : ""
-            }`}
-          >
-            {fixtures.map((fixture) => (
-              <FixtureSlide
-                key={`${fixture.competitionKey}-${fixture.matchday}-${fixture.date}`}
-                fixture={fixture}
-              />
-            ))}
-          </ul>
-
-          <div className="mt-auto flex items-center justify-between gap-2 px-6 pb-5">
-            <p className="text-micro font-semibold uppercase tracking-[0.16em] text-acf-dim">
-              Desliza
-            </p>
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => moveByCard(-1)}
-                disabled={!edges.back}
-                aria-label="Partidos anteriores"
-                className={ARROW_CLASS}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => moveByCard(1)}
-                disabled={!edges.forward}
-                aria-label="Partidos siguientes"
-                className={ARROW_CLASS}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        </>
-      ) : (
-        <p className="px-6 py-4 text-row text-acf-grey">
+  if (!fixtures.length) {
+    return (
+      <Card
+        title="Calendario"
+        hint="Sin partidos programados"
+        icon={CalendarDays}
+        className={className}
+      >
+        <p className="px-6 pb-5 text-row text-acf-grey">
           La fuente oficial no publica más partidos programados.
         </p>
-      )}
+      </Card>
+    );
+  }
+
+  return (
+    <Card title="Calendario" id="calendario" icon={CalendarDays} className={className} bodyClassName="flex flex-col">
+      <div className="flex items-center justify-between gap-2 px-6 pb-3">
+        <p className="text-micro font-bold uppercase tracking-[0.18em] text-white">
+          {MONTH_FORMAT.format(month.first)}
+        </p>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => goToMonth(-1)}
+            disabled={monthIndex === 0}
+            aria-label="Mes anterior"
+            className={ARROW_CLASS}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={() => goToMonth(1)}
+            disabled={monthIndex === months.length - 1}
+            aria-label="Mes siguiente"
+            className={ARROW_CLASS}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      <div className="px-6">
+        <MonthGrid
+          month={month}
+          selectedKey={selectedKey}
+          onSelect={setSelectedKey}
+          onPreview={previewDay}
+          onPreviewEnd={() => setPreview(null)}
+        />
+      </div>
+
+      {selected ? (
+        <div className="mx-6 mb-6 mt-4 rounded-tile border border-acf-line-soft bg-white/[0.04] px-3 py-3">
+          <FixtureInfo fixture={selected} />
+        </div>
+      ) : null}
+
+      {/*
+       * Decorative duplicate of the panel already on screen and of the button's
+       * own label: nothing here is announced, so it never repeats itself to a
+       * screen reader. It takes no pointer events either, so a pointer leaving
+       * the day always closes it.
+       */}
+      {preview
+        ? createPortal(
+            <div
+              aria-hidden="true"
+              style={{
+                top: preview.top,
+                left: preview.left,
+                transform: preview.transform,
+                width: PREVIEW_WIDTH,
+              }}
+              className="pointer-events-none fixed z-50 rounded-tile border border-acf-line bg-acf-panel-light px-3 py-3 shadow-acf"
+            >
+              <FixtureInfo fixture={preview.fixture} />
+            </div>,
+            document.body,
+          )
+        : null}
     </Card>
   );
 }

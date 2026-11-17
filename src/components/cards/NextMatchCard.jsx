@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Shield, Trophy } from "lucide-react";
 import {
   CLUB_SLUG,
   fixtureKickoffIso,
@@ -121,6 +122,23 @@ function KickoffSentence({ fixture }) {
  * grid already opens the same source, and the hero now ends on the headcount,
  * which is what a player actually came here to do.
  */
+/**
+ * The competition badge names the competition and gives it a mark of its own:
+ * a cup for the cup, a shield for the league. Two different symbols, because
+ * the badge is the only thing on the card that says which one is being played.
+ */
+function CompetitionBadge({ competitionKey }) {
+  const isCup = competitionKey === "cup";
+  const Icon = isCup ? Trophy : Shield;
+
+  return (
+    <span className="ml-auto flex shrink-0 items-center gap-1.5 rounded-full bg-acf-red px-2.5 py-1 text-micro font-bold uppercase tracking-[0.16em] text-acf-dark">
+      <Icon className="h-3 w-3" aria-hidden="true" />
+      {isCup ? "Copa" : "Liga"}
+    </span>
+  );
+}
+
 export default function NextMatchCard({ className = "" }) {
   const next = useMemo(() => nextFixture(), []);
   const opponent = next ? opponentOf(next) : null;
@@ -139,9 +157,7 @@ export default function NextMatchCard({ className = "" }) {
         {next ? (
           // The competition badge sits on the header row so the card names its
           // competition without spending a line on it.
-          <span className="ml-auto shrink-0 rounded-full bg-acf-red px-2.5 py-1 text-micro font-bold uppercase tracking-[0.16em] text-acf-dark">
-            {next.competitionKey === "cup" ? "COPA" : "LIGA"}
-          </span>
+          <CompetitionBadge competitionKey={next.competitionKey} />
         ) : null}
       </header>
 

@@ -10,10 +10,10 @@ import AttendanceCard from "./cards/AttendanceCard.jsx";
 import GalleryCard from "./cards/GalleryCard.jsx";
 
 /**
- * Home grid: the centre column opens with the satirical breaking-news ticker and
- * the next match below it, then the club's own photo gallery; standings, scorers
- * and form sit on the left, calendar, cup and attendance on the right. Every card
- * reads only synced or club-reported data.
+ * Home grid: a full-width news band, then the next match at the top of the
+ * centre column with the cup table and the club's own photo gallery under it;
+ * standings, scorers and form sit on the left, calendar and attendance on the
+ * right. Every card reads only synced or club-reported data.
  *
  * The card hierarchy is deliberate: the next match owns the hero surface and the
  * scorers card the accent surface (see `.surface-hero` / `.surface-accent` in
@@ -28,6 +28,14 @@ export default function Dashboard() {
             past three cards to say who they are. */}
         <WhoAreYou />
 
+        {/* The satirical feed reads as a band across the page, not as a card in
+            the centre column (owner, L19). Phones drop it entirely: a headline
+            moving sideways on a 390px screen is unreadable, and the column order
+            there is about the fixture, not the news. */}
+        <div className="mb-6 hidden lg:block">
+          <BreakingTicker />
+        </div>
+
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* On phones the columns dissolve (display: contents) and every card
               gets its own order, so the owner's mobile sequence is: match,
@@ -40,14 +48,15 @@ export default function Dashboard() {
           </div>
 
           <div className="flex max-lg:contents flex-col gap-6 lg:col-span-5">
-            <BreakingTicker className="max-lg:order-1" />
             <NextMatchCard className="max-lg:order-2" />
+            {/* The cup sits above the gallery (owner, L21): the competition table
+                belongs with the fixture, not at the bottom of the right column. */}
+            <CupCard className="max-lg:order-8" />
             <GalleryCard className="max-lg:order-9" />
           </div>
 
           <div className="flex max-lg:contents flex-col gap-6 lg:col-span-3">
             <FixturesCard className="max-lg:order-3" />
-            <CupCard className="max-lg:order-8" />
             <AttendanceCard className="max-lg:order-5" />
           </div>
         </div>

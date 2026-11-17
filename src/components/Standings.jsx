@@ -33,12 +33,19 @@ function Row({ row }) {
   return (
     <tr
       className={`border-t border-acf-line-soft transition-colors ${
-        isAcf ? "bg-acf-red/[0.09]" : "hover:bg-white/[0.03]"
+        isAcf ? "bg-acf-red/[0.14]" : "hover:bg-white/[0.03]"
       }`}
     >
+      {/*
+       * The club's own row carries a red bar against the left edge so it is
+       * found before anything is read. An inset shadow on the first cell draws
+       * it above the collapsed table borders, which a border on the row cannot.
+       */}
       <td
         className={`w-7 py-3 pl-3 pr-1 text-center font-display text-lg leading-none tabular-nums ${
-          isAcf ? "text-acf-red" : "text-acf-snow/40"
+          isAcf
+            ? "text-acf-red shadow-[inset_3px_0_0_var(--color-acf-red)]"
+            : "text-acf-snow/40"
         }`}
       >
         {row.rank ?? "—"}

@@ -64,38 +64,46 @@ export default function AttendanceCard({ className = "" }) {
       bodyClassName="flex flex-col"
     >
       {hasData ? (
-        <ul className="flex flex-col gap-3 px-6 pb-6 pt-1">
-          {rows.map((row, index) => (
-            <li key={row.name} className="flex items-center gap-3">
-              <Face name={row.name} photo={row.photo} />
+        /*
+         * Seven rows at a time. The list used to grow with the squad and turned
+         * the right column into a page of its own (owner, L21); a fixed window
+         * with its own scroll keeps the card the same size every matchday.
+         * 18.5rem = seven rows (7 x 2rem) plus six 0.75rem gutters.
+         */
+        <div className="max-h-[18.5rem] overflow-y-auto overscroll-contain px-6 pb-6 pt-1">
+          <ul className="flex flex-col gap-3">
+            {rows.map((row, index) => (
+              <li key={row.name} className="flex items-center gap-3">
+                <Face name={row.name} photo={row.photo} />
 
-              <div className="min-w-0 flex-1">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="min-w-0 truncate text-row font-bold uppercase tracking-[0.06em] text-acf-snow/80">
-                    {row.name}
-                  </span>
-                  <span className="shrink-0 text-micro font-semibold tabular-nums tracking-[0.06em] text-acf-grey">
-                    {row.count}/{played} · {row.pct}%
-                  </span>
-                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="min-w-0 truncate text-row font-bold uppercase tracking-[0.06em] text-acf-snow/80">
+                      {row.name}
+                    </span>
+                    <span className="shrink-0 text-micro font-semibold tabular-nums tracking-[0.06em] text-acf-grey">
+                      {row.count}/{played} · {row.pct}%
+                    </span>
+                  </div>
 
-                {/* The bar is exactly pct% wide; the numbers beside it are the
-                    accessible reading, so the track itself is decorative. */}
-                <div
-                  aria-hidden="true"
-                  className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[0.06]"
-                >
+                  {/* The bar is exactly pct% wide; the numbers beside it are the
+                      accessible reading, so the track itself is decorative. */}
                   <div
-                    className={`h-full rounded-full ${
-                      index === 0 ? "bg-acf-red" : "bg-acf-red/70"
-                    }`}
-                    style={{ width: `${row.pct}%` }}
-                  />
+                    aria-hidden="true"
+                    className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[0.06]"
+                  >
+                    <div
+                      className={`h-full rounded-full ${
+                        index === 0 ? "bg-acf-red" : "bg-acf-red/70"
+                      }`}
+                      style={{ width: `${row.pct}%` }}
+                    />
+                  </div>
                 </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : (
         <p className="px-6 pb-6 text-row leading-relaxed text-acf-grey">
           El club todavía no ha facilitado quién vino a cada partido.

@@ -11,7 +11,7 @@ import {
 } from "../lib/attendance.js";
 
 /**
- * Asistiré / No asistiré on the next match.
+ * Sí, voy / No voy on the next match.
  *
  * This list is informational — it answers "how many are we?" (owner, L6). It is
  * NOT the record: the referee's acta is. So a last-minute no-show who never
@@ -21,8 +21,13 @@ import {
  * Answering collapses the two buttons (owner, L16): once you have said
  * something, the card shows what you said plus a small "Editar" instead of
  * inviting you to answer again. "Editar" brings them back, and choosing again
- * collapses them again. The same collapse follows "No asistiré": the state a
+ * collapses them again. The same collapse follows "No voy": the state a
  * player sees should not depend on which of the two he pressed.
+ *
+ * The faces of who is coming sit above the buttons (owner, L18): the answer a
+ * player wants before pressing is "how many are we?". The affirmative is the
+ * solid red primary and the refusal the quiet outline, so the card asks the
+ * question the way a player answers it at the field.
  *
  * Three honest states:
  *   * no backend configured — one line saying so, never a fake empty list;
@@ -190,18 +195,25 @@ export default function MatchAttendance({ fixture }) {
   const mine = player ? answers[player.id] : undefined;
   const showButtons = editing || !mine;
 
-  const button = (status, label) => {
+  const button = (status, label, variant) => {
     const active = mine === status;
+    /*
+     * The affirmative is the only solid red on the card; the refusal keeps the
+     * outline. While editing, the answer you already gave stays at full weight
+     * and the other one steps back, so you can see what you are changing from.
+     */
+    const tone =
+      variant === "primary"
+        ? "border-acf-red bg-acf-red text-acf-dark hover:bg-acf-red-dark"
+        : "border-acf-line bg-white/[0.05] text-white hover:border-white/25";
     return (
       <button
         type="button"
         onClick={() => declare(status)}
         disabled={!player || busy || !matchId}
         aria-pressed={active}
-        className={`rounded-tile border px-4 py-3 text-[15px] font-extrabold tracking-tight transition disabled:opacity-40 ${
-          active
-            ? "border-acf-red bg-acf-red text-acf-dark"
-            : "border-acf-line bg-white/[0.05] text-white hover:border-white/25"
+        className={`rounded-tile border px-4 py-3 text-[15px] font-extrabold tracking-tight transition disabled:opacity-40 ${tone} ${
+          mine && !active ? "opacity-60" : ""
         }`}
       >
         {label}
@@ -226,16 +238,8 @@ export default function MatchAttendance({ fixture }) {
         ) : null}
       </div>
 
-      {showButtons ? (
-        <div className="grid grid-cols-2 gap-2">
-          {button("in", "Asistiré")}
-          {button("out", "No asistiré")}
-        </div>
-      ) : (
-        <p className="text-row font-semibold text-white">
-          {mine === "in" ? "Vas al partido." : "No vas al partido."}
-        </p>
-      )}
+      {/* The headcount first: it is the answer to the question the label asks. */}
+      <Tally answers={answers} chosenId={player?.id ?? null} />
 
       {!player ? (
         <p className="text-row text-acf-grey">
@@ -250,14 +254,23 @@ export default function MatchAttendance({ fixture }) {
         </p>
       ) : null}
 
+      {showButtons ? (
+        <div className="grid grid-cols-[1.6fr_1fr] gap-2">
+          {button("in", "Sí, voy", "primary")}
+          {button("out", "No voy", "secondary")}
+        </div>
+      ) : (
+        <p className="text-row font-semibold text-white">
+          {mine === "in" ? "Sí, voy." : "No voy."}
+        </p>
+      )}
+
       {saveError ? (
         <p className="text-row text-acf-red">
           No se pudo guardar tu respuesta. Vuelve a intentarlo.
           <span className="mt-1 block text-micro text-acf-dim">{saveError}</span>
         </p>
       ) : null}
-
-      <Tally answers={answers} chosenId={player?.id ?? null} />
     </div>
   );
 }
