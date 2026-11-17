@@ -57,6 +57,14 @@ Decision from L6: the declared list is informational only — a headcount. The a
 
 **L9 — still unverified, needs the project.** The schema has never been executed: whether it runs at all, whether it runs twice, and every RLS behaviour at runtime. The declared write path (tap → upsert → live list) has not round-tripped. Those are the first checks once the owner hands over the URL and anon key.
 
-**L10 — owner, first run (verbatim).** "supabase/schema.sql" — the schema was run and returned an error, text not yet shared.
+**L11 — owner, first successful run (verbatim).** "Success. No rows returned" — `supabase/schema.sql` executed cleanly against the new project. The tables, the three functions and the 9 public-schema policies now exist.
+
+**L12 — owner, storage (verbatim).** "Success. No rows returned" — `supabase/storage.sql` also ran clean, so the SQL-editor role could create policies on `storage.objects`; the interface fallback was not needed.
+
+**L13 — live verification against the real project.** The pasted anon key was corrupted in transit: its JWT decoded to ref `exusfuwlpwjdmynbyx` (18 chars) while the real project ref is `exusfuwlpxfjqdmynbyx` (20), so every host lookup returned NXDOMAIN. With the publishable key and the real URL, `npm run verify:supabase` passed **8/8**: `ensure_match` is idempotent, anon reads matches but cannot close one, `admins` and `actas` are unreadable to anon, `acta_state` answers only its three states, and a declared answer upserts without duplicating.
+
+**L14 — the connected UI, in the browser.** On the production build pointed at the real project: tapping Pablo then "Asistiré" showed `APUNTADO`, `1 DE 15 APUNTADOS` and `VAN: PABLO`, and the row was read back from Postgres as `{match_id: 3, player_id: 1, status: in}` for the real cup matchday 1 fixture. The React wiring is no longer unverified.
+
+**L15 — test rows to clean up.** The probe left `matches` id 1 (`matchday 999`, rival PROBE) with an `attendance` row for player 1, and the real matchday 1 fixture (id 3) holds the browser test's `in` for Pablo. Both are removable with `delete from public.matches where matchday = 999;` and `delete from public.attendance where match_id = 3;`.
 
 Action taken: `schema.sql` was split. The four policies and the bucket insert moved to `supabase/storage.sql`, because they are the only statements touching `storage.objects`, a table owned by Supabase's internal roles, and a rejection there is the most common failure in this setup. The public schema now runs on its own, unaffected by storage permissions, and the README documents the interface fallback (bucket + four policies with `bucket_id = 'actas' and public.is_owner()`).
