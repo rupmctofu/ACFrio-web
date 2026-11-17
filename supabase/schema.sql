@@ -205,34 +205,9 @@ create policy actas_owner_write on public.actas
   for all to authenticated using (public.is_owner()) with check (public.is_owner());
 
 -- ---------------------------------------------------------------------------
--- Storage: private bucket for the scans
+-- Storage lives in supabase/storage.sql, on purpose: it touches a table owned by
+-- Supabase's internal roles, and a failure there must not stop this file.
 -- ---------------------------------------------------------------------------
-
-insert into storage.buckets (id, name, public)
-values ('actas', 'actas', false)
-on conflict (id) do nothing;
-
-drop policy if exists actas_object_owner_read on storage.objects;
-create policy actas_object_owner_read on storage.objects
-  for select to authenticated
-  using (bucket_id = 'actas' and public.is_owner());
-
-drop policy if exists actas_object_owner_write on storage.objects;
-create policy actas_object_owner_write on storage.objects
-  for insert to authenticated
-  with check (bucket_id = 'actas' and public.is_owner());
-
-drop policy if exists actas_object_owner_update on storage.objects;
-create policy actas_object_owner_update on storage.objects
-  for update to authenticated
-  using (bucket_id = 'actas' and public.is_owner())
-  with check (bucket_id = 'actas' and public.is_owner());
-
--- Without this the owner could never remove a bad or duplicated scan.
-drop policy if exists actas_object_owner_delete on storage.objects;
-create policy actas_object_owner_delete on storage.objects
-  for delete to authenticated
-  using (bucket_id = 'actas' and public.is_owner());
 
 -- ---------------------------------------------------------------------------
 -- Owner setup, run by hand once (replace the address):

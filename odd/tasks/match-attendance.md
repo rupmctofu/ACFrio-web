@@ -56,3 +56,7 @@ Decision from L6: the declared list is informational only — a headcount. The a
 **L8 — decision, orchestrator.** The project had no test runner, and the verifier could not establish any automated guard (item 6). `tests/no-backend.test.mjs` is now the first one, behind `npm test`: it proves the data layer imports outside a browser, that every call rejects with `backend-unavailable`, and that an unconfigured build makes no network request (S6). It needs no dependency and no build step.
 
 **L9 — still unverified, needs the project.** The schema has never been executed: whether it runs at all, whether it runs twice, and every RLS behaviour at runtime. The declared write path (tap → upsert → live list) has not round-tripped. Those are the first checks once the owner hands over the URL and anon key.
+
+**L10 — owner, first run (verbatim).** "supabase/schema.sql" — the schema was run and returned an error, text not yet shared.
+
+Action taken: `schema.sql` was split. The four policies and the bucket insert moved to `supabase/storage.sql`, because they are the only statements touching `storage.objects`, a table owned by Supabase's internal roles, and a rejection there is the most common failure in this setup. The public schema now runs on its own, unaffected by storage permissions, and the README documents the interface fallback (bucket + four policies with `bucket_id = 'actas' and public.is_owner()`).
