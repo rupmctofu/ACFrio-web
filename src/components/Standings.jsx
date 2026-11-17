@@ -130,12 +130,14 @@ export default function Standings({ className = "" }) {
       {/* The points rule is what the reader already knows: only the missing-results
           notice carries information, so the footnote appears only in that case. */}
       {hasResults ? null : (
-        <p className="mt-auto border-t border-acf-line-soft px-6 py-3.5 text-micro font-semibold uppercase tracking-[0.16em] text-acf-dim">
-          La fuente oficial todavía no ha publicado resultados.
-        </p>
-        <p className="mt-1 text-micro font-semibold uppercase tracking-[0.14em] text-acf-grey">
-          {VOICE.states.noResults}
-        </p>
+        <>
+          <p className="mt-auto border-t border-acf-line-soft px-6 py-3.5 text-micro font-semibold uppercase tracking-[0.16em] text-acf-dim">
+            La fuente oficial todavía no ha publicado resultados.
+          </p>
+          <p className="px-6 pb-3.5 text-micro font-semibold uppercase tracking-[0.14em] text-acf-grey">
+            {VOICE.states.noResults}
+          </p>
+        </>
       )}
     </Card>
   );
