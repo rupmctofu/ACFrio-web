@@ -7,14 +7,17 @@
  * and the club red as the single accent.
  */
 @theme {
-  /* Brand accent — the only accent in the system. */
+  /* Brand accent — the only accent in the system. The soft end exists for the
+     localized red gradients the identity asks for; it never appears as a flat
+     fill on its own. */
   --color-acf-red: #e61c24;
   --color-acf-red-dark: #b0141b;
+  --color-acf-red-soft: #ff4d55;
 
-  /* Canvas and surfaces. */
-  --color-acf-dark: #0a0a0b;
-  --color-acf-panel: #141416;
-  --color-acf-panel-light: #1c1c1f;
+  /* Canvas and surfaces: the owner's blacks, from the canvas inwards. */
+  --color-acf-dark: #090909;
+  --color-acf-panel: #141414;
+  --color-acf-panel-light: #202020;
 
   /* Hairlines. */
   --color-acf-line: rgba(255, 255, 255, 0.08);
@@ -30,10 +33,12 @@
    * Only one card sits at each tinted level; see `.surface-hero` /
    * `.surface-accent` below.
    */
-  --color-acf-surface-hero: #1c1c1f;
-  --color-acf-surface-hero-line: rgba(230, 28, 36, 0.34);
-  --color-acf-surface-hero-glow: rgba(230, 28, 36, 0.16);
-  --color-acf-surface-hero-mid: rgba(230, 28, 36, 0.05);
+  /* The hero surface is now a red-tinted charcoal: the digital poster of the
+     next match reads as the reddest thing on the page before any text. */
+  --color-acf-surface-hero: #171213;
+  --color-acf-surface-hero-line: rgba(230, 28, 36, 0.5);
+  --color-acf-surface-hero-glow: rgba(230, 28, 36, 0.32);
+  --color-acf-surface-hero-mid: rgba(230, 28, 36, 0.09);
   --color-acf-surface-accent-from: rgba(230, 28, 36, 0.18);
   --color-acf-surface-accent-to: rgba(230, 28, 36, 0.08);
   --color-acf-surface-accent-line: rgba(230, 28, 36, 0.3);
@@ -44,8 +49,10 @@
   --color-acf-grey: #8f8f97;
   --color-acf-dim: #5b5b63;
 
-  /* Display face is reserved for large numerals only. */
-  --font-display: "Bebas Neue", sans-serif;
+  /* Display face is reserved for large numerals only: figures, results and
+     countdowns. Oswald keeps the condensed voice of the identity but carries
+     real weights, so a score and its label can differ in weight, not just size. */
+  --font-display: "Oswald", sans-serif;
   --font-body: "Inter", sans-serif;
 
   /*
@@ -66,6 +73,55 @@
   --radius-tile: 14px;
 
   --shadow-acf: 0 24px 60px -40px rgba(0, 0, 0, 0.95);
+}
+
+/* ===== Page ambience: the identity's red streaks, kept in the corners =====
+ * Two fixed glows breathe out of the page edges so the canvas never reads as
+ * flat black. They sit behind everything and take no pointer events; the
+ * scrims of the cards above them stay legible because they are opaque.
+ */
+.acf-ambience::before,
+.acf-ambience::after {
+  content: "";
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+  width: 42vw;
+  height: 42vw;
+  background: radial-gradient(
+    closest-side,
+    rgba(230, 28, 36, 0.14) 0%,
+    rgba(230, 28, 36, 0.05) 45%,
+    transparent 100%
+  );
+}
+
+.acf-ambience::before {
+  top: -18vw;
+  right: -14vw;
+  transform: rotate(-12deg);
+}
+
+.acf-ambience::after {
+  bottom: -20vw;
+  left: -16vw;
+  transform: rotate(9deg);
+}
+
+/* ===== Diagonal streaks: the crest's slash, as a repeating hairline motif =====
+ * A decorative red diagonal over a dark ground — the mockup's banner corner,
+ * one utility so the banner and the brand module share exactly one rendering.
+ */
+.acf-streaks {
+  background-image: repeating-linear-gradient(
+    115deg,
+    transparent 0px,
+    transparent 26px,
+    rgba(230, 28, 36, 0.16) 26px,
+    rgba(230, 28, 36, 0.16) 30px,
+    transparent 30px,
+    transparent 52px
+  );
 }
 
 html {
