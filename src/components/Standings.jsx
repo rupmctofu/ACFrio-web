@@ -133,6 +133,9 @@ export default function Standings({ className = "" }) {
         <p className="mt-auto border-t border-acf-line-soft px-6 py-3.5 text-micro font-semibold uppercase tracking-[0.16em] text-acf-dim">
           La fuente oficial todavía no ha publicado resultados.
         </p>
+        <p className="mt-1 text-micro font-semibold uppercase tracking-[0.14em] text-acf-grey">
+          {VOICE.states.noResults}
+        </p>
       )}
     </Card>
   );

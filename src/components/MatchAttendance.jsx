@@ -3,6 +3,7 @@ import teamData from "../data/teamData.json";
 import { CLUB_SLUG, fixtureKickoffIso } from "../data/competition.js";
 import { season } from "../data/club-record.js";
 import { useIdentity } from "../lib/identity.js";
+import { VOICE } from "../data/copy.js";
 import {
   ensureMatch,
   fetchAnswers,
@@ -82,7 +83,7 @@ function Tally({ answers, chosenId }) {
   if (going.length + missing.length === 0) {
     return (
       <p className="text-micro font-semibold uppercase tracking-[0.18em] text-acf-dim">
-        Nadie se ha apuntado todavía
+        {VOICE.states.attendanceEmpty}
       </p>
     );
   }
@@ -233,7 +234,7 @@ export default function MatchAttendance({ fixture }) {
             onClick={() => setEditing(true)}
             className="rounded-full border border-acf-line px-3 py-1 text-micro font-semibold uppercase tracking-[0.14em] text-acf-snow/70 transition-colors duration-200 hover:border-white/25 hover:text-white focus-visible:border-acf-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-acf-red"
           >
-            Editar
+            {VOICE.buttons.editAnswer}
           </button>
         ) : null}
       </div>
@@ -260,9 +261,16 @@ export default function MatchAttendance({ fixture }) {
           {button("out", "No voy", "secondary")}
         </div>
       ) : (
-        <p className="text-row font-semibold text-white">
-          {mine === "in" ? "Sí, voy." : "No voy."}
-        </p>
+        <div>
+          <p className="text-row font-semibold text-white">
+            {mine === "in" ? "Sí, voy." : "No voy."}
+          </p>
+          {mine === "in" ? (
+            <p className="mt-1 text-micro font-semibold uppercase tracking-[0.14em] text-acf-grey">
+              {VOICE.states.attendanceGoing}
+            </p>
+          ) : null}
+        </div>
       )}
 
       {saveError ? (

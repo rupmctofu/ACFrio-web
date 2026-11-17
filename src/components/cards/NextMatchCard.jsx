@@ -9,6 +9,7 @@ import {
   teamName,
 } from "../../data/competition";
 import { Crest } from "./Crest.jsx";
+import { VOICE } from "../../data/copy.js";
 import MatchAttendance from "../MatchAttendance.jsx";
 
 /** Seconds until the next kickoff. Nothing is rendered when there is no fixture. */
@@ -215,16 +216,26 @@ export default function NextMatchCard({ className = "" }) {
 
           {/* One readable line replaces the four detail tiles the owner asked to
               drop, and it ends the hero's own rhythm instead of a tile grid. */}
-          <KickoffSentence fixture={next} />
+          <div className="flex flex-col items-center gap-2">
+            <KickoffSentence fixture={next} />
+            <p className="text-micro font-semibold uppercase tracking-[0.16em] text-acf-grey">
+              {VOICE.sections.nextMatch}
+            </p>
+          </div>
 
           {/* The headcount lives on the fixture itself: this is the one card a
               player opens on a Tuesday to say whether he is coming. */}
           <MatchAttendance fixture={next} />
         </div>
       ) : (
-        <p className="px-6 pb-6 text-row text-acf-grey">
-          La fuente oficial no publica más partidos programados.
-        </p>
+        <div className="px-6 pb-6">
+          <p className="text-row text-acf-grey">
+            La fuente oficial no publica más partidos programados.
+          </p>
+          <p className="mt-1.5 text-row font-semibold text-acf-snow/80">
+            {VOICE.states.noFixtures}
+          </p>
+        </div>
       )}
     </article>
   );

@@ -1,6 +1,7 @@
 import { Trophy } from "lucide-react";
 import { CLUB_SLUG, cupTable, teamFullName, teamName } from "../../data/competition";
 import Card from "./Card.jsx";
+import { VOICE } from "../../data/copy.js";
 import { Crest } from "./Crest.jsx";
 
 const HEAD_CELL =
@@ -77,9 +78,12 @@ export default function CupCard({ className = "" }) {
               partidos jugados
             </span>
           </div>
-          <p className="px-6 pb-4 text-row leading-relaxed text-acf-grey">
+          <p className="px-6 pb-3 text-row leading-relaxed text-acf-grey">
             La fuente oficial no publica puntos, goles ni posiciones hasta que se juegue
             la primera jornada.
+          </p>
+          <p className="px-6 pb-4 text-micro font-semibold uppercase tracking-[0.16em] text-acf-grey">
+            Un sueño. {matchCount} partidos. Cero garantías.
           </p>
           <ul className="flex flex-wrap gap-2 px-6 pb-6">
             {rows.map((row) => {

@@ -102,9 +102,14 @@ export default function FormCard({ className = "" }) {
           })}
         </ul>
       ) : (
-        <p className="px-6 py-4 text-row text-acf-grey">
-          La fuente oficial todavía no publica ningún partido jugado.
-        </p>
+        <div className="px-6 py-4">
+          <p className="text-row text-acf-grey">
+            La fuente oficial todavía no publica ningún partido jugado.
+          </p>
+          <p className="mt-1.5 text-row font-semibold text-acf-snow/80">
+            {VOICE.states.noResults}
+          </p>
+        </div>
       )}
     </Card>
   );

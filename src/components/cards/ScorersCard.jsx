@@ -114,9 +114,14 @@ export default function ScorersCard({ className = "" }) {
           ))}
         </ul>
       ) : (
-        <p className="px-6 py-4 text-row leading-relaxed text-acf-grey">
-          El club todavía no ha facilitado ningún goleador.
-        </p>
+        <div className="px-6 py-4">
+          <p className="text-row leading-relaxed text-acf-grey">
+            El club todavía no ha facilitado ningún goleador.
+          </p>
+          <p className="mt-1.5 text-row font-semibold text-acf-snow/80">
+            {VOICE.states.noScorers}
+          </p>
+        </div>
       )}
 
       {pending > 0 ? (
