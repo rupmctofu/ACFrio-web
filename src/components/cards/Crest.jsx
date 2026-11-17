@@ -6,6 +6,8 @@ const SIZES = {
   sm: "h-7 w-7 rounded-md text-[10px]",
   md: "h-10 w-10 rounded-lg text-[12px]",
   lg: "h-24 w-24 rounded-2xl text-xl sm:h-28 sm:w-28 sm:text-2xl",
+  /* The poster size: the two faces of the fixture, the biggest marks on the page. */
+  xl: "h-28 w-28 rounded-2xl text-2xl sm:h-32 sm:w-32 sm:text-3xl",
 };
 
 /** The club shows its own logo; every rival shows the crest the source publishes. */

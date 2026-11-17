@@ -31,14 +31,21 @@ function useCountdown(targetIso) {
   };
 }
 
-/** Fixed-width tiles keep the digits from jumping while the clock ticks. */
+/**
+ * Fixed-width tiles keep the digits from jumping while the clock ticks. The
+ * tile carries the red the poster lives on: a red-washed charcoal module with
+ * its own hairline, so the four units read as one instrument.
+ */
 function CountdownUnit({ value, label }) {
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <span className="w-[3.25rem] rounded-tile bg-white/[0.07] py-2.5 text-center font-display text-3xl leading-none tabular-nums text-white sm:w-[3.75rem] sm:text-4xl">
+      <span
+        aria-hidden="true"
+        className="w-[3.25rem] rounded-tile border border-acf-red/25 bg-acf-red/15 py-2.5 text-center font-display text-3xl font-medium leading-none tabular-nums text-white shadow-[inset_0_-18px_28px_-24px_rgba(230,28,36,0.55)] sm:w-[3.75rem] sm:text-4xl"
+      >
         {String(value).padStart(2, "0")}
       </span>
-      <span className="text-micro font-semibold uppercase tracking-[0.24em] text-acf-dim">
+      <span className="text-micro font-semibold uppercase tracking-[0.24em] text-acf-grey">
         {label}
       </span>
     </div>
@@ -48,10 +55,10 @@ function CountdownUnit({ value, label }) {
 function TeamSide({ slug, highlight = false }) {
   return (
     <div className="flex min-w-0 flex-col items-center gap-3 text-center">
-      <Crest slug={slug} size="lg" />
+      <Crest slug={slug} size="xl" />
       <p
         className={`line-clamp-2 text-[11px] font-extrabold uppercase leading-tight tracking-[0.12em] sm:text-row ${
-          highlight ? "text-white" : "text-acf-snow/60"
+          highlight ? "text-white" : "text-acf-snow/70"
         }`}
       >
         {teamName(slug)}
@@ -149,6 +156,14 @@ export default function NextMatchCard({ className = "" }) {
       id="proximo-partido"
       className={`card surface-hero relative flex scroll-mt-24 flex-col overflow-hidden rounded-card border shadow-acf ${className}`}
     >
+      {/*
+       * The poster's diagonal: the crest motif crossing the top of the card,
+       * under the header row, so the surface never reads as a flat panel.
+       */}
+      <div
+        aria-hidden="true"
+        className="acf-streaks pointer-events-none absolute inset-x-0 top-0 h-32 opacity-60"
+      />
       <header className="flex items-center gap-2 px-6 pb-3.5 pt-6">
         <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-acf-red" />
         <h2 className="text-title font-extrabold leading-tight tracking-tight text-white">
@@ -166,7 +181,7 @@ export default function NextMatchCard({ className = "" }) {
           {/* The hero stretches to the column height, so its five blocks are
               distributed evenly instead of gathering around one dead band. */}
           <div className="flex justify-center">
-            <span className="rounded-full border border-acf-line px-3.5 py-1.5 text-micro font-semibold uppercase tracking-[0.16em] text-acf-grey">
+            <span className="rounded-full border border-acf-red/30 bg-acf-red/10 px-3.5 py-1.5 text-micro font-semibold uppercase tracking-[0.16em] text-acf-snow/85">
               {matchdayLabel(next)}
             </span>
           </div>
@@ -178,7 +193,7 @@ export default function NextMatchCard({ className = "" }) {
             <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-5">
               <TeamSide slug={CLUB_SLUG} highlight />
               <div className="text-center">
-                <p className="text-micro font-extrabold uppercase tracking-[0.3em] text-acf-dim">
+                <p className="font-display text-xl font-medium uppercase tracking-[0.2em] text-acf-grey">
                   VS
                 </p>
               </div>
