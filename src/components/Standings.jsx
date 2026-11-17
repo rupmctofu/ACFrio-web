@@ -6,6 +6,7 @@ import {
   teamName,
 } from "../data/competition";
 import Card from "./cards/Card.jsx";
+import { VOICE } from "../data/copy.js";
 import { Crest } from "./cards/Crest.jsx";
 
 /* Micro-label of the header row: the smallest size that still reads at ~300px. */
@@ -98,7 +99,7 @@ export default function Standings({ className = "" }) {
     <Card
       id="clasificacion"
       title="Clasificación"
-      hint={competition?.name}
+      hint={competition?.name ? `${competition.name} · ${VOICE.sections.standings}` : VOICE.sections.standings}
       icon={BarChart3}
       className={className}
       bodyClassName="flex flex-col"

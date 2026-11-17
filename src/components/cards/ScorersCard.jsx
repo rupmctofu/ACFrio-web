@@ -8,6 +8,7 @@ import {
   unassignedGoals,
 } from "../../data/club-record";
 import Card from "./Card.jsx";
+import { VOICE } from "../../data/copy.js";
 
 /**
  * The player's portrait, with an initials circle as the fallback. The owner asked
@@ -78,7 +79,7 @@ export default function ScorersCard({ className = "" }) {
   return (
     <Card
       title="Goleadores"
-      hint={`Temporada ${season}`}
+      hint={`Temporada ${season} · ${VOICE.sections.scorers}`}
       icon={Goal}
       className={`surface-accent ${className}`}
       bodyClassName="flex flex-col"

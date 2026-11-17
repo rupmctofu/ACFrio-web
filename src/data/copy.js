@@ -28,6 +28,7 @@ export const VOICE = {
     calendar: "Apunta la fecha. Las excusas no valen.",
     attendance: "Fichar es fácil. Venir ya es otra cosa.",
     gallery: "Pruebas gráficas de que estuvimos allí.",
+    news: "El vestuario, tal cual.",
   },
 
   /** Empty and side states (S4). `fact` is information, `quip` is the voice. */

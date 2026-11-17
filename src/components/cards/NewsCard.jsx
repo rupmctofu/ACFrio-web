@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Newspaper } from "lucide-react";
 import { newsItems } from "../../data/news";
 import Card from "./Card.jsx";
+import { VOICE } from "../../data/copy.js";
 
 /**
  * How many items the card holds: one featured over the photograph and two
@@ -33,7 +34,7 @@ export default function NewsCard({ className = "" }) {
   return (
     <Card
       title="Noticias"
-      hint="El vestuario, tal cual"
+      hint={VOICE.sections.news}
       icon={Newspaper}
       className={className}
       bodyClassName="flex flex-col"

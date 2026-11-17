@@ -10,6 +10,7 @@ import {
   teamName,
 } from "../../data/competition";
 import Card from "./Card.jsx";
+import { VOICE } from "../../data/copy.js";
 import { Crest } from "./Crest.jsx";
 
 const COMPETITION_TAG = { league: "Liga", cup: "Copa" };
@@ -297,7 +298,7 @@ export default function FixturesCard({ className = "" }) {
     return (
       <Card
         title="Calendario"
-        hint="Sin partidos programados"
+        hint={`Sin partidos programados · ${VOICE.states.noFixtures}`}
         icon={CalendarDays}
         className={className}
       >
@@ -309,7 +310,14 @@ export default function FixturesCard({ className = "" }) {
   }
 
   return (
-    <Card title="Calendario" id="calendario" icon={CalendarDays} className={className} bodyClassName="flex flex-col">
+    <Card
+      title="Calendario"
+      hint={VOICE.sections.calendar}
+      id="calendario"
+      icon={CalendarDays}
+      className={className}
+      bodyClassName="flex flex-col"
+    >
       <div className="flex items-center justify-between gap-2 px-6 pb-3">
         <p className="font-display text-[15px] font-medium uppercase tracking-[0.14em] text-white">
           {MONTH_FORMAT.format(month.first)}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Images } from "lucide-react";
 import Card from "./Card.jsx";
+import { VOICE } from "../../data/copy.js";
 
 /** One photo every five seconds: long enough to look at it. */
 const SLIDE_MS = 5000;
@@ -56,7 +57,7 @@ export default function GalleryCard({ className = "" }) {
     <Card
       id="galeria"
       title="Galería"
-      hint="El equipo, uno a uno"
+      hint={VOICE.sections.gallery}
       icon={Images}
       className={className}
       bodyClassName="flex flex-col"

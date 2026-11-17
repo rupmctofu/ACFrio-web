@@ -10,6 +10,7 @@ import {
   teamName,
 } from "../../data/competition";
 import Card from "./Card.jsx";
+import { VOICE } from "../../data/copy.js";
 import { Crest } from "./Crest.jsx";
 
 /*
@@ -42,6 +43,7 @@ export default function FormCard({ className = "" }) {
   return (
     <Card
       title={`Últimos ${results.length || 3} partidos`}
+      hint={VOICE.sections.form}
       icon={Activity}
       className={className}
     >
