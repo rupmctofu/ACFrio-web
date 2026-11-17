@@ -8,6 +8,8 @@
  * invented. The band keeps a modest height on purpose: it frames the page, it
  * does not push the dashboard below the fold.
  */
+import { VOICE } from "../data/copy.js";
+
 export default function BannerIdentity() {
   return (
     <section
@@ -39,7 +41,10 @@ export default function BannerIdentity() {
             AC FRÍO
           </h1>
           <p className="mt-1.5 font-display text-2xl font-medium uppercase leading-tight tracking-[0.04em] text-white sm:text-[1.9rem]">
-            Más que un equipo
+            {VOICE.brand.headline}
+          </p>
+          <p className="mt-1 text-micro font-semibold uppercase tracking-[0.3em] text-acf-grey">
+            {VOICE.brand.echo}
           </p>
         </div>
       </div>
