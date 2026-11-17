@@ -31,13 +31,16 @@ comment on table public.admins is
 
 create table if not exists public.matches (
   id bigint generated always as identity primary key,
+  season text not null,
   competition text not null check (competition in ('league', 'cup')),
   matchday integer not null check (matchday > 0),
   kickoff timestamptz,
   rival text,
   closed_at timestamptz,
   created_at timestamptz not null default now(),
-  unique (competition, matchday)
+  -- The season is part of the key on purpose: without it, next season's cup
+  -- matchday 1 would reuse this season's row, its answers and its acta.
+  unique (season, competition, matchday)
 );
 
 comment on column public.matches.closed_at is
@@ -86,6 +89,7 @@ comment on table public.actas is
 -- it can only ever touch kickoff/rival, never closed_at.
 
 create or replace function public.ensure_match(
+  p_season text,
   p_competition text,
   p_matchday integer,
   p_kickoff timestamptz default null,
@@ -99,18 +103,21 @@ as $$
 declare
   v_id bigint;
 begin
-  insert into public.matches (competition, matchday, kickoff, rival)
-  values (p_competition, p_matchday, p_kickoff, p_rival)
-  on conflict (competition, matchday) do update
-    set kickoff = coalesce(public.matches.kickoff, excluded.kickoff),
-        rival = coalesce(public.matches.rival, excluded.rival)
+  insert into public.matches (season, competition, matchday, kickoff, rival)
+  values (p_season, p_competition, p_matchday, p_kickoff, p_rival)
+  on conflict (season, competition, matchday) do update
+    -- The existing row is referenced by table name, unqualified: a
+    -- schema-qualified reference (public.matches.kickoff) is not valid in the
+    -- DO UPDATE clause and would make every attendance write fail.
+    set kickoff = coalesce(matches.kickoff, excluded.kickoff),
+        rival = coalesce(matches.rival, excluded.rival)
   returning id into v_id;
   return v_id;
 end;
 $$;
 
-revoke all on function public.ensure_match(text, integer, timestamptz, text) from public;
-grant execute on function public.ensure_match(text, integer, timestamptz, text) to anon, authenticated;
+revoke all on function public.ensure_match(text, text, integer, timestamptz, text) from public;
+grant execute on function public.ensure_match(text, text, integer, timestamptz, text) to anon, authenticated;
 
 -- The one thing a player may know about an acta is whether it exists and has
 -- been checked. The scan itself stays private, so anon never reads `actas`.
@@ -220,6 +227,12 @@ create policy actas_object_owner_update on storage.objects
   for update to authenticated
   using (bucket_id = 'actas' and public.is_owner())
   with check (bucket_id = 'actas' and public.is_owner());
+
+-- Without this the owner could never remove a bad or duplicated scan.
+drop policy if exists actas_object_owner_delete on storage.objects;
+create policy actas_object_owner_delete on storage.objects
+  for delete to authenticated
+  using (bucket_id = 'actas' and public.is_owner());
 
 -- ---------------------------------------------------------------------------
 -- Owner setup, run by hand once (replace the address):

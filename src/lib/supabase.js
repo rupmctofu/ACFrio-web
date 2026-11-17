@@ -15,8 +15,9 @@
  * treats the backend as absent (spec S6). Nothing throws at import time, so a
  * missing variable cannot break the build or a deploy.
  */
-const url = import.meta.env.VITE_SUPABASE_URL?.trim() ?? "";
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim() ?? "";
+const env = import.meta.env ?? {};
+const url = (env.VITE_SUPABASE_URL ?? "").trim();
+const anonKey = (env.VITE_SUPABASE_ANON_KEY ?? "").trim();
 
 /** True when both public values are present, so the attendance surfaces can work. */
 export const isConfigured = Boolean(url && anonKey);

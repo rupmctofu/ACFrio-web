@@ -25,9 +25,10 @@ function fail(error) {
  * The row for a fixture, created on first use. Callers pass what the fixture
  * card already knows; nothing is invented when a field is unknown.
  */
-export async function ensureMatch({ competition, matchday, kickoff, rival }) {
+export async function ensureMatch({ season, competition, matchday, kickoff, rival }) {
   const db = await client();
   const { data, error } = await db.rpc("ensure_match", {
+    p_season: season,
     p_competition: competition,
     p_matchday: matchday,
     p_kickoff: kickoff ?? null,
@@ -140,15 +141,28 @@ export async function actaUrl(storagePath) {
   return data.signedUrl;
 }
 
-/** Marks the acta as checked and, with it, closes the match's declared list. */
+/**
+ * Marks the acta as checked and, with it, closes the match's declared list.
+ *
+ * The order matters and the guard is not decoration: `closed_at` means "this
+ * list was checked against the paper". Closing a match with no acta would
+ * assert a reconciliation that never happened, so it throws instead.
+ */
 export async function closeMatch(matchId) {
   const db = await client();
   const now = new Date().toISOString();
+
   const acta = await db
     .from("actas")
     .update({ reviewed_at: now })
-    .eq("match_id", matchId);
+    .eq("match_id", matchId)
+    .select("match_id");
   if (acta.error) throw fail(acta.error);
+  if (!acta.data || acta.data.length === 0) {
+    throw new Error(
+      "Este partido no tiene acta subida, así que no se puede cerrar: no habría nada con lo que comparar la lista.",
+    );
+  }
 
   const match = await db.from("matches").update({ closed_at: now }).eq("id", matchId);
   if (match.error) throw fail(match.error);

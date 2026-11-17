@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import teamData from "../data/teamData.json";
-import { CLUB_SLUG } from "../data/competition.js";
+import { CLUB_SLUG, fixtureKickoffIso } from "../data/competition.js";
+import { season } from "../data/club-record.js";
 import { useIdentity } from "../lib/identity.js";
 import {
   ensureMatch,
@@ -89,25 +90,27 @@ export default function MatchAttendance({ fixture }) {
   const { player } = useIdentity();
   const [matchId, setMatchId] = useState(null);
   const [answers, setAnswers] = useState({});
-  const [error, setError] = useState(null);
+  const [loadError, setLoadError] = useState(null);
+  const [saveError, setSaveError] = useState(null);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     if (!isConfigured || !fixture) return;
     try {
       const id = await ensureMatch({
+        season,
         competition: fixture.competitionKey,
         matchday: fixture.matchday,
-        kickoff: fixture.date
-          ? `${fixture.date}T${fixture.time ?? "00:00"}:00`
-          : null,
+        kickoff: fixtureKickoffIso(fixture),
         rival: fixture.home?.slug === CLUB_SLUG ? fixture.away?.name : fixture.home?.name,
       });
       setMatchId(id);
       setAnswers(await fetchAnswers(id));
-      setError(null);
+      setLoadError(null);
     } catch (cause) {
-      setError(cause.message);
+      // Loading and saving fail for different reasons, so they say so
+      // differently: a failed load is not a failed answer.
+      setLoadError(cause.message);
     }
   }, [fixture]);
 
@@ -123,7 +126,7 @@ export default function MatchAttendance({ fixture }) {
     setBusy(true);
     try {
       await setAnswer({ matchId, playerId: player.id, status });
-      setError(null);
+      setSaveError(null);
     } catch (cause) {
       setAnswers((current) => {
         const next = { ...current };
@@ -131,7 +134,7 @@ export default function MatchAttendance({ fixture }) {
         else delete next[player.id];
         return next;
       });
-      setError(cause.message);
+      setSaveError(cause.message);
     } finally {
       setBusy(false);
     }
@@ -195,9 +198,17 @@ export default function MatchAttendance({ fixture }) {
         </p>
       ) : null}
 
-      {error ? (
+      {loadError ? (
+        <p className="text-row text-acf-grey">
+          No se pudo cargar la lista de asistencia.
+          <span className="mt-1 block text-micro text-acf-dim">{loadError}</span>
+        </p>
+      ) : null}
+
+      {saveError ? (
         <p className="text-row text-acf-red">
-          No se pudo guardar: {error}
+          No se pudo guardar tu respuesta. Vuelve a intentarlo.
+          <span className="mt-1 block text-micro text-acf-dim">{saveError}</span>
         </p>
       ) : null}
 

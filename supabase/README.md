@@ -17,8 +17,12 @@ headcount. Everything else stays a static build.
 1. Create a project at [supabase.com](https://supabase.com) (free plan is enough
    for a 15-player squad).
 2. Open **SQL Editor**, paste all of `supabase/schema.sql` and run it.
-3. In **Authentication → Sign In / Providers**, keep **Email** enabled. The owner
-   signs in with a magic link; no password is ever created.
+3. In **Authentication → Sign In / Providers**, keep **Email** enabled and
+   **turn off password sign-in** (magic link only). Owner powers are granted by
+   the `email` claim of whoever signs in, so leaving password sign-up open would
+   let anyone register the owner's address before the owner does and inherit
+   write access to the actas. If your project only offers email+password, run
+   step 4 immediately and use a unique address nobody can guess.
 4. Register the owner address, so the write policies apply to it:
 
    ```sql
