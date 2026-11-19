@@ -4,11 +4,11 @@ import { matchRoute, routeLink, useRoute } from "../lib/router.js";
 import { NavbarIdentity } from "./WhoAreYou.jsx";
 
 /**
- * The four sections of the site, in the order the owner approved (S2), with the
- * labels he read back: Inicio · Jornada · Equipos · Clasificación.
+ * The five sections of the site, in the order the owner approved (S2), with the
+ * labels he read back: Inicio · Jornada · Equipos · Clasificación · Copa.
  *
  * These are routes now, not in-page anchors. The bar used to jump to `#partidos`
- * and `#clasificacion` inside one long page; the site has four pages, and a
+ * and `#clasificacion` inside one long page; the site has five pages, and a
  * navbar that names them is the whole point of the change (S1). The section ids
  * on the dashboard are untouched, so a `/#clasificacion` bookmark still scrolls
  * to the block — the bar simply no longer sends anyone there.
@@ -18,6 +18,7 @@ const NAV_LINKS = [
   { label: "Jornada", path: "/jornada", name: "jornada" },
   { label: "Equipos", path: "/equipos", name: "equipos" },
   { label: "Clasificación", path: "/clasificacion", name: "clasificacion" },
+  { label: "Copa", path: "/copa", name: "copa" },
 ];
 
 /**
@@ -31,6 +32,7 @@ const SECTION_OF_ROUTE = {
   equipos: "equipos",
   team: "equipos",
   clasificacion: "clasificacion",
+  copa: "copa",
 };
 
 const PILL_BASE =
