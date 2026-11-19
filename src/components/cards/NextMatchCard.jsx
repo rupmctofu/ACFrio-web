@@ -355,7 +355,7 @@ export function FixtureCardView({ id, title, competitionKey, state, now, classNa
            * list has to be about the match being played next, or a player signs
            * up for the wrong one (S10).
            */}
-          {hero ? <MatchAttendance fixture={fixture} /> : null}
+          {hero ? <MatchAttendance fixture={fixture} variant="hero" /> : null}
         </div>
       )}
     </article>
