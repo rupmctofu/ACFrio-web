@@ -1,0 +1,13 @@
+{
+  "title": "AC FRÍO · landing",
+  "brief": "Reproducción de la landing actual de AC FRÍO en el canvas, sección por sección, para pedir retoques con comentarios en vez de sobre el sitio en producción. Tipografías reales (Bebas Neue, Inter) y fotos embebidas como data: URI.",
+  "artboards": [
+    { "file": "01-hero.html", "title": "Hero y navbar", "tradeoff": "Estado actual reproducido: countdown vencido y titular en la familia de cuerpo", "width": 1440, "height": 900 },
+    { "file": "02-partidos.html", "title": "Match Center", "tradeoff": "Dos tarjetas simétricas; el listón de resultado compite con la etiqueta", "width": 1440, "height": 900 },
+    { "file": "03-plantilla.html", "title": "La Plantilla", "tradeoff": "Slider con las fotos reales; el chip de posición se recorta", "width": 1440, "height": 900 },
+    { "file": "04-armadura.html", "title": "La Armadura", "tradeoff": "Mockup abstracto de la equipación: el tejido no se muestra", "width": 1440, "height": 900 },
+    { "file": "05-clasificacion.html", "title": "Clasificación", "tradeoff": "Tabla densa y legible, sin columna de puntos", "width": 1440, "height": 900 },
+    { "file": "06-vestuario.html", "title": "El Vestuario", "tradeoff": "Tres columnas de altura dispar: dos quedan con vacío vertical", "width": 1440, "height": 900 },
+    { "file": "07-movil.html", "title": "Móvil · hero", "tradeoff": "390 px: el icono del calendario cae fuera del contenedor", "width": 390, "height": 844 }
+  ]
+}

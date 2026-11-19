@@ -1,8 +1,8 @@
 import { ClipboardCheck } from "lucide-react";
-import { clubRow, league } from "../../data/competition";
 import {
   hasAnyAttendance,
   perPlayerAttendance,
+  playedMatches,
   playerPhoto,
   totalAppearances,
 } from "../../data/club-record";
@@ -30,7 +30,7 @@ function Face({ name, photo }) {
   return (
     <span
       aria-hidden="true"
-      className={`${box} flex shrink-0 items-center justify-center rounded-full border border-acf-line bg-acf-panel-light text-[11px] font-bold text-acf-grey`}
+      className={`${box} flex shrink-0 items-center justify-center rounded-full border border-acf-line bg-acf-panel-light text-[0.6875rem] font-bold text-acf-grey`}
     >
       {name.slice(0, 1).toUpperCase()}
     </span>
@@ -48,7 +48,7 @@ export default function AttendanceCard({ className = "" }) {
   const hasData = hasAnyAttendance();
   const players = totalAppearances();
   const rows = perPlayerAttendance();
-  const played = clubRow(league)?.played ?? 0;
+  const played = playedMatches();
 
   return (
     <Card
@@ -60,7 +60,7 @@ export default function AttendanceCard({ className = "" }) {
           : "Se actualiza a mano"
       }
       icon={ClipboardCheck}
-      className={className}
+      className={`surface-deep ${className}`}
       bodyClassName="flex flex-col"
     >
       {hasData ? (

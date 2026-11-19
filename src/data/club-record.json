@@ -1,15 +1,31 @@
 {
   "season": "2026-2027",
-  "updatedAt": "2026-11-12",
-  "source": "Datos facilitados por el club. La fuente oficial (CEGARRAF) no publica goleadores ni tarjetas.",
+  "updatedAt": "2026-11-17",
+  "source": "Datos facilitados por el club y por el acta firmada del 17 de noviembre de 2026. La fuente oficial (CEGARRAF) no publica goleadores ni tarjetas.",
   "scorers": [
     {
       "player": "Albert",
-      "goals": 3
+      "goals": 3,
+      "league": 3,
+      "cup": 0
     },
     {
       "player": "Jonay",
-      "goals": 1
+      "goals": 1,
+      "league": 1,
+      "cup": 0
+    },
+    {
+      "player": "Rup",
+      "goals": 2,
+      "league": 0,
+      "cup": 2
+    },
+    {
+      "player": "Cristian",
+      "goals": 1,
+      "league": 0,
+      "cup": 1
     }
   ],
   "cards": [
@@ -43,7 +59,7 @@
         "Dani",
         "Ander",
         "Cristo",
-        "Chepa",
+        "José",
         "Cristian"
       ]
     },
@@ -55,7 +71,7 @@
         "Marcos",
         "Rup",
         "Albert",
-        "Chepa",
+        "José",
         "Geri",
         "Nil",
         "Martí",
@@ -77,6 +93,23 @@
         "Gio",
         "Pablo",
         "Dani"
+      ]
+    },
+    {
+      "matchday": 1,
+      "competition": "cup",
+      "players": [
+        "Ander",
+        "Cristo",
+        "Marcos",
+        "Rup",
+        "José",
+        "Geri",
+        "Martí",
+        "Gio",
+        "Pablo",
+        "Cristian",
+        "Genís"
       ]
     }
   ]

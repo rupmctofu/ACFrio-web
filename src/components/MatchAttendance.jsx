@@ -12,7 +12,12 @@ import {
 } from "../lib/attendance.js";
 
 /**
- * Sí, voy / No voy on the next match.
+ * Sí, voy / No voy on the fixture that is actually next.
+ *
+ * It is rendered by the active fixture card and by nothing else: the card that
+ * owns the hero surface passes its own fixture, so a player can only sign up for
+ * the match being played next (S10), and a row written here always points at a
+ * real fixture with a real kickoff.
  *
  * This list is informational — it answers "how many are we?" (owner, L6). It is
  * NOT the record: the referee's acta is. So a last-minute no-show who never
@@ -213,7 +218,7 @@ export default function MatchAttendance({ fixture }) {
         onClick={() => declare(status)}
         disabled={!player || busy || !matchId}
         aria-pressed={active}
-        className={`rounded-tile border px-4 py-3 text-[15px] font-extrabold tracking-tight transition disabled:opacity-40 ${tone} ${
+        className={`rounded-tile border px-4 py-3 text-[0.9375rem] font-extrabold tracking-tight transition disabled:opacity-40 ${tone} ${
           mine && !active ? "opacity-60" : ""
         }`}
       >

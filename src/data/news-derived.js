@@ -14,15 +14,17 @@ import {
   lastFixture,
   nextFixture,
   opponentOf,
+  recentResults,
   resultOf,
   teamName,
 } from "./competition";
-import { cards, perPlayerAttendance, scorers } from "./club-record";
+import { cards, perPlayerAttendance, recordedGoalsIn, scorers, totalRecordedGoals } from "./club-record";
 
 const list = (names) =>
   names.length <= 1 ? names[0] : `${names.slice(0, -1).join(", ")} y ${names.at(-1)}`;
 
 const RESULT_WORD = { win: "victoria", draw: "empate", loss: "derrota" };
+const RESULT_LINE = { win: "Victoria", draw: "Empate", loss: "Derrota" };
 
 export function derivedNews() {
   const items = [];
@@ -57,7 +59,14 @@ export function derivedNews() {
     });
     items.push({
       tag: "Goles",
-      text: `${own.goalsFor} goles con firma: ${list(scorersList.map((entry) => entry.player))}.`,
+      /*
+       * The record is cumulative for the season, so the number that has to sit
+       * in front of the names is the record's own total, not the league table's
+       * goalsFor: since the cup started those two count different things. The
+       * team-total line above still quotes the league table, which is exactly
+       * what it means to quote.
+       */
+      text: `${totalRecordedGoals()} goles con firma: ${list(scorersList.map((entry) => entry.player))}. ${recordedGoalsIn("league")} en liga y ${recordedGoalsIn("cup")} en copa.`,
     });
   }
 
@@ -110,24 +119,35 @@ export function derivedNews() {
     }
   }
 
+  /*
+   * The last thing that happened to the squad, whichever competition it came
+   * from: a cup match played in November is the latest result even though the
+   * league table is further along. Everything printed here is the source's own
+   * score and the source's own competition name; nothing is rounded, inferred
+   * or dated by hand.
+   */
   const recent = lastFixture();
-  if (recent) {
-    const words = [];
-    let cursor = recent;
-    while (cursor && words.length < 3) {
-      const word = RESULT_WORD[resultOf(cursor)];
-      if (!word) break;
-      words.push(word);
-      const index = league.fixtures.findIndex(
-        (fixture) =>
-          fixture.matchday === cursor.matchday - 1 && clubSide(fixture) !== null,
-      );
-      cursor = index >= 0 ? league.fixtures[index] : null;
-    }
+  if (recent?.score) {
     items.push({
-      tag: "Forma",
-      text: `Últimos ${words.length}: ${list(words)}. Mejor recordarlos al revés.`,
+      tag: "Resultado",
+      text: `${recent.competitionName}: ${teamName(recent.home.slug)} ${recent.score.home}-${recent.score.away} ${teamName(recent.away.slug)}. ${RESULT_LINE[resultOf(recent)]}, sin posibilidad de apelación.`,
     });
+
+    /*
+     * The form reads the club's last three played fixtures across competitions.
+     * It used to walk the league matchdays one by one, which silently stopped
+     * counting the moment a cup match sat between two league ones — the exact
+     * shape of the season now that the cup has started.
+     */
+    const words = recentResults(3)
+      .map((fixture) => RESULT_WORD[resultOf(fixture)])
+      .filter(Boolean);
+    if (words.length) {
+      items.push({
+        tag: "Forma",
+        text: `Últimos ${words.length}: ${list(words)}. Mejor recordarlos al revés.`,
+      });
+    }
   }
 
   const attendance = perPlayerAttendance();

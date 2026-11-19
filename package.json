@@ -8,7 +8,10 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node --test \"tests/**/*.test.mjs\"",
-    "verify:supabase": "node scripts/verify-supabase.mjs"
+    "verify:supabase": "node scripts/verify-supabase.mjs",
+    "assets:ink": "node scripts/build-crest-masks.mjs",
+    "whatsapp:digest": "node scripts/whatsapp-digest.mjs",
+    "codes": "node scripts/club-codes.mjs"
   },
   "devDependencies": {
     "@napi-rs/canvas": "^1.0.9",

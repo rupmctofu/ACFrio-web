@@ -8,7 +8,7 @@
  */
 import record from "./club-record.json";
 import teamData from "./teamData.json";
-import { league, clubRow } from "./competition";
+import { competitions, clubSide, league, clubRow } from "./competition";
 
 export const season = record.season;
 export const updatedAt = record.updatedAt;
@@ -28,13 +28,21 @@ export const totalRecordedGoals = () =>
   record.scorers.reduce((total, scorer) => total + scorer.goals, 0);
 
 /**
- * Goals the team has scored in the league but that have no scorer recorded yet.
+ * Goals the club has recorded for one competition only.
+ * The scorer list is a season total — a player's cup goals count there — while
+ * the official table counts league goals exclusively. Anything comparing the
+ * two has to ask for the league figure, or it is subtracting apples from pears.
+ */
+export const recordedGoalsIn = (competitionKey) =>
+  record.scorers.reduce((total, scorer) => total + (scorer[competitionKey] ?? 0), 0);
+
+/** Goals the team has scored in the league but that have no scorer recorded yet.
  * The team total comes from the official table, so the gap is arithmetic, not a guess.
  */
 export function unassignedGoals() {
   const own = clubRow(league);
   if (!own) return 0;
-  return Math.max(0, own.goalsFor - totalRecordedGoals());
+  return Math.max(0, own.goalsFor - recordedGoalsIn("league"));
 }
 
 /** Cards reported by the club, highest first. */
@@ -56,6 +64,22 @@ export function attendanceFor(competitionKey, matchday) {
   );
   return (entry?.players ?? []).filter((name) => Boolean(name) && normalize(name) !== "");
 }
+
+/**
+ * How many matches the club has actually played, across competitions.
+ * One place for the arithmetic: the attendance bar and the per-player
+ * percentage both divide by it, so a cup matchday can never count in the
+ * numerator and be missing from the denominator.
+ */
+export const playedMatches = () =>
+  competitions.reduce(
+    (total, competition) =>
+      total +
+      competition.fixtures.filter(
+        (fixture) => fixture.status === "played" && clubSide(fixture) !== null,
+      ).length,
+    0,
+  );
 
 /** How many distinct players have turned up to at least one match. */
 export function totalAppearances() {
@@ -98,7 +122,12 @@ export function perPlayerAttendance() {
       counts.set(name, (counts.get(name) ?? 0) + 1);
     }
   }
-  const played = clubRow(league)?.played ?? 0;
+  /*
+   * The denominator is every match the club has played, not the league's own
+   * count: once a cup matchday has a team sheet, a cup-only appearance measured
+   * against the league total would read as a part-time player.
+   */
+  const played = playedMatches();
   return [...counts.entries()]
     .map(([name, count]) => ({
       name,

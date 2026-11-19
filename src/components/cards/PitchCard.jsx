@@ -14,12 +14,12 @@ const FEET_OFFSET = 26;
 
 /**
  * Where each player stands, in percent of the pitch. The pitch is landscape, so
- * the eleven reads along the long side: Chepa on the left goal line, a
+ * the eleven reads along the long side: José on the left goal line, a
  * defensive line, a midfield band and a forward line near the rival area. Loose
  * on purpose — a formation graphic, not a tactical board.
  */
 const SPOTS = {
-  Chepa: { x: 7, y: 50 },
+  José: { x: 7, y: 50 },
   Marcos: { x: 22, y: 22 },
   Geri: { x: 25, y: 42 },
   Cristo: { x: 23, y: 62 },
@@ -314,7 +314,7 @@ export default function PitchCard({ className = "" }) {
 
       <figcaption className="sr-only">
         Los {markers.length} jugadores de la plantilla repartidos por el campo, con el balón
-        pasando entre sus pies. Chepa está en la portería.
+        pasando entre sus pies. José está en la portería.
       </figcaption>
     </figure>
   );

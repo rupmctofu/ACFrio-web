@@ -1,96 +1,169 @@
+import { useState } from "react";
+import { User } from "lucide-react";
 import teamData from "../data/teamData.json";
 import { useIdentity } from "../lib/identity.js";
+import { resolvePlayer } from "../lib/club-code.js";
+import { routeLink } from "../lib/router.js";
 
 /**
- * "¿Quién eres?" — the passwordless door.
+ * Who this device is: one answer, in the fixed header.
  *
- * Two states, both in place at the top of the grid so it is the first thing you
- * meet and never a modal fighting the club's fixed header:
- *   * nobody chosen — the whole squad as faces, one tap to answer;
- *   * somebody chosen — one line with the face, and a way to change user.
+ * The owner's instruction was that identity used to be asked twice — a pill in
+ * the top bar and a panel in the content — and that it must live in only one
+ * place. It now lives here, in `NavbarIdentity`, which both says who is looking
+ * and changes it.
  *
- * The squad comes from teamData.json, the same file the squad section renders,
- * so a new signing appears here without touching this component.
+ *   * `NavbarIdentity` — the bound pill (face, greeting, `Cambiar`) or the way
+ *     to the door when nobody has said yet;
+ *   * `IdentityDoor` — the club-code entrance at the top of the dashboard,
+ *     which is the only thing the package offers once the squad faces are gone.
+ *
+ * Both read the same identity store and render nothing when they do not apply,
+ * so the page order stays the same whoever is looking.
  */
 
-function Face({ player, onPick }) {
-  return (
-    <button
-      type="button"
-      onClick={() => onPick(player.id)}
-      aria-label={`Soy ${player.name}`}
-      className="group flex w-[4.5rem] shrink-0 flex-col items-center gap-2 rounded-tile border border-transparent px-1 py-2 transition-colors duration-200 hover:border-acf-line hover:bg-acf-panel-light focus-visible:border-acf-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-acf-red sm:w-auto sm:shrink"
-    >
-      <span className="relative flex h-14 w-14 items-end justify-center overflow-hidden rounded-full border border-acf-line bg-acf-panel-light sm:h-20 sm:w-20">
-        <img
-          src={player.photo}
-          alt=""
-          loading="lazy"
-          className="max-h-[92%] w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-          onError={(event) => {
-            // Same fallback the squad cards use, so a missing portrait is a
-            // silhouette instead of a broken image.
-            event.currentTarget.src =
-              "data:image/svg+xml," +
-              encodeURIComponent(
-                `<svg xmlns='http://www.w3.org/2000/svg' width='160' height='200'><circle cx='80' cy='70' r='42' fill='#1c1c1f'/><rect y='120' width='160' height='80' fill='#e61c24'/></svg>`,
-              );
-          }}
-        />
-      </span>
-      <span className="text-micro font-semibold uppercase tracking-[0.12em] text-acf-snow/70 transition-colors duration-200 group-hover:text-white">
-        {player.name}
-      </span>
-    </button>
-  );
-}
+/**
+ * The club-code door, still the first thing in the dashboard grid.
+ *
+ * The strip of squad faces is gone on purpose: with the header owning identity,
+ * a second row of faces was the same question asked twice, and the owner
+ * replaced it with a code the club hands to each player. So the panel now tells
+ * the reader where the code comes from instead of leaving the form to explain
+ * itself, and `resolvePlayer` is the only way through.
+ *
+ * The code is a deliberate sign-in, not a secret: `src/lib/club-code.js` spells
+ * out what it is and what a real one would need. That is why the copy promises
+ * no privacy and the error stays concrete.
+ */
+export function IdentityDoor() {
+  const { player, choose } = useIdentity();
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+  if (player) return null;
 
-export default function WhoAreYou() {
-  const { player, choose, forget } = useIdentity();
-
-  if (player) {
-    return (
-      <div className="mb-6 flex items-center justify-between gap-4 rounded-card border border-acf-line bg-acf-panel px-4 py-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <span className="flex h-11 w-11 items-end justify-center overflow-hidden rounded-full border border-acf-line bg-acf-panel-light">
-            <img src={player.photo} alt="" className="max-h-[92%] w-auto object-contain" />
-          </span>
-          <div className="min-w-0">
-            <p className="truncate text-row font-semibold text-white">
-              Hola, {player.name}
-            </p>
-            <p className="text-micro font-semibold uppercase tracking-[0.18em] text-acf-dim">
-              {player.number ? `#${player.number} · ` : ""}Vinculado a este dispositivo
-            </p>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={forget}
-          className="shrink-0 rounded-full border border-acf-line px-4 py-2 text-micro font-semibold uppercase tracking-[0.18em] text-acf-snow/70 transition-colors duration-200 hover:border-white/25 hover:text-white focus-visible:border-acf-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-acf-red"
-        >
-          Cambiar
-        </button>
-      </div>
-    );
-  }
+  const submit = (event) => {
+    event.preventDefault();
+    const match = resolvePlayer(code, teamData.squad);
+    if (!match) {
+      setError("Ese código no es de nadie. Si no lo tienes, pídelo en el grupo.");
+      return;
+    }
+    setError("");
+    setCode("");
+    choose(match.id);
+  };
 
   return (
     <div className="mb-6 rounded-card border border-acf-line bg-acf-panel px-4 py-5 sm:px-5">
       {/* The soft red carries small text on the dark panel: the pure brand red
           falls to 4:1 at 11px, and the label has to be read, not just seen. */}
-      <p className="text-micro font-semibold uppercase tracking-[0.3em] text-acf-red-soft">
+      <p className="font-display text-2xl font-medium uppercase leading-none tracking-[0.1em] text-acf-red-soft sm:text-3xl">
         ¿Quién eres?
       </p>
-      <p className="mt-2 max-w-xl text-row text-acf-snow/80">
-        Toca tu cara una vez. Sin contraseñas: este dispositivo te recuerda para
-        apuntarte al próximo partido.
+      {/* No hint of the shape of the code, here or in the field: the club hands
+          each one out, and printing the pattern on the page gives it away
+          (owner, L3). */}
+      <p className="mt-3 max-w-xl text-row text-acf-snow/80">
+        Escríbelo una vez y este dispositivo se acuerda de ti para apuntarte al
+        próximo partido.
       </p>
-      <div className="-mx-1 mt-4 flex gap-1 overflow-x-auto pb-1 no-scrollbar sm:mx-0 sm:grid sm:grid-cols-8 sm:gap-2 sm:overflow-visible sm:pb-0">
-        {teamData.squad.map((member) => (
-          <Face key={member.id} player={member} onPick={choose} />
-        ))}
-      </div>
+
+      <form onSubmit={submit} className="mt-5">
+        <label
+          htmlFor="club-code"
+          className="text-micro font-semibold uppercase tracking-[0.24em] text-acf-grey"
+        >
+          Tu código de jugador
+        </label>
+        <div className="mt-2.5 flex flex-wrap items-center gap-2">
+          <input
+            id="club-code"
+            value={code}
+            onChange={(event) => {
+              setCode(event.target.value);
+              if (error) setError("");
+            }}
+            autoComplete="off"
+            spellCheck="false"
+            aria-describedby={error ? "club-code-error" : undefined}
+            className="h-14 min-w-0 flex-1 rounded-tile border border-acf-line bg-acf-dark px-4 text-lg font-semibold uppercase tracking-[0.14em] text-white focus-visible:border-acf-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
+          />
+          <button
+            type="submit"
+            className="h-14 shrink-0 rounded-full bg-acf-red px-7 text-row font-bold uppercase tracking-[0.16em] text-white transition-colors duration-200 hover:bg-acf-red-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
+          >
+            Entrar
+          </button>
+        </div>
+        {error ? (
+          <p id="club-code-error" role="alert" className="mt-2 text-row text-acf-red-soft">
+            {error}
+          </p>
+        ) : null}
+      </form>
+    </div>
+  );
+}
+
+/**
+ * The identity in the fixed header (S1), and now the only identity on screen.
+ *
+ * Bound, it is the face, the greeting and a real `Cambiar` button that forgets
+ * the device; unbound, it is a link to the door on Inicio. The old pill was a
+ * link and left the changing to the dashboard chip; the chip is gone, so the
+ * change action has to be here, where the fact it changes is.
+ *
+ * On a phone the greeting is read but not drawn: at 390px the logo, this pill
+ * and the menu button share one row, and the face plus `Cambiar` are what has
+ * to be visible there. The greeting stays in the DOM through `sr-only`, so the
+ * answer to "who is this device" survives the narrower layout instead of
+ * becoming a face without a name.
+ */
+export function NavbarIdentity() {
+  const { player, forget } = useIdentity();
+
+  const shell =
+    "flex items-center gap-2.5 rounded-full border border-acf-line bg-acf-panel/80 py-1 pl-1 pr-1 transition-colors hover:border-white/25 hover:bg-acf-panel focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red sm:pr-1.5";
+
+  if (!player) {
+    return (
+      <a
+        {...routeLink("/")}
+        aria-label="Ir al inicio para decir quién eres"
+        title="¿Quién eres?"
+        className={`${shell} text-row font-bold leading-none tracking-tight text-acf-snow/70 hover:text-white`}
+      >
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-acf-panel-light text-acf-grey">
+          <User className="h-4 w-4" aria-hidden="true" />
+        </span>
+        {/* The label is drawn at every width: the owner's whole point is that
+            the bar says who you are, and a person glyph alone says it to a
+            screen reader only. It wraps no further than its own words, so the
+            row shrinks the logo instead of overflowing. */}
+        <span className="whitespace-nowrap pr-2">¿Quién eres?</span>
+      </a>
+    );
+  }
+
+  return (
+    <div className={shell}>
+      <span className="flex h-8 w-8 shrink-0 items-end justify-center overflow-hidden rounded-full border border-acf-line bg-acf-panel-light">
+        <img src={player.photo} alt="" className="max-h-[92%] w-auto object-contain" />
+      </span>
+      <span className="sr-only text-row font-bold leading-none tracking-tight text-white sm:not-sr-only sm:block sm:max-w-[9rem] sm:truncate">
+        Hola, {player.name}
+      </span>
+      {/* A real button, not a link: it forgets the device in place instead of
+          navigating anywhere, and its label says both what it does and who it
+          is about, because the greeting is not drawn on a phone. */}
+      <button
+        type="button"
+        onClick={forget}
+        aria-label={`Cambiar de jugador. Este dispositivo está vinculado a ${player.name}.`}
+        className="h-8 shrink-0 whitespace-nowrap rounded-full border border-acf-line px-2.5 text-micro font-semibold uppercase tracking-[0.12em] text-acf-snow/70 transition-colors duration-200 hover:border-white/25 hover:text-white focus-visible:border-acf-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-acf-red"
+      >
+        Cambiar
+      </button>
     </div>
   );
 }

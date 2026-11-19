@@ -73,6 +73,12 @@ Feature: evolución visual del panel existente según el super prompt del propie
 
 (* = componente nuevo.)
 
+| T14 | S6 | Banner fotográfico que se desvanece a media pantalla | BannerIdentity.jsx | — |
+| T15 | S6 | Chip de dispositivo en la misma línea que el ticker | WhoAreYou.jsx, Dashboard.jsx | — |
+| T16 | S14 | Noticias en mayúsculas y oblicua (Barlow Condensed italic) | NewsCard.jsx, BreakingTicker.jsx, index.css, index.html | — |
+| T17 | S10 | Calendario sin tarjeta flotante | FixturesCard.jsx | — |
+| T18 | S15,S16 | Verificación: build, tests, capturas 1440/1024/768/390, gate | — | — |
+
 ## Log
 
 - **L1** Propietario: super prompt de restyling (texto íntegro en la conversación de esta sesión,
@@ -83,3 +89,29 @@ Feature: evolución visual del panel existente según el super prompt del propie
   responsive y legibilidad, y asegúrate de que todas las funcionalidades anteriores siguen
   funcionando.» La imagen es «inspiración para el diseño, no como una imagen que debas copiar
   literalmente».
+- **L23** Propietario, cabecera (fragmento verbatim de una sola instrucción): «No me termina de
+  apasionar el header este que hay me gustaría que fuera una imagen que haga un gradient, o sea que
+  se vaya desvaneciendo hacia abajo hacia la mitad del viewport.»
+- **L24** Propietario, vínculo al dispositivo (fragmento verbatim de la misma instrucción): «Luego
+  también pondría que lo de la vinculación al dispositivo de la persona que está mirando ocupara un
+  cachito solo y estuviera en la misma línea que las noticias, todo lo demás me parece bastante
+  guay».
+- **L25** Propietario, tipografía de noticias (fragmento verbatim de la misma instrucción): «de
+  momento serían los cambios si se quería las noticias fueran todo en mayúsculas y con una tipografía
+  así un poco inclinada como Breaking News y de momento es todo».
+- **L26** Propietario, calendario (fragmento verbatim de la misma instrucción): «quitaría el modal
+  que aparece cuando clicas en el calendario porque veo que ya has hecho que cambie la parte de abajo
+  cada vez que clicas el día».
+- **L27** Propietario, cabecera otra vez (verbatim): «el header este es muy raro. Quita lo de AC FRIO
+  mas que un equipo, menos que ... y que quede detrás y en blurry». El bloque nítido desaparece del
+  primer plano; el nombre queda como capa desenfocada por detrás de los velos del degradado. Las dos
+  líneas («más que un equipo», «menos que profesionales») no caben sobre el desvanecido a media
+  pantalla sin quedar cortadas, así que sólo se pinta el nombre: siguen en el `h1` accesible.
+
+- **L28** Propietario, cabecera otra vez (verbatim): «no entiendo por que todo ese margen. Quita el ACFRIO de fondo, que la foto quede de background, sube todo le contenido y poen el fondo blurry». Desaparece la banda: la foto pasa a fondo desenfocado de la parte alta de la página y el contenido sube hasta justo debajo del header fijo. El bloque de marca y el fantasma se retiran; el nombre queda en el `h1` accesible.
+
+- **L29** Propietario, fondo (verbatim): «vale, ahora solo añade un desvanecimiento a la foto de background para que lentamente vyaa desapareciendo a medida que baja la imagen. Ahora mismo se ve un corte». El velo negro superpuesto se sustituye por una mascara sobre la propia capa (`.page-backdrop` en index.css): la foto se vuelve transparente gradualmente y el degradado llega a cero antes de que acabe la capa, que era donde se veia la linea.
+
+> Nota: el Log conserva sólo L1 y, desde aquí, L23–L29. Las referencias «owner, L2–L22» que aparecen
+> en el código de T1–T12 remiten a entradas que no llegaron a este documento; no se han reconstruido
+> para no inventar texto del propietario.

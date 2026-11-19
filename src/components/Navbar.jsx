@@ -1,19 +1,40 @@
 import { useEffect, useState } from "react";
-import { ArrowRight } from "lucide-react";
 import teamData from "../data/teamData.json";
+import { matchRoute, routeLink, useRoute } from "../lib/router.js";
+import { NavbarIdentity } from "./WhoAreYou.jsx";
 
-const navLinks = [
-  { label: "Partidos", href: "#partidos" },
-  { label: "Clasificación", href: "#clasificacion" },
-  { label: "Copa", href: "#copa" },
-  { label: "Plantilla", href: "#plantilla" },
+/**
+ * The four sections of the site, in the order the owner approved (S2), with the
+ * labels he read back: Inicio · Jornada · Equipos · Clasificación.
+ *
+ * These are routes now, not in-page anchors. The bar used to jump to `#partidos`
+ * and `#clasificacion` inside one long page; the site has four pages, and a
+ * navbar that names them is the whole point of the change (S1). The section ids
+ * on the dashboard are untouched, so a `/#clasificacion` bookmark still scrolls
+ * to the block — the bar simply no longer sends anyone there.
+ */
+const NAV_LINKS = [
+  { label: "Inicio", path: "/", name: "home" },
+  { label: "Jornada", path: "/jornada", name: "jornada" },
+  { label: "Equipos", path: "/equipos", name: "equipos" },
+  { label: "Clasificación", path: "/clasificacion", name: "clasificacion" },
 ];
 
-/** Fixed header height plus a small breath: the line the sections cross. */
-const HEADER_READ_LINE = 72;
+/**
+ * Which pill lights up for a route. A club's own page belongs to Equipos: it is
+ * one of the eleven, opened from that list, and the bar should keep saying where
+ * the reader is rather than going blank on a page that is not a section.
+ */
+const SECTION_OF_ROUTE = {
+  home: "home",
+  jornada: "jornada",
+  equipos: "equipos",
+  team: "equipos",
+  clasificacion: "clasificacion",
+};
 
 const PILL_BASE =
-  "block rounded-full px-3.5 py-1.5 text-[13px] font-bold tracking-tight transition-colors";
+  "block rounded-full px-3.5 py-1.5 text-[0.8125rem] font-bold tracking-tight transition-colors";
 const PILL_ACTIVE = "bg-acf-red text-white";
 const PILL_IDLE =
   "text-acf-snow/60 hover:text-white hover:bg-white/[0.06]";
@@ -21,39 +42,25 @@ const PILL_IDLE =
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [activeId, setActiveId] = useState(null);
+  const route = matchRoute(useRoute());
+  const activeName = SECTION_OF_ROUTE[route.name] ?? null;
   const { club } = teamData;
 
-  // One listener drives both the header backdrop and the active nav pill: the
-  // section whose top is closest above the header line is the one the reader
-  // entered most recently, so the pill advances as the cards scroll by.
+  // The header gains its backdrop once the page has moved. This used to drive
+  // the active pill too, by watching which section crossed the header line; the
+  // pill now follows the path, so only the backdrop is left to the scroll.
   useEffect(() => {
-    const sections = navLinks
-      .map((link) => document.getElementById(link.href.slice(1)))
-      .filter(Boolean);
-
-    const update = () => {
-      setScrolled(window.scrollY > 24);
-      let currentId = null;
-      let currentTop = Number.POSITIVE_INFINITY;
-      for (const section of sections) {
-        const { top } = section.getBoundingClientRect();
-        if (top <= HEADER_READ_LINE && top < currentTop) {
-          currentTop = top;
-          currentId = section.id;
-        }
-      }
-      setActiveId(currentId);
-    };
-
+    const update = () => setScrolled(window.scrollY > 24);
     update();
     window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
+    return () => window.removeEventListener("scroll", update);
   }, []);
+
+  // A route change closes the phone menu, so the reader lands on the new view
+  // instead of on a menu that is still open over it.
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [route.name]);
 
   return (
     <header
@@ -64,26 +71,30 @@ export default function Navbar() {
       }`}
     >
       <nav className="wrap flex h-[4.5rem] items-center justify-between gap-4">
-        <a href="#top" aria-label="Volver al inicio de la página" className="flex items-center gap-3">
+        <a
+          {...routeLink("/")}
+          aria-label="Ir al inicio"
+          className="flex items-center gap-3"
+        >
           <img src={club.logo} alt={club.name} className="h-11 w-auto" />
           <span className="leading-none">
             <span className="block text-xl font-extrabold tracking-tight text-white">
               AC <span className="text-acf-red">FRÍO</span>
             </span>
-            <span className="mt-1.5 block text-[10px] font-semibold uppercase tracking-[0.3em] text-acf-grey">
+            <span className="mt-1.5 hidden text-[0.625rem] font-semibold uppercase tracking-[0.3em] text-acf-grey sm:block">
               FÚTBOL 7 · EST. 2026
             </span>
           </span>
         </a>
 
         <ul className="hidden items-center gap-0.5 rounded-full border border-acf-line bg-acf-panel/70 p-1 lg:flex">
-          {navLinks.map((link) => {
-            const active = activeId === link.href.slice(1);
+          {NAV_LINKS.map((link) => {
+            const active = activeName === link.name;
             return (
-              <li key={link.href}>
+              <li key={link.path}>
                 <a
-                  href={link.href}
-                  aria-current={active ? "true" : undefined}
+                  {...routeLink(link.path)}
+                  aria-current={active ? "page" : undefined}
                   className={`${PILL_BASE} ${active ? PILL_ACTIVE : PILL_IDLE}`}
                 >
                   {link.label}
@@ -94,13 +105,10 @@ export default function Navbar() {
         </ul>
 
         <div className="flex items-center gap-3">
-          <a
-            href="#partidos"
-            className="hidden items-center gap-2 rounded-full bg-acf-red px-4 py-2 text-row font-bold tracking-tight text-white transition-colors hover:bg-acf-red-dark sm:flex"
-          >
-            Próximo Partido
-            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-          </a>
+          {/* The identity took the place of the "Próximo Partido" button: the bar
+              navigates, so the one pill on the right answers who is looking, and
+              now also changes it — it is the only identity surface in the app. */}
+          <NavbarIdentity />
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="rounded-full border border-acf-line p-2 text-acf-snow transition-colors hover:text-white lg:hidden"
@@ -121,14 +129,18 @@ export default function Navbar() {
       {menuOpen && (
         <div className="border-t border-acf-line bg-acf-dark/95 backdrop-blur-md lg:hidden">
           <ul className="space-y-1 px-4 py-3">
-            {navLinks.map((link) => {
-              const active = activeId === link.href.slice(1);
+            {NAV_LINKS.map((link) => {
+              const active = activeName === link.name;
+              const props = routeLink(link.path);
               return (
-                <li key={link.href}>
+                <li key={link.path}>
                   <a
-                    href={link.href}
-                    onClick={() => setMenuOpen(false)}
-                    aria-current={active ? "true" : undefined}
+                    {...props}
+                    onClick={(event) => {
+                      props.onClick(event);
+                      setMenuOpen(false);
+                    }}
+                    aria-current={active ? "page" : undefined}
                     className={`${PILL_BASE} ${active ? PILL_ACTIVE : PILL_IDLE}`}
                   >
                     {link.label}

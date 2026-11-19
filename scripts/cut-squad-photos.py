@@ -24,7 +24,7 @@ from PIL import Image
 
 # Reading order of the contact sheet, then the player who arrived later.
 TOP_ROW = ["pablo", "nil", "marti", "marcos", "jonay", "rup", "albert"]
-BOTTOM_ROW = ["gio", "geri", "dani", "ander", "cristo", "chepa"]
+BOTTOM_ROW = ["gio", "geri", "dani", "ander", "cristo", "jose"]
 EXTRA = ["cristian"]
 
 # Portrait size used by the site: 4:5, enough for a retina card.

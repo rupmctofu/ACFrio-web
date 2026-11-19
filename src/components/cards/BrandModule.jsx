@@ -14,7 +14,10 @@ export default function BrandModule({ className = "" }) {
       aria-label={`Marca del club: ${club.name}`}
       className={`card acf-streaks relative flex items-center gap-4 overflow-hidden rounded-card border border-acf-red/25 bg-acf-panel px-6 py-6 ${className}`}
     >
-      <img src={club.logo} alt="" className="h-16 w-16 shrink-0" />
+      {/* The crest is portrait (484x630) and the club's rule is that a logo is
+          never distorted: the height is fixed and the width follows. Forcing a
+          square here stretched the shield. */}
+      <img src={club.logo} alt="" className="h-16 w-auto shrink-0 object-contain" />
       <div className="min-w-0">
         <p className="font-display text-2xl font-semibold uppercase leading-none tracking-[0.02em] text-white">
           AC <span className="text-acf-red">FRÍO</span>

@@ -43,3 +43,10 @@ telegram_ask_result.txt
 .chat-scratch/
 src/Whatsapp/
 src/*.zip
+
+# Rendered pages of the match reports; derived, not source.
+actas/*.png
+
+# Exports of the club group: personal data, never committed and never built.
+whatsapp/*
+!whatsapp/README.md

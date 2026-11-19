@@ -16,6 +16,11 @@ const WINDOW = 3;
  * about itself (the same feed the ticker runs), nothing invented. The featured
  * headline sits on a real project photograph, with its category as the chip;
  * the arrows rotate the window instead of a link that would go nowhere.
+ *
+ * Every headline in this card is set the way a breaking-news strap is set:
+ * uppercase, stacked tight and leaning (owner, L25). The leaning is a real
+ * italic — `--font-news` is the one face in the system that has one — so no
+ * letter here is a skewed upright and nothing on the page is tilted.
  */
 export default function NewsCard({ className = "" }) {
   const items = useMemo(() => newsItems(), []);
@@ -64,12 +69,18 @@ export default function NewsCard({ className = "" }) {
          * all — the house rule the checker enforces.
          */}
         <div className="absolute inset-x-0 bottom-0 p-4">
-          <p className="text-balance text-lg font-extrabold leading-snug tracking-tight text-white sm:text-xl">
+          <p className="text-balance font-news text-2xl font-semibold uppercase italic leading-[1.08] tracking-[0.005em] text-white sm:text-3xl">
             {featured.text}
           </p>
         </div>
 
-        <div className="absolute bottom-4 right-4 flex items-center gap-1.5">
+        {/*
+         * The arrows sit on the photograph's top edge, opposite the category
+         * chip, so the headline owns the whole lower band. They used to sit in
+         * that band and the strap, now set larger, ran underneath them on a
+         * phone.
+         */}
+        <div className="absolute right-4 top-4 flex items-center gap-1.5">
           <button
             type="button"
             onClick={() => step(-1)}
@@ -92,10 +103,10 @@ export default function NewsCard({ className = "" }) {
       <ul className="divide-y divide-acf-line-soft">
         {secondary.map((item) => (
           <li key={item.id} className="flex items-start gap-2.5 px-6 py-3">
-            <span className="mt-0.5 shrink-0 rounded-full border border-acf-line px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-acf-grey">
+            <span className="mt-0.5 shrink-0 rounded-full border border-acf-line px-2 py-0.5 text-[0.625rem] font-bold uppercase tracking-[0.1em] text-acf-grey">
               {item.tag}
             </span>
-            <p className="min-w-0 flex-1 text-[13px] font-semibold leading-snug text-acf-snow/80">
+            <p className="min-w-0 flex-1 font-news text-[0.9375rem] font-medium uppercase italic leading-[1.15] tracking-[0.01em] text-acf-snow/85">
               {item.text}
             </p>
           </li>

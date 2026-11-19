@@ -1,6 +1,7 @@
 import { BarChart3 } from "lucide-react";
 import {
   CLUB_SLUG,
+  league,
   leagueTable,
   teamFullName,
   teamName,
@@ -43,7 +44,7 @@ function Row({ row }) {
        * it above the collapsed table borders, which a border on the row cannot.
        */}
       <td
-        className={`w-7 py-3 pl-3 pr-1 text-center font-display text-lg leading-none tabular-nums ${
+        className={`rank w-7 py-3 pl-3 pr-1 text-center font-display text-lg leading-none tabular-nums ${
           isAcf
             ? "text-acf-red shadow-[inset_3px_0_0_var(--color-acf-red)]"
             : "text-acf-snow/40"
@@ -53,9 +54,11 @@ function Row({ row }) {
       </td>
       {/* `w-full max-w-0` keeps the name column from claiming its max-content
           width: the table then fits the card instead of scrolling sideways. */}
-      <td className="w-full max-w-0 py-3 pr-1">
+      <td className="team w-full max-w-0 py-3 pr-1">
         <span className="flex items-center gap-2">
-          <Crest slug={row.slug} size="sm" />
+          {/* The row's own crest is the way into that club's page: the name
+              beside it is text, and a crest is what a reader aims at. */}
+          <Crest slug={row.slug} size="sm" to={`/equipo/${row.slug}`} />
           <span
             title={fullName}
             className={`truncate text-row font-bold uppercase leading-none tracking-[0.04em] ${
@@ -68,24 +71,34 @@ function Row({ row }) {
           <span className="sr-only">{fullName}</span>
         </span>
       </td>
-      <td className={FIGURE}>{row.played}</td>
-      <td className={FIGURE}>{row.won}</td>
-      <td className={FIGURE}>{row.drawn}</td>
-      <td className={FIGURE}>{row.lost}</td>
-      <td className={`${FIGURE} whitespace-nowrap`}>
+      <td className={`${FIGURE} stat`} data-label="PJ">{row.played}</td>
+      <td className={`${FIGURE} stat`} data-label="G">{row.won}</td>
+      <td className={`${FIGURE} stat`} data-label="E">{row.drawn}</td>
+      <td className={`${FIGURE} stat`} data-label="P">{row.lost}</td>
+      <td className={`${FIGURE} stat whitespace-nowrap`} data-label="GF:GC">
         {row.goalsFor}:{row.goalsAgainst}
       </td>
-      <td className={`${FIGURE} ${GOAL_DIFF_CELL}`}>
+      <td className={`${FIGURE} stat ${GOAL_DIFF_CELL}`} data-label="DG">
         {row.goalDiff > 0 ? `+${row.goalDiff}` : row.goalDiff}
       </td>
       {/* The points are the column the table is read for: Oswald and a size no
           other figure on the row reaches. The club's own points stay red. */}
       <td
-        className={`w-14 py-2.5 pl-2 pr-3 text-right font-display text-[30px] font-medium leading-none tabular-nums ${
+        title={
+          row.sanction
+            ? `${Math.abs(row.sanction)} ${Math.abs(row.sanction) === 1 ? "punto" : "puntos"} menos por sanción`
+            : undefined
+        }
+        className={`points w-14 py-2.5 pl-2 pr-3 text-right font-display text-[1.875rem] font-medium leading-none tabular-nums ${
           isAcf ? "text-acf-red" : "text-white"
         }`}
       >
         {row.points}
+        {row.sanction ? (
+          /* A club can be docked points by the federation; without this mark a
+             negative figure in the table reads as a mistake in our arithmetic. */
+          <span className="align-super text-[0.625rem] font-semibold text-acf-grey">*</span>
+        ) : null}
       </td>
     </tr>
   );
@@ -101,12 +114,27 @@ export default function Standings({ className = "" }) {
       title="Clasificación"
       hint={competition?.name ? `${competition.name} · ${VOICE.sections.standings}` : VOICE.sections.standings}
       icon={BarChart3}
-      className={className}
+      href={league.sources.table}
+      linkLabel="Abrir la clasificación oficial de la liga en CEGARRAF"
+      className={`surface-deep ${className}`}
       bodyClassName="flex flex-col"
     >
-      <div className="@container overflow-x-auto">
-        <table className="w-full border-collapse">
-          <thead>
+      {/*
+       * The scroll wrapper is a named region with a tab stop, which is what the
+       * Chrome team's responsive-table guidance asks for: a table that scrolls
+       * sideways is unreachable by keyboard otherwise, because the browser only
+       * makes scroll containers focusable in recent versions and not reliably.
+       * `aria-labelledby` names the region with the card's own heading, so a
+       * screen reader announces "Clasificación, region" instead of an unnamed box.
+       */}
+      <div
+        className="@container overflow-x-auto"
+        tabIndex={0}
+        role="region"
+        aria-labelledby="clasificacion-title"
+      >
+        <table className="standings-table w-full border-collapse">
+          <thead className="sticky top-0 z-10 bg-acf-panel-deep">
             <tr className="border-b border-acf-line">
               <th className={`${HEAD_CELL} w-7 pl-3 pr-1 text-center`}>#</th>
               <th className={`${HEAD_CELL} text-left`}>Equipo</th>

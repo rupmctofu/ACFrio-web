@@ -32,7 +32,7 @@ function PlayerAvatar({ name, size = "md" }) {
   return (
     <span
       aria-hidden="true"
-      className={`${box} flex shrink-0 items-center justify-center rounded-full border border-acf-line bg-acf-panel-light text-[11px] font-bold text-acf-grey`}
+      className={`${box} flex shrink-0 items-center justify-center rounded-full border border-acf-line bg-acf-panel-light text-[0.6875rem] font-bold text-acf-grey`}
     >
       {name.slice(0, 1).toUpperCase()}
     </span>
@@ -62,6 +62,18 @@ function CardPill({ tone, count, label }) {
       </span>
     </span>
   );
+}
+
+/**
+ * Where a player's goals came from, in the order they matter to a reader: only
+ * the competitions he actually scored in are named, so a league-only scorer
+ * does not carry a row of zeroes.
+ */
+function goalBreakdown(scorer) {
+  const parts = [];
+  if (scorer.league) parts.push(`${scorer.league} liga`);
+  if (scorer.cup) parts.push(`${scorer.cup} copa`);
+  return parts.join(" · ");
 }
 
 /**
@@ -100,8 +112,16 @@ export default function ScorersCard({ className = "" }) {
                 {index + 1}
               </span>
               <PlayerAvatar name={scorer.player} />
-              <span className="min-w-0 flex-1 truncate text-row font-bold uppercase tracking-[0.1em] text-white">
-                {scorer.player}
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-row font-bold uppercase tracking-[0.1em] text-white">
+                  {scorer.player}
+                </span>
+                {/* The season total alone hides that a goal was a cup goal. The
+                    split sits under the name, where it is read without competing
+                    with the figure on the right. */}
+                <span className="mt-0.5 block truncate text-micro font-semibold uppercase tracking-[0.14em] text-acf-grey">
+                  {goalBreakdown(scorer)}
+                </span>
               </span>
               <span
                 className={`shrink-0 font-display text-3xl font-medium leading-none tabular-nums ${

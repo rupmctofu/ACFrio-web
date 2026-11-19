@@ -5,6 +5,13 @@
  * Writes src/data/competition.json and downloads every team crest to
  * public/assets/badges/<slug>.webp.
  *
+ * The per-club social profiles come from the same team page the crest fallback
+ * already reads: the club publishes them in its own contact block, and the site
+ * only repeats what is printed there.
+ *
+ * Run `npm run assets:ink` afterwards: it derives the one-ink masks the page
+ * paints on a fixture that is still weeks away (scripts/build-crest-masks.mjs).
+ *
  * The source pages are plain GET, UTF-8, and carry the whole season in one
  * response, so the Joomla matchday filter (a POST) is not needed and there is
  * no browser CORS problem: the data is fetched here, at build time, never by
@@ -87,10 +94,73 @@ async function fetchBinary(url) {
   return Buffer.from(await response.arrayBuffer());
 }
 
-/** Split a row into cells: the opening tag's attributes and the cell body. */
-function cellsOf(rowHtml) {
+/**
+ * A published link, reduced to the two profiles a club page shows.
+ *
+ * The federation labels this field "Pàgina Web" and prints whatever the club
+ * handed it — a website, a profile, or nothing. Only Instagram and Facebook are
+ * wanted, so every other destination is ignored instead of being guessed into
+ * one of them. The path is kept as published (handle case included, trailing
+ * slash included) and the query string is dropped: the source uses it for
+ * tracking, not for the address. Returns null for anything that is not one of
+ * the two profiles.
+ */
+function socialLink(raw) {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+
+  let url;
+  try {
+    url = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
+  } catch {
+    return null; // not an address at all
+  }
+
+  const host = url.host.toLowerCase();
+  const instagram = /(^|\.)instagram\.com$/.test(host);
+  const facebook = /(^|\.)facebook\.com$/.test(host);
+  if (!instagram && !facebook) return null;
+
+  return { network: instagram ? "instagram" : "facebook", url: `https://${host}${url.pathname}` };
+}
+
+/**
+ * The social profiles of a club, read from its own contact block on the team
+ * page, each null when the club publishes none.
+ *
+ * Only the "Dades del Club" block is scanned. The page also carries the
+ * federation's own header and footer links, and a profile printed there belongs
+ * to the federation, not to the club whose page this is — attaching it to every
+ * club would be an invented link with a real URL.
+ */
+function parseSocial(teamHtml) {
+  const social = { instagram: null, facebook: null };
+
+  const start = teamHtml.indexOf("Dades del Club");
+  if (start === -1) return social; // markup changed: no link, never a guess
+  const end = teamHtml.indexOf("Dades del Camp", start);
+  const block = teamHtml.slice(start, end === -1 ? undefined : end);
+
+  for (const match of block.matchAll(/href="?([^"\s>]+)/gi)) {
+    const link = socialLink(match[1]);
+    // First of each network wins: the field is published once, and a repeat is
+    // the same profile printed again, not a second account.
+    if (link && social[link.network] === null) social[link.network] = link.url;
+  }
+
+  return social;
+}
+
+/**
+ * Split a row into cells: the opening tag's attributes and the cell body.
+ *
+ * The source opens every cell with `<td …>` and never closes it with `</td>`,
+ * so a closing-tag regex finds nothing; splitting on the opening tag is the only
+ * way to count cells. The header rows are written the same way, with `<th …>`.
+ */
+function cellsOf(rowHtml, tag = "td") {
   return rowHtml
-    .split(/<td[\s>]/i)
+    .split(new RegExp(`<${tag}[\\s>]`, "i"))
     .slice(1)
     .map((chunk) => {
       const open = chunk.indexOf(">");
@@ -98,6 +168,7 @@ function cellsOf(rowHtml) {
       const classMatch = /^class="?([^">]*)"?/i.exec(attributes.trim());
       return {
         cls: classMatch ? classMatch[1].trim() : "",
+        attrs: attributes,
         html: open === -1 ? "" : chunk.slice(open + 1),
       };
     });
@@ -105,6 +176,37 @@ function cellsOf(rowHtml) {
 
 const classIs = (cell, name) => cell.cls === name || cell.cls.startsWith(`${name} `);
 const classHas = (cell, name) => cell.cls.split(" ").includes(name);
+
+/** "Gols de Diferència" -> "GOLSDEDIFERENCIA": header labels compare by letters only. */
+const normaliseLabel = (value) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+
+/**
+ * The stat columns the table is read for, named the way the source names them.
+ *
+ * A label on its own is not enough to find a column: "PJ" is printed three
+ * times (total, home, away) and "GC" means "won at home" inside the Casa group
+ * but "goals conceded" inside the Gols group. So a column is matched by the
+ * group printed above it plus its label, then by its tooltip title ("Gols
+ * Ficats", "Gols Contrari", "Punts Totals"), and only then by its label, taken
+ * leftmost because the totals group is always rendered before the home/away
+ * splits. `sanction` is optional: older markup has no "S" column at all.
+ */
+const STAT_COLUMNS = [
+  { key: "played", groups: ["PARTITS"], labels: ["PJ"], titles: ["PARTITSJUGATS"], required: true },
+  { key: "won", groups: ["PARTITS"], labels: ["PG", "G"], titles: ["PARTITSGUANYATS"], required: true },
+  { key: "drawn", groups: ["PARTITS"], labels: ["PE", "E"], titles: ["PARTITSEMPATATS"], required: true },
+  { key: "lost", groups: ["PARTITS"], labels: ["PP", "P"], titles: ["PARTITSPERDUTS"], required: true },
+  { key: "goalsFor", groups: ["GOLS"], labels: ["GF"], titles: ["GOLSFICATS"], required: true },
+  { key: "goalsAgainst", groups: ["GOLS"], labels: ["GC"], titles: ["GOLSCONTRARI"], required: true },
+  { key: "goalDiff", groups: ["GOLS"], labels: ["DIF", "DG"], titles: ["GOLSDEDIFERENCIA"], required: true },
+  { key: "sanction", groups: ["S"], labels: ["S"], titles: ["SANCIO"], required: false },
+  { key: "points", groups: ["PUNTS"], labels: ["PTS"], titles: ["PUNTSTOTALS"], required: true },
+];
 
 /* ---------------------------------------------------------------- parsing */
 
@@ -174,14 +276,94 @@ function parseCalendar(html) {
 }
 
 /**
- * Standings rows carry, in fixed order: rank, crest, team name, then 16 stat
- * columns (Partits PJ G E P | Casa PJ G E P | Fora PJ G E P | Gols GF GC DIF | Pts).
- * A competition without results yet leaves those cells empty, which means zero,
- * not "unknown", so the mapping is positional rather than a list of numbers.
+ * Read the standings header into a map from stat to absolute cell index.
+ *
+ * The header is two rows: a group row that spans ("Partits" colspan=4, "Casa",
+ * "Fora", "Gols", "Punts") and a label row ("PJ PG PE PP | PJ GC EC PC | PJ GF
+ * EF PF | GF GC DIF S | Pts"). Both are parsed, so every column is identified
+ * by what the page calls it, not by where it happens to sit. A header the script
+ * cannot understand throws here: writing plausible-looking zeros is worse than a
+ * failed sync.
  */
-function parseTable(html) {
+function parseStandingsHeader(tableHtml, label) {
+  const headRows = [...tableHtml.matchAll(/<thead[^>]*>([\s\S]*?)<\/thead>/gi)].flatMap((head) =>
+    head[1]
+      .split(/<tr[\s>]/i)
+      .slice(1)
+      .map((row) => cellsOf(row, "th")),
+  );
+
+  const columnRow = headRows.reduce((widest, row) => (row.length > widest.length ? row : widest), []);
+  if (columnRow.length === 0) throw new Error(`${label}: the standings table has no header row`);
+
+  // The group row is the one that spans: colspan is what separates the sections.
+  const groupRow = headRows.find(
+    (row) => row !== columnRow && row.some((cell) => /colspan=/i.test(cell.attrs)),
+  );
+  const groups = groupRow
+    ? groupRow.flatMap((cell) => {
+        const span = Number(/colspan="?(\d+)/i.exec(cell.attrs)?.[1] ?? 1);
+        return Array.from({ length: span }, () => normaliseLabel(text(cell.html)));
+      })
+    : [];
+
+  if (groups.length && groups.length !== columnRow.length) {
+    throw new Error(
+      `${label}: the header groups cover ${groups.length} columns but the labels cover ${columnRow.length}`,
+    );
+  }
+
+  const columns = columnRow.map((cell, index) => ({
+    index,
+    group: groups[index] ?? "",
+    label: normaliseLabel(text(cell.html)),
+    title: normaliseLabel(/title="?([^">]+)"?/i.exec(cell.html)?.[1] ?? ""),
+  }));
+
+  const indexOf = {};
+  const missing = [];
+  for (const stat of STAT_COLUMNS) {
+    const byGroup = columns.filter(
+      (column) => column.group && stat.groups.includes(column.group) && stat.labels.includes(column.label),
+    );
+    const byTitle = columns.filter((column) => column.title && stat.titles.includes(column.title));
+    const byLabel = columns.filter((column) => stat.labels.includes(column.label));
+    const found = byGroup.length === 1 ? byGroup : byTitle.length === 1 ? byTitle : byLabel;
+    if (found.length) indexOf[stat.key] = found[0].index;
+    else if (stat.required) missing.push(`${stat.key} (${stat.labels.join("/")})`);
+  }
+
+  if (missing.length) {
+    throw new Error(
+      `${label}: cannot read the standings header, no column for ${missing.join(", ")}; ` +
+        `columns seen: ${columns.map((column) => `${column.group || "-"}:${column.label || "?"}`).join(" ")}`,
+    );
+  }
+
+  return { indexOf, columnCount: columnRow.length };
+}
+
+/**
+ * The standings table.
+ *
+ * The page carries one table, not two: "Resumida" and "Detallada" are a radio
+ * that hides columns of the same rows in the browser (`.table-rank-cell2` for
+ * Casa/Fora, `.table-rank-cell1` for Partits). The script reads the totals —
+ * the Partits group plus Gols and Punts, which is what Resumida shows — because
+ * a home/away split is not a season figure.
+ *
+ * Every value is read through the header map. The source inserted a sanction
+ * column ("S") between DIF and Pts, which is exactly why reading by position
+ * turned every points value into 0 and Kongitos' sanction of -1 into its points.
+ */
+function parseTable(html, label) {
+  const table = /<table[^>]*\btable-rank\b[^>]*>([\s\S]*?)<\/table>/i.exec(html);
+  if (!table) throw new Error(`${label}: no standings table (table-rank) on the page`);
+
+  const { indexOf, columnCount } = parseStandingsHeader(table[1], label);
+
   const rows = [
-    ...html.matchAll(/<tr class="?white"?[^>]*>([\s\S]*?)(?=<tr|<\/table|<\/tbody)/gi),
+    ...table[1].matchAll(/<tr class="?white"?[^>]*>([\s\S]*?)(?=<tr|<\/table|<\/tbody)/gi),
   ];
 
   return rows
@@ -192,38 +374,58 @@ function parseTable(html) {
       const teamMatch = /href=\/equip\/futbol\/senior\/([a-z0-9-]+)[^>]*>([^<]*)</i.exec(
         teamCell?.html ?? "",
       );
-
-      // Rank, crest and team name come first; every cell after the team name is
-      // a stat column, in the order documented above.
-      const values = cells
-        .slice(cells.indexOf(teamCell) + 1)
-        .map((cell) => text(cell.html))
-        .map((value) => (value === "" ? 0 : Number(value)))
-        .map((value) => (Number.isFinite(value) ? value : 0));
+      if (!teamMatch) return null; // not a club row
 
       const base = {
         rank: rankCell ? Number(text(rankCell.html)) : null,
-        slug: teamMatch ? teamMatch[1] : null,
-        name: teamMatch ? text(teamMatch[2]) : null,
+        slug: teamMatch[1],
+        name: text(teamMatch[2]),
       };
 
-      const stats =
-        values.length >= 16
-          ? { played: values[0], won: values[1], drawn: values[2], lost: values[3], goalsFor: values[12], goalsAgainst: values[13], goalDiff: values[14], points: values[15] }
-          : values.length >= 8
-            ? { played: values[0], won: values[1], drawn: values[2], lost: values[3], goalsFor: values[4], goalsAgainst: values[5], goalDiff: values[6], points: values[7] }
-            : { played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, goalDiff: 0, points: 0 };
+      const valueAt = (key) => {
+        const index = indexOf[key];
+        if (index === undefined) return 0; // a column this markup does not print
+        const cell = cells[index];
+        if (!cell) {
+          throw new Error(
+            `${label}: ${base.name} has ${cells.length} cells but the header has ${columnCount}`,
+          );
+        }
+        const raw = text(cell.html);
+        if (raw === "") return 0; // no matchday played yet: empty means zero
+        const number = Number(raw.replace(",", "."));
+        if (!Number.isFinite(number)) {
+          throw new Error(`${label}: ${base.name} ${key} cell "${raw}" is not a number`);
+        }
+        return number;
+      };
 
-      return { ...base, ...stats };
+      return {
+        ...base,
+        played: valueAt("played"),
+        won: valueAt("won"),
+        drawn: valueAt("drawn"),
+        lost: valueAt("lost"),
+        goalsFor: valueAt("goalsFor"),
+        goalsAgainst: valueAt("goalsAgainst"),
+        goalDiff: valueAt("goalDiff"),
+        points: valueAt("points"),
+        sanction: valueAt("sanction"),
+      };
     })
-    .filter((row) => row.slug);
+    .filter((row) => row !== null);
 }
 
 function validateTable(table, label) {
   const problems = [];
   for (const row of table) {
-    if (row.points !== row.won * 3 + row.drawn) {
-      problems.push(`${label}: ${row.name} points ${row.points} != 3*${row.won}+${row.drawn}`);
+    // The source prints its own sanction column ("S"), and Kongitos carry -1 in
+    // it: that is the whole difference between won*3+drawn and the printed points.
+    const expected = row.won * 3 + row.drawn + row.sanction;
+    if (row.points !== expected) {
+      problems.push(
+        `${label}: ${row.name} points ${row.points} != 3*${row.won}+${row.drawn} (sanction ${row.sanction}) = ${expected}`,
+      );
     }
     if (row.played !== row.won + row.drawn + row.lost) {
       problems.push(
@@ -253,7 +455,7 @@ for (const competition of COMPETITIONS) {
   const tableHtml = await fetchText(tableUrl);
 
   const fixtures = parseCalendar(calendarHtml);
-  const table = parseTable(tableHtml);
+  const table = parseTable(tableHtml, competition.name);
 
   if (fixtures.length === 0) problems.push(`${competition.name}: no fixtures parsed`);
   if (table.length === 0) problems.push(`${competition.name}: no standings parsed`);
@@ -264,7 +466,13 @@ for (const competition of COMPETITIONS) {
       const team = fixture[side];
       const crest = fixture.crests[side];
       const known = teams.get(team.slug) ?? { name: team.name, crest: null };
-      teams.set(team.slug, { name: team.name || known.name, crest: known.crest ?? crest });
+      teams.set(team.slug, {
+        name: team.name || known.name,
+        crest: known.crest ?? crest,
+        // Filled from the team page below; null until then, and null in the
+        // written document when the club publishes no profile.
+        social: known.social ?? { instagram: null, facebook: null },
+      });
     }
     delete fixture.crests;
   }
@@ -285,22 +493,41 @@ await mkdir(badgesDir, { recursive: true });
 
 const crestFailures = [];
 const crestsNotPublished = [];
+const socialFailures = [];
 for (const [slug, team] of teams) {
-  // The calendar carries a crest for most teams; the rest publish it on their
-  // team page, so fall back there before concluding it does not exist.
-  if (!team.crest) {
-    try {
-      const teamHtml = await fetchText(`${BASE}/equip/futbol/senior/${slug}`);
-      team.crest = (/\/images\/thumbs\/100x100\/\S+?\.webp/i.exec(teamHtml) ?? [])[0] ?? null;
-    } catch (error) {
-      crestFailures.push(`${slug}: team page unavailable (${error.message})`);
-    }
+  /*
+   * One request per club covers both things the page carries: the crest the
+   * calendar may leave out and the contact block with the club's own profiles.
+   * Every club needs the second, so the page is read for all of them instead of
+   * only for the crest-less few; the crest fallback is unchanged.
+   */
+  let teamHtml = null;
+  let teamPageError = null;
+  try {
+    teamHtml = await fetchText(`${BASE}/equip/futbol/senior/${slug}`);
+  } catch (error) {
+    teamPageError = error.message;
+    if (!team.crest) crestFailures.push(`${slug}: team page unavailable (${error.message})`);
+    // The document still says null, but an unreadable page is not a club that
+    // publishes nothing, so the run names the clubs it could not read.
+    socialFailures.push(`${slug}: team page unavailable (${error.message})`);
   }
+
+  if (teamHtml !== null) {
+    // The calendar carries a crest for most teams; the rest publish it on their
+    // team page, so fall back there before concluding it does not exist.
+    team.crest =
+      team.crest ??
+      (/\/images\/thumbs\/100x100\/\S+?\.webp/i.exec(teamHtml) ?? [])[0] ??
+      null;
+    team.social = parseSocial(teamHtml);
+  }
+
   if (!team.crest) {
     // Not an error: the club simply has no crest on the official source, so the
     // UI falls back to initials. Recorded so the gap is visible, not invented.
     team.crest = null;
-    crestsNotPublished.push(team.name);
+    if (!teamPageError) crestsNotPublished.push(team.name);
     continue;
   }
   const url = team.crest.startsWith("http") ? team.crest : `${BASE}${team.crest}`;
@@ -367,9 +594,19 @@ if (crestsNotPublished.length) {
   console.log(`no crest published by the source (initials fallback): ${crestsNotPublished.join(", ")}`);
 }
 
+const socials = [...teams].filter(([, team]) => team.social.instagram || team.social.facebook);
+console.log(
+  `social links: ${socials.length}/${teams.size} clubs publish one` +
+    (socials.length ? ` (${socials.map(([slug]) => slug).join(", ")})` : ""),
+);
+
 if (crestFailures.length) {
   console.warn("crest problems:");
   for (const failure of crestFailures) console.warn(`  - ${failure}`);
+}
+if (socialFailures.length) {
+  console.warn("social problems:");
+  for (const failure of socialFailures) console.warn(`  - ${failure}`);
 }
 if (problems.length) {
   console.warn("data problems:");

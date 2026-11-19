@@ -68,7 +68,7 @@ export default function FormCard({ className = "" }) {
                   </span>
                   <span className="flex shrink-0 items-center gap-2">
                     <span
-                      className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-extrabold ${tone.className}`}
+                      className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[0.625rem] font-extrabold ${tone.className}`}
                     >
                       {tone.letter}
                     </span>
@@ -82,7 +82,7 @@ export default function FormCard({ className = "" }) {
                     Equal outer columns keep the score centred. */}
                 <div className="mt-2.5 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
                   <div className="flex justify-start">
-                    <Crest slug={opponent.slug} size="sm" />
+                    <Crest slug={opponent.slug} size="sm" to={`/equipo/${opponent.slug}`} />
                   </div>
                   <span
                     className={`whitespace-nowrap font-display text-3xl font-medium leading-none tabular-nums ${
@@ -94,7 +94,9 @@ export default function FormCard({ className = "" }) {
                     {score.own}
                   </span>
                   <div className="flex justify-end">
-                    <Crest slug={CLUB_SLUG} size="sm" />
+                    {/* The club's own crest opens the club's page too: this card
+                        lives on the dashboard, and the profile is elsewhere. */}
+                    <Crest slug={CLUB_SLUG} size="sm" to={`/equipo/${CLUB_SLUG}`} />
                   </div>
                 </div>
               </li>

@@ -14,10 +14,21 @@
   --color-acf-red-dark: #b0141b;
   --color-acf-red-soft: #ff4d55;
 
-  /* Canvas and surfaces: the owner's blacks, from the canvas inwards. */
-  --color-acf-dark: #090909;
-  --color-acf-panel: #141414;
-  --color-acf-panel-light: #202020;
+  /* Canvas and surfaces: the owner's blacks, from the canvas inwards. The
+     canvas is a very dark grey rather than black (owner, L30): pure black made
+     the photograph's dissolve land on nothing, and the cards had no step to
+     stand on. Every surface below moved up with it so the ladder survives. */
+  --color-acf-dark: #141416;
+  --color-acf-panel: #1e1e20;
+  --color-acf-panel-light: #2a2a2c;
+  /* The recessed surface: darker than a card and lighter than the canvas, for
+     the two cards that should read as set back from their neighbours. */
+  --color-acf-panel-deep: #191a1c;
+  /* The broadcast bar: the darkest surface on the page, so the news reads as a
+     strip of its own and not as another tile (owner, L32). It sits almost at
+     black — darker than the canvas — which is what makes it read as a band laid
+     over the page rather than a card sitting on it (owner, L34). */
+  --color-acf-bar: #070709;
 
   /* Hairlines. */
   --color-acf-line: rgba(255, 255, 255, 0.08);
@@ -35,7 +46,7 @@
    */
   /* The hero surface is now a red-tinted charcoal: the digital poster of the
      next match reads as the reddest thing on the page before any text. */
-  --color-acf-surface-hero: #171213;
+  --color-acf-surface-hero: #251b1d;
   --color-acf-surface-hero-line: rgba(230, 28, 36, 0.5);
   --color-acf-surface-hero-glow: rgba(230, 28, 36, 0.32);
   --color-acf-surface-hero-mid: rgba(230, 28, 36, 0.09);
@@ -54,6 +65,10 @@
      real weights, so a score and its label can differ in weight, not just size. */
   --font-display: "Oswald", sans-serif;
   --font-body: "Inter", sans-serif;
+  /* The newsroom strap: the only face in the system with a real italic. Every
+     headline in the feed and the ticker runs on it, uppercase and leaning, so
+     the news reads as a lower-third without a skew transform anywhere. */
+  --font-news: "Barlow Condensed", "Oswald", sans-serif;
 
   /*
    * Type scale (one coherent step up, so the site reads at arm's length).
@@ -63,11 +78,11 @@
    *   row / figure  13px — body text, table rows and standings figures
    *   title         19px — card titles (sentence case)
    */
-  --text-micro: 11px;
-  --text-hint: 11px;
-  --text-row: 13px;
-  --text-figure: 13px;
-  --text-title: 19px;
+  --text-micro: 0.6875rem;
+  --text-hint: 0.6875rem;
+  --text-row: 0.8125rem;
+  --text-figure: 0.8125rem;
+  --text-title: 1.1875rem;
 
   --radius-card: 22px;
   --radius-tile: 14px;
@@ -195,6 +210,187 @@ body {
   color: #ffffff;
 }
 
+/* ===== Page backdrop: the club photograph, out of focus, dissolving down =====
+ * The photograph is the page's ground behind the top of the dashboard, so it
+ * has to leave without a seam. The fade is a mask, not a black gradient laid on
+ * top: the picture itself becomes transparent, which means there is no band
+ * where a gradient stops being opaque and the canvas begins. The ramp is long
+ * on purpose and reaches zero a good way before the layer ends, so the blur's
+ * own edge can never be seen as a cut.
+ */
+.page-backdrop {
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 8%,
+    rgba(0, 0, 0, 0.86) 34%,
+    rgba(0, 0, 0, 0.56) 54%,
+    rgba(0, 0, 0, 0.26) 71%,
+    rgba(0, 0, 0, 0.07) 85%,
+    transparent 94%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 8%,
+    rgba(0, 0, 0, 0.86) 34%,
+    rgba(0, 0, 0, 0.56) 54%,
+    rgba(0, 0, 0, 0.26) 71%,
+    rgba(0, 0, 0, 0.07) 85%,
+    transparent 94%
+  );
+}
+
+/* ===== Scrollable face strip: a fade that says "there is more" =====
+ * The row of faces scrolls sideways on phones and the only hint was a face cut
+ * in half at the edge. This fade makes the cut read as "more of the same"
+ * instead of as a mistake. It is driven by the scroller's own scroll timeline,
+ * which is inactive when there is nothing to scroll: with no overflow the
+ * custom property keeps its initial 0 and the mask stays fully opaque, so a row
+ * that fits never fades its last name for no reason. No listener, no extra
+ * element. Below 640px only — above that the strip is a grid that does not
+ * scroll.
+ */
+@property --strip-cut {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+
+@media (max-width: 639.98px) {
+  .strip-fade {
+    mask-image: linear-gradient(
+      to right,
+      #000 0,
+      #000 calc(100% - var(--strip-cut) * 2.25rem),
+      transparent 100%
+    );
+    animation: strip-overflowing linear both;
+    animation-timeline: scroll(self inline);
+  }
+}
+
+@keyframes strip-overflowing {
+  from,
+  to {
+    --strip-cut: 1;
+  }
+}
+
+/* ===== Day of the calendar: one element morphs, the page does not =====
+ * The fixture panel is the only thing that should travel when a day is picked;
+ * left alone, every same-document transition cross-fades the whole page, which
+ * reads as a flash. Motion is off for readers who ask for less of it.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+::view-transition-group(fixture-panel) {
+  animation-duration: 220ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* ===== Standings table, stacked on a phone =====
+ * Nine columns do not fit a 320px card without the name and the position
+ * fighting over the same pixels, which is exactly what the checker caught. On a
+ * phone each team becomes its own block instead of a row, and the column
+ * headers move inside the cells with generated content so the numbers keep
+ * their meaning (`::before` reads the `data-label` the cell carries).
+ *
+ * The threshold is the viewport, not the card's own width, and that is a
+ * deliberate departure from the guidance: this card is ~400px wide on a 1440
+ * desktop too, so a container query would stack the table there as well and
+ * change the design the owner already approved. Below 640px the card is the
+ * whole width of the phone, which is the case that actually breaks.
+ */
+@media (max-width: 639.98px) {
+  .standings-table,
+  .standings-table tbody,
+  .standings-table tr,
+  .standings-table td {
+    display: block;
+  }
+
+  .standings-table thead {
+    /* The labels live in the cells now; leaving the header would announce a
+       column order that no longer matches what is on screen. */
+    display: none;
+  }
+
+  .standings-table tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.75rem;
+    padding: 0.625rem 0.75rem;
+  }
+
+  /* A full-width flex item that forces the figures onto their own line. */
+  .standings-table tr::after {
+    content: "";
+    order: 2;
+    flex-basis: 100%;
+    block-size: 0;
+  }
+
+  .standings-table td.rank {
+    order: 0;
+    width: auto;
+    padding: 0;
+    text-align: left;
+  }
+
+  .standings-table td.team {
+    order: 1;
+    flex: 1 1 8rem;
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .standings-table td.points {
+    order: 1;
+    width: auto;
+    margin-left: auto;
+    padding: 0;
+  }
+
+  .standings-table td.stat {
+    order: 3;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    padding: 0;
+    text-align: left;
+    font-size: 0.75rem;
+  }
+
+  .standings-table td.stat::before {
+    content: attr(data-label);
+    font-size: 0.5625rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-acf-dim);
+  }
+
+  /* The goal difference is dropped by a width query that no longer applies
+     here: in a stacked block there is room for it. */
+  .standings-table td.stat {
+    display: inline-flex;
+  }
+}
+
 /* ===== Card surface hierarchy =====
  * The tinted levels are plain CSS on purpose: the shell of a card keeps its
  * `bg-acf-panel` / `border-acf-line` defaults, so the level has to own the
@@ -218,6 +414,17 @@ body {
     var(--color-acf-surface-accent-from) 0%,
     var(--color-acf-surface-accent-to) 100%
   );
+}
+
+/*
+ * The recessed level: no red, no glow, one step below the base panel. Two cards
+ * sit here — the table and the attendance list — so the page gains a rhythm of
+ * tints instead of a grid of identical tiles (owner, L31). Like the other two
+ * levels it owns the surface from outside the Tailwind layers, which is what
+ * lets a component opt into it with a class and keep its own defaults.
+ */
+.surface-deep {
+  background-color: var(--color-acf-panel-deep);
 }
 
 /*

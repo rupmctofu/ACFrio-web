@@ -314,7 +314,7 @@ async function generateOGImage() {
   // --- 10. URL at bottom ---
   ctx.fillStyle = GREY;
   ctx.font = "400 16px Inter, sans-serif";
-  ctx.fillText("acfrio-web.vercel.app", W / 2, H - 30);
+  ctx.fillText("acfrio.club", W / 2, H - 30);
 
   const buf = canvas.toBuffer("image/png");
   const out = join(PUBLIC, "og-image.png");

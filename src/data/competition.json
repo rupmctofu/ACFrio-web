@@ -1,6 +1,6 @@
 {
   "season": "2026-2027",
-  "generatedAt": "2026-11-12T11:57:25.065Z",
+  "generatedAt": "2026-11-19T11:28:23.692Z",
   "generator": "scripts/sync-competition.mjs",
   "club": {
     "slug": "ac-frio",
@@ -9,47 +9,91 @@
   "teams": {
     "ac-frio": {
       "name": "AC FRÍO",
-      "crest": "/assets/badges/ac-frio.webp"
+      "crest": "/assets/badges/ac-frio.webp",
+      "social": {
+        "instagram": null,
+        "facebook": null
+      }
     },
     "autoescola-giner": {
       "name": "AUTOESCOLA GINER",
-      "crest": "/assets/badges/autoescola-giner.webp"
+      "crest": "/assets/badges/autoescola-giner.webp",
+      "social": {
+        "instagram": null,
+        "facebook": null
+      }
     },
     "bar-dansaires-niu-projectes": {
       "name": "BAR DANSAIRES & NIU PROJECTES",
-      "crest": null
+      "crest": null,
+      "social": {
+        "instagram": null,
+        "facebook": null
+      }
     },
     "bayer-leverkolocon": {
       "name": "BAYERN LEVERKOLOCÓN",
-      "crest": "/assets/badges/bayer-leverkolocon.webp"
+      "crest": "/assets/badges/bayer-leverkolocon.webp",
+      "social": {
+        "instagram": null,
+        "facebook": null
+      }
     },
     "bonsi-fc": {
       "name": "BONSI FC",
-      "crest": "/assets/badges/bonsi-fc.webp"
+      "crest": "/assets/badges/bonsi-fc.webp",
+      "social": {
+        "instagram": null,
+        "facebook": null
+      }
     },
     "el-templo": {
       "name": "EL TEMPLO",
-      "crest": "/assets/badges/el-templo.webp"
+      "crest": "/assets/badges/el-templo.webp",
+      "social": {
+        "instagram": null,
+        "facebook": null
+      }
     },
     "francesco": {
       "name": "L'AUTENTICO BY FRANCESCO - PINTURES E. BORRAS",
-      "crest": null
+      "crest": null,
+      "social": {
+        "instagram": null,
+        "facebook": null
+      }
     },
     "kongitos-fc": {
       "name": "KONGITOS FC",
-      "crest": "/assets/badges/kongitos-fc.webp"
+      "crest": "/assets/badges/kongitos-fc.webp",
+      "social": {
+        "instagram": "https://www.instagram.com/Kongitosfc/",
+        "facebook": null
+      }
     },
     "premier-team-f-c": {
       "name": "PREMIER TEAM F.C.",
-      "crest": "/assets/badges/premier-team-f-c.webp"
+      "crest": "/assets/badges/premier-team-f-c.webp",
+      "social": {
+        "instagram": "https://www.instagram.com/premierteamfc/",
+        "facebook": null
+      }
     },
     "rayo-bellakeo": {
       "name": "RAYO BELLAKEO",
-      "crest": "/assets/badges/rayo-bellakeo.webp"
+      "crest": "/assets/badges/rayo-bellakeo.webp",
+      "social": {
+        "instagram": null,
+        "facebook": null
+      }
     },
     "tecnocasa": {
       "name": "TECNOCASA - DELTA MONTAJES",
-      "crest": "/assets/badges/tecnocasa.webp"
+      "crest": "/assets/badges/tecnocasa.webp",
+      "social": {
+        "instagram": "https://www.instagram.com/losp.ibes2627/",
+        "facebook": null
+      }
     }
   },
   "competitions": [
@@ -63,68 +107,73 @@
       "table": [
         {
           "rank": 1,
-          "slug": "el-templo",
-          "name": "EL TEMPLO",
-          "played": 3,
-          "won": 2,
-          "drawn": 1,
-          "lost": 0,
-          "goalsFor": 12,
-          "goalsAgainst": 4,
-          "goalDiff": 8,
-          "points": 7
+          "slug": "premier-team-f-c",
+          "name": "PREMIER TEAM F.C.",
+          "played": 4,
+          "won": 3,
+          "drawn": 0,
+          "lost": 1,
+          "goalsFor": 18,
+          "goalsAgainst": 7,
+          "goalDiff": 11,
+          "points": 9,
+          "sanction": 0
         },
         {
           "rank": 2,
-          "slug": "premier-team-f-c",
-          "name": "PREMIER TEAM F.C.",
+          "slug": "rayo-bellakeo",
+          "name": "RAYO BELLAKEO",
           "played": 3,
           "won": 2,
-          "drawn": 0,
-          "lost": 1,
-          "goalsFor": 11,
+          "drawn": 1,
+          "lost": 0,
+          "goalsFor": 8,
           "goalsAgainst": 6,
-          "goalDiff": 5,
-          "points": 6
+          "goalDiff": 2,
+          "points": 7,
+          "sanction": 0
         },
         {
           "rank": 3,
-          "slug": "rayo-bellakeo",
-          "name": "RAYO BELLAKEO",
-          "played": 2,
-          "won": 1,
+          "slug": "bonsi-fc",
+          "name": "BONSI FC",
+          "played": 3,
+          "won": 2,
           "drawn": 1,
           "lost": 0,
-          "goalsFor": 6,
-          "goalsAgainst": 5,
-          "goalDiff": 1,
-          "points": 4
+          "goalsFor": 9,
+          "goalsAgainst": 3,
+          "goalDiff": 6,
+          "points": 7,
+          "sanction": 0
         },
         {
           "rank": 4,
-          "slug": "bonsi-fc",
-          "name": "BONSI FC",
-          "played": 2,
-          "won": 1,
+          "slug": "el-templo",
+          "name": "EL TEMPLO",
+          "played": 4,
+          "won": 2,
           "drawn": 1,
-          "lost": 0,
-          "goalsFor": 4,
-          "goalsAgainst": 3,
-          "goalDiff": 1,
-          "points": 4
+          "lost": 1,
+          "goalsFor": 13,
+          "goalsAgainst": 6,
+          "goalDiff": 7,
+          "points": 7,
+          "sanction": 0
         },
         {
           "rank": 5,
           "slug": "bar-dansaires-niu-projectes",
           "name": "BAR DANSAIRES & NIU PROJECTES",
-          "played": 3,
+          "played": 4,
           "won": 0,
           "drawn": 2,
-          "lost": 1,
-          "goalsFor": 3,
-          "goalsAgainst": 8,
-          "goalDiff": -5,
-          "points": 2
+          "lost": 2,
+          "goalsFor": 4,
+          "goalsAgainst": 15,
+          "goalDiff": -11,
+          "points": 2,
+          "sanction": 0
         },
         {
           "rank": 6,
@@ -137,20 +186,22 @@
           "goalsFor": 4,
           "goalsAgainst": 11,
           "goalDiff": -7,
-          "points": 1
+          "points": 1,
+          "sanction": 0
         },
         {
           "rank": 7,
           "slug": "kongitos-fc",
           "name": "KONGITOS FC",
-          "played": 2,
+          "played": 3,
           "won": 0,
           "drawn": 0,
-          "lost": 2,
+          "lost": 3,
           "goalsFor": 4,
-          "goalsAgainst": 7,
-          "goalDiff": -3,
-          "points": 0
+          "goalsAgainst": 12,
+          "goalDiff": -8,
+          "points": -1,
+          "sanction": -1
         }
       ],
       "fixtures": [
@@ -338,8 +389,11 @@
             "slug": "rayo-bellakeo",
             "name": "RAYO BELLAKEO"
           },
-          "score": null,
-          "status": "scheduled"
+          "score": {
+            "home": 1,
+            "away": 2
+          },
+          "status": "played"
         },
         {
           "matchday": 4,
@@ -354,8 +408,11 @@
             "slug": "bar-dansaires-niu-projectes",
             "name": "BAR DANSAIRES & NIU PROJECTES"
           },
-          "score": null,
-          "status": "scheduled"
+          "score": {
+            "home": 7,
+            "away": 1
+          },
+          "status": "played"
         },
         {
           "matchday": 4,
@@ -370,8 +427,11 @@
             "slug": "bonsi-fc",
             "name": "BONSI FC"
           },
-          "score": null,
-          "status": "scheduled"
+          "score": {
+            "home": 0,
+            "away": 5
+          },
+          "status": "played"
         },
         {
           "matchday": 5,
@@ -865,81 +925,87 @@
       "table": [
         {
           "rank": 1,
-          "slug": "ac-frio",
-          "name": "AC FRÍO",
-          "played": 0,
-          "won": 0,
+          "slug": "tecnocasa",
+          "name": "TECNOCASA - DELTA MONTAJES",
+          "played": 1,
+          "won": 1,
           "drawn": 0,
           "lost": 0,
-          "goalsFor": 0,
-          "goalsAgainst": 0,
-          "goalDiff": 0,
-          "points": 0
+          "goalsFor": 4,
+          "goalsAgainst": 2,
+          "goalDiff": 2,
+          "points": 3,
+          "sanction": 0
         },
         {
           "rank": 2,
-          "slug": "autoescola-giner",
-          "name": "AUTOESCOLA GINER",
-          "played": 0,
-          "won": 0,
+          "slug": "bayer-leverkolocon",
+          "name": "BAYERN LEVERKOLOCÓN",
+          "played": 1,
+          "won": 1,
           "drawn": 0,
           "lost": 0,
-          "goalsFor": 0,
-          "goalsAgainst": 0,
-          "goalDiff": 0,
-          "points": 0
+          "goalsFor": 4,
+          "goalsAgainst": 3,
+          "goalDiff": 1,
+          "points": 3,
+          "sanction": 0
         },
         {
           "rank": 3,
-          "slug": "bayer-leverkolocon",
-          "name": "BAYERN LEVERKOLOCÓN",
-          "played": 0,
-          "won": 0,
+          "slug": "bonsi-fc",
+          "name": "BONSI FC",
+          "played": 1,
+          "won": 1,
           "drawn": 0,
           "lost": 0,
-          "goalsFor": 0,
+          "goalsFor": 1,
           "goalsAgainst": 0,
-          "goalDiff": 0,
-          "points": 0
+          "goalDiff": 1,
+          "points": 3,
+          "sanction": 0
         },
         {
           "rank": 4,
-          "slug": "bonsi-fc",
-          "name": "BONSI FC",
-          "played": 0,
+          "slug": "ac-frio",
+          "name": "AC FRÍO",
+          "played": 1,
           "won": 0,
           "drawn": 0,
-          "lost": 0,
-          "goalsFor": 0,
-          "goalsAgainst": 0,
-          "goalDiff": 0,
-          "points": 0
+          "lost": 1,
+          "goalsFor": 3,
+          "goalsAgainst": 4,
+          "goalDiff": -1,
+          "points": 0,
+          "sanction": 0
         },
         {
           "rank": 5,
           "slug": "francesco",
           "name": "L'AUTENTICO BY FRANCESCO - PINTURES E. BORRAS",
-          "played": 0,
+          "played": 1,
           "won": 0,
           "drawn": 0,
-          "lost": 0,
+          "lost": 1,
           "goalsFor": 0,
-          "goalsAgainst": 0,
-          "goalDiff": 0,
-          "points": 0
+          "goalsAgainst": 1,
+          "goalDiff": -1,
+          "points": 0,
+          "sanction": 0
         },
         {
           "rank": 6,
-          "slug": "tecnocasa",
-          "name": "TECNOCASA - DELTA MONTAJES",
-          "played": 0,
+          "slug": "autoescola-giner",
+          "name": "AUTOESCOLA GINER",
+          "played": 1,
           "won": 0,
           "drawn": 0,
-          "lost": 0,
-          "goalsFor": 0,
-          "goalsAgainst": 0,
-          "goalDiff": 0,
-          "points": 0
+          "lost": 1,
+          "goalsFor": 2,
+          "goalsAgainst": 4,
+          "goalDiff": -2,
+          "points": 0,
+          "sanction": 0
         }
       ],
       "fixtures": [
@@ -956,8 +1022,11 @@
             "slug": "bayer-leverkolocon",
             "name": "BAYERN LEVERKOLOCÓN"
           },
-          "score": null,
-          "status": "scheduled"
+          "score": {
+            "home": 3,
+            "away": 4
+          },
+          "status": "played"
         },
         {
           "matchday": 1,
@@ -972,8 +1041,11 @@
             "slug": "francesco",
             "name": "L'AUTENTICO BY FRANCESCO - PINTURES E. BORRAS"
           },
-          "score": null,
-          "status": "scheduled"
+          "score": {
+            "home": 1,
+            "away": 0
+          },
+          "status": "played"
         },
         {
           "matchday": 1,
@@ -988,8 +1060,11 @@
             "slug": "autoescola-giner",
             "name": "AUTOESCOLA GINER"
           },
-          "score": null,
-          "status": "scheduled"
+          "score": {
+            "home": 4,
+            "away": 2
+          },
+          "status": "played"
         },
         {
           "matchday": 2,

@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/jornada", "destination": "/index.html" },
+    { "source": "/jornada/(.*)", "destination": "/index.html" },
+    { "source": "/equipos", "destination": "/index.html" },
+    { "source": "/clasificacion", "destination": "/index.html" },
+    { "source": "/equipo/(.*)", "destination": "/index.html" }
+  ]
+}

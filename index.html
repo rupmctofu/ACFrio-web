@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      Opt this page into the operating system's text scale (Dynamic Type on iOS,
+      font scaling on Android). Without it, mobile browsers ignore that setting
+      to protect legacy fixed-pixel sites, and a reader who enlarged their text
+      sees none of it here. It only works because the type below is set in rem.
+    -->
+    <meta name="text-scale" content="scale" />
     <title>AC FRÍO · Fútbol 7</title>
     <meta name="description" content="AC FRÍO — Sangre Fría. Juego al Rojo. Equipo de fútbol 7 fundado en 2026." />
 
@@ -20,10 +27,10 @@
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://acfrio-web.vercel.app" />
+    <meta property="og:url" content="https://acfrio.club" />
     <meta property="og:title" content="AC FRÍO · Fútbol 7" />
     <meta property="og:description" content="Sangre Fría. Juego al Rojo. Equipo de fútbol 7 fundado en 2026." />
-    <meta property="og:image" content="https://acfrio-web.vercel.app/og-image.jpg" />
+    <meta property="og:image" content="https://acfrio.club/og-image.jpg?v=2" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:type" content="image/jpeg" />
@@ -34,13 +41,19 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="AC FRÍO · Fútbol 7" />
     <meta name="twitter:description" content="Sangre Fría. Juego al Rojo. Equipo de fútbol 7 fundado en 2026." />
-    <meta name="twitter:image" content="https://acfrio-web.vercel.app/og-image.jpg" />
+    <meta name="twitter:image" content="https://acfrio.club/og-image.jpg?v=2" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      Oswald carries the display voice, Inter the body, and Barlow Condensed
+      italic the newsroom strap. The strap needs a real oblique: a synthesized
+      one would be a skew applied to upright letters, and the newsroom is the
+      one place on the page that is allowed to lean.
+    -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,500;1,600;1,700&family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
   </head>

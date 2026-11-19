@@ -1,8 +1,14 @@
+import { useEffect } from "react";
 import Navbar from "./components/Navbar.jsx";
-import BannerIdentity from "./components/BannerIdentity.jsx";
-import Dashboard from "./components/Dashboard.jsx";
-import Squad from "./components/Squad.jsx";
+import PageBackdrop from "./components/PageBackdrop.jsx";
 import teamData from "./data/teamData.json";
+import { matchRoute, navigate, useRoute } from "./lib/router.js";
+import HomeView from "./views/HomeView.jsx";
+import JornadaView from "./views/JornadaView.jsx";
+import EquiposView from "./views/EquiposView.jsx";
+import ClasificacionView from "./views/ClasificacionView.jsx";
+import CopaView from "./views/CopaView.jsx";
+import EquipoView from "./views/EquipoView.jsx";
 
 function Footer() {
   const { club } = teamData;
@@ -36,20 +42,57 @@ function Footer() {
   );
 }
 
+/**
+ * One view per section (S2), keyed by the name the router resolves.
+ *
+ * The five labels in the bar are five of the keys: Inicio, Jornada, Equipos,
+ * Clasificación and Copa. `team` is the sixth and has no label of its own: it is
+ * one of the eleven, opened from Equipos, and the bar keeps lighting Equipos
+ * while a reader is on a club's page. Anything else is a fallback, below.
+ */
+const VIEWS = {
+  home: HomeView,
+  jornada: JornadaView,
+  equipos: EquiposView,
+  clasificacion: ClasificacionView,
+  copa: CopaView,
+  team: EquipoView,
+};
+
 export default function App() {
+  const route = matchRoute(useRoute());
+  const known = Object.hasOwn(VIEWS, route.name);
+  const View = known ? VIEWS[route.name] : HomeView;
+
+  /*
+   * A path the site does not have — a typo, a level deeper than one dynamic
+   * segment — shows the dashboard and corrects the address bar. Rendering the
+   * home page under a URL that names another page would be a page that lies
+   * about where it is, and S7 is about URLs people paste into the group.
+   *
+   * A `/equipo/<slug>` is not one of these: it matches, and the view answers for
+   * the slug — a club of this season, or an honest "no conocemos ese club" with
+   * the way back to the list. Correcting the address instead would land a mistyped
+   * link on our dashboard, which is not the page it named.
+   */
+  useEffect(() => {
+    if (!known) navigate("/", { replace: true });
+  }, [known]);
+
   return (
     <div className="acf-ambience relative min-h-screen bg-acf-dark text-acf-snow">
       {/*
-       * The identity banner owns the only photograph on the canvas now: the
-       * page itself sits on the owner's flat blacks, with the ambience glows
-       * breathing at the edges. Cards keep their opaque panels either way.
+       * The photograph is the page's ground now, not a band: it sits behind the
+       * header and the top of the view, out of focus, and fades into the canvas
+       * before the cards get dense (owner, L28).
        */}
       <div className="relative z-10">
+        <PageBackdrop />
         <Navbar />
         <main>
-          <BannerIdentity />
-          <Dashboard />
-          <Squad />
+          {/* The router's params are handed to whichever view asked for them: the
+              round a `/jornada` names, and the club a `/equipo` names. */}
+          <View {...route.params} />
         </main>
         <Footer />
       </div>
