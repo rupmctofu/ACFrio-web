@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar.jsx";
 import PageBackdrop from "./components/PageBackdrop.jsx";
 import teamData from "./data/teamData.json";
 import { matchRoute, navigate, routeLink, useRoute } from "./lib/router.js";
+import { applyRouteMeta, routeMeta } from "./lib/route-meta.js";
 import HomeView from "./views/HomeView.jsx";
 import CompeticionView from "./views/CompeticionView.jsx";
 import EquipoView from "./views/EquipoView.jsx";
@@ -72,9 +73,22 @@ const VIEWS = {
 };
 
 export default function App() {
-  const route = matchRoute(useRoute());
+  const path = useRoute();
+  const route = matchRoute(path);
   const known = Object.hasOwn(VIEWS, route.name);
   const View = known ? VIEWS[route.name] : HomeView;
+
+  /*
+   * The head follows the address (S1, S3): the title, the description, the
+   * canonical and the three `og:` tags of the route the reader is on, written on
+   * the first load as well as on every navigation — `index.html` can only ever
+   * carry the club's own words. The effect is keyed on the path and not on the
+   * route object, which `matchRoute` builds again on every render: one write per
+   * address, never one per render.
+   */
+  useEffect(() => {
+    applyRouteMeta(routeMeta(route));
+  }, [path]);
 
   /*
    * A path the site does not have — a typo, a level deeper than one dynamic
