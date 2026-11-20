@@ -1757,7 +1757,8 @@ const PLAYER = [
   playerEntry({
     id: "player-first-vote",
     title: "Mi voto",
-    description: "Un jugador del club emite su primer voto de MVP.",
+    description:
+      "Has votado una vez al MVP de un partido. Es el voto que emites tú, no el que recibes.",
     icon: "ThumbsUp",
     /*
      * The vote is an action, and the evidence is the row it leaves: a ballot is
@@ -1800,7 +1801,7 @@ const PLAYER = [
     title: "Asistencia plena",
     seasonEnd: true,
     description:
-      "Un jugador ha ido convocado a todos los partidos de la temporada. Solo se entrega al final, cuando no queda ninguno por jugar.",
+      "Has ido convocado a todos los partidos jugados de la temporada, sin faltar a ninguno y con la lista de cada partido registrada. Solo se entrega al final, cuando no queda ninguno por jugar.",
     icon: "Percent",
     /*
      * The owner was explicit: «El de asistencia perfecta, solo se podría dar al
@@ -1934,7 +1935,8 @@ const PLAYER = [
   playerEntry({
     id: "player-five-voters",
     title: "5 votantes",
-    description: "Un jugador recibe votos de cinco compañeros diferentes.",
+    description:
+      "Cinco compañeros distintos te han votado como MVP. Cuentan los votantes, no los votos: cinco votos de la misma persona son una.",
     icon: "Users",
     /* Proved by distinct voter slugs on his ballots, not by the number of votes. */
     testFor: (player) => player.voters >= FIVE_VOTERS,
@@ -1942,7 +1944,8 @@ const PLAYER = [
   playerEntry({
     id: "player-ten-voters",
     title: "10 votantes",
-    description: "Un jugador recibe votos de diez compañeros diferentes.",
+    description:
+      "Diez compañeros distintos te han votado como MVP. Cuentan los votantes, no los votos: diez votos de la misma persona son uno.",
     icon: "UsersRound",
     testFor: (player) => player.voters >= TEN_VOTERS,
   }),

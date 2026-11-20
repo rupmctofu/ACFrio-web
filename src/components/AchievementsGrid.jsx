@@ -4,8 +4,8 @@
  * `/logros`. There is no second list of entries anywhere — the scope that is
  * handed in decides what is drawn, and the evaluator decides what is lit.
  *
- * A tile is a plate and a name, nothing else: a rounded frame with the entry's
- * own icon centred, so the whole catalogue reads as one family instead of one
+ * A tile is a plate and a name: a rounded frame with the entry's own icon
+ * centred, so the whole catalogue reads as one family instead of one
  * illustration per trophy. Three states, and only three:
  *
  *   unlocked — the brand accent on the plate and on the icon, the name in white.
@@ -27,12 +27,20 @@
  * weak at a glance in a grid of 107; the silhouette now says it on its own, and
  * the red stays as the accent it was always meant to be.
  *
+ * A tile is also a control. The owner read titles like «Mi voto» or «10
+ * votantes» and could not tell what they meant (S8), so every tile opens a
+ * small dialog with the entry's own rule in it. Nothing about the drawing
+ * changes: the plate, the title and the state stay where they were, and the
+ * button is the layout the tile already had.
+ *
  * The glyphs come from Remix Icon through `react-icons` and not from Phosphor:
  * `react-icons` ships one module per glyph per variant, so an explicit import
  * list tree-shakes down to the two weights of the fifty-two glyphs the catalogue
  * names. A namespace import would ship the whole set, which is exactly the cost
  * this file was changed to stop paying.
  */
+import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   RiAddFill,
   RiAddLine,
@@ -292,7 +300,132 @@ const PLATE_UNLOCKED = "text-acf-red-soft";
 const PLATE_PENDING = "text-acf-grey/60";
 const PLATE_LOCKED = "text-acf-dim";
 
-/** One entry: a plate with its icon, the name under it, and its state spoken. */
+/*
+ * The state, said in the two places it is read: on the pill of the dialog, and in
+ * one `sr-only` line on the tile, so a screen reader knows it without opening
+ * anything. The sentence that explains the entry is only ever in the dialog.
+ */
+const STATE_LABEL = {
+  unlocked: "Conseguido",
+  locked: "Pendiente",
+  pending: "Al final de temporada",
+};
+
+const STATE_SPOKEN = {
+  unlocked: "Conseguido.",
+  locked: "Pendiente.",
+  pending: "Se entrega al final de la temporada.",
+};
+
+const STATE_TONE = {
+  unlocked: "border-acf-red/40 bg-acf-red/10 text-acf-red-soft",
+  locked: "border-acf-line text-acf-grey",
+  pending: "border-dashed border-acf-line text-acf-dim",
+};
+
+/*
+ * How far a finger may travel and still be a tap (S8).
+ *
+ * A tile lives inside the personal shelf, which is a horizontal snap track, and
+ * the track slides under a swipe that starts on a tile. The two gestures have to
+ * be told apart, so a press is a tap only while it stays inside this many pixels
+ * of where it went down: past that it is a swipe, the slide belongs to the
+ * track, and the tile keeps quiet instead of opening a dialog on the way past.
+ */
+const TAP_SLOP = 8;
+
+/**
+ * The little dialog behind a tile (S8).
+ *
+ * Four decisions a reader can feel, so each one is named here:
+ *
+ *   It is portalled to `document.body`. The personal shelf is a horizontal
+ *   scroll container with snap points, and anything mounted inside it inherits
+ *   that container: focusing it would scroll the track sideways, which is
+ *   exactly the slide the owner did not ask for on a tap. The body has no such
+ *   ancestor, so opening a dialog cannot move the shelf. Focus is moved with
+ *   `preventScroll` as well, for the same reason.
+ *
+ *   It is a focusable panel, not a focus trap. There is one sentence and one
+ *   button in it, and trapping Tab inside a box that small earns nothing while
+ *   it costs a reader the page behind. `aria-modal` is deliberately NOT set,
+ *   because that would promise the rest of the page is inert and it is not.
+ *   What the panel does promise: it carries a label (`role="dialog"` +
+ *   `aria-labelledby`), it takes focus when it opens so it is read aloud, Escape
+ *   closes it, a click on the ground closes it and the «Cerrar» button closes
+ *   it.
+ *
+ *   Closing hands focus back to the tile that opened it — with `preventScroll`,
+ *   so the shelf is exactly where the reader left it. The effect's cleanup is
+ *   the return trip, which means it runs however the dialog went away.
+ */
+function AchievementDescription({ entry, state, labelId, onClose, triggerRef }) {
+  const panel = useRef(null);
+
+  useEffect(() => {
+    panel.current?.focus({ preventScroll: true });
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      triggerRef.current?.focus({ preventScroll: true });
+    };
+  }, [onClose, triggerRef]);
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      /* The ground is a target, not a listener on every child: only a click that
+         landed on the ground itself closes, so a click inside the panel is never
+         read as a dismissal. */
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div
+        ref={panel}
+        role="dialog"
+        aria-labelledby={labelId}
+        tabIndex={-1}
+        className="surface-deep w-full max-w-sm rounded-card border border-acf-line p-5 text-left shadow-acf focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
+      >
+        <p id={labelId} className="text-title font-semibold leading-tight text-white">
+          {entry.title}
+        </p>
+        <p
+          className={`mt-2 inline-flex rounded-full border px-2.5 py-0.5 text-micro font-semibold uppercase tracking-[0.14em] ${STATE_TONE[state]}`}
+        >
+          {STATE_LABEL[state]}
+        </p>
+        <p className="mt-3 text-row leading-relaxed text-acf-grey">{entry.description}</p>
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-4 rounded-full border border-acf-line px-3 py-1.5 text-micro font-semibold uppercase tracking-[0.14em] text-acf-snow/80 transition-colors duration-200 hover:border-white/25 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+/**
+ * One entry: a plate with its icon and the name under it, as a control that
+ * opens its own rule.
+ *
+ * The drawing did not change when the tile became a button: the same gap, the
+ * same centred column, the same plate. The button is `w-full` so the title wraps
+ * exactly where it wrapped before, and the state keeps its `sr-only` line so a
+ * screen reader still knows it without opening anything — but the description
+ * is NOT printed here any more. It lives in the dialog, once: the same sentence
+ * twice is one time too many.
+ */
 export function AchievementTile({ entry, unlocked = false, pending = false }) {
   const weights = PLATE_ICONS[entry.icon] ?? null;
   /*
@@ -304,33 +437,96 @@ export function AchievementTile({ entry, unlocked = false, pending = false }) {
    */
   const Glyph = weights ? (unlocked ? weights.fill : weights.line) : null;
   const plate = unlocked ? PLATE_UNLOCKED : pending ? PLATE_PENDING : PLATE_LOCKED;
+  const state = unlocked ? "unlocked" : pending ? "pending" : "locked";
+
+  const [open, setOpen] = useState(false);
+  const trigger = useRef(null);
+  const press = useRef(null);
+  const labelId = useId();
+  /* Stable, because the dialog's effect returns focus when it unmounts: a new
+     `onClose` on every render would re-run that effect and yank focus around. */
+  const close = useCallback(() => setOpen(false), []);
+
+  /*
+   * Pointer bookkeeping only decides whether a click was a tap or a swipe. The
+   * click itself stays the way a button is opened — a native `<button>` already
+   * fires it for Enter and for Space — so the keyboard needs no handler of its
+   * own, and the reported gesture never reaches the track: a swipe is answered
+   * by moving the slider, which is the browser's own pan. A native pan does not
+   * end in a click, and when a browser does deliver one, the travel noted below
+   * has already marked it as a swipe and it is discarded instead of opening a
+   * dialog over the page that is sliding.
+   */
+  const noteTravel = (event, cancelled = false) => {
+    const started = press.current;
+    if (!started || started.id !== event.pointerId) return;
+    const travelled =
+      Math.abs(event.clientX - started.x) > TAP_SLOP ||
+      Math.abs(event.clientY - started.y) > TAP_SLOP;
+    /* A cancel is the browser taking the gesture to pan the track: not a tap,
+       wherever it happened to go. */
+    if (cancelled || travelled) started.moved = true;
+  };
+
+  const onPointerDown = (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    press.current = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
+  };
+
+  const openDescription = (event) => {
+    const started = press.current;
+    press.current = null;
+    if (started?.moved) {
+      /* A swipe that ended on a tile is the slider's gesture, not a request to
+         read the entry. */
+      event.preventDefault();
+      return;
+    }
+    setOpen(true);
+  };
 
   return (
-    <li className="flex flex-col items-center gap-2 text-center">
-      <span aria-hidden="true" className={`${PLATE_BASE} ${plate}`}>
-        {Glyph ? <Glyph className="h-6 w-6" /> : null}
-      </span>
-      <span
-        className={`text-micro font-semibold leading-snug ${
-          unlocked ? "text-white" : "text-acf-grey"
-        }`}
+    <li className="flex flex-col items-center">
+      <button
+        ref={trigger}
+        type="button"
+        onClick={openDescription}
+        onPointerDown={onPointerDown}
+        onPointerMove={(event) => noteTravel(event)}
+        onPointerUp={(event) => noteTravel(event)}
+        onPointerCancel={(event) => noteTravel(event, true)}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        className="group flex w-full cursor-pointer flex-col items-center gap-2 rounded-tile text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
       >
-        {entry.title}
-      </span>
-      {pending ? (
-        <span className="text-[0.5625rem] font-semibold uppercase tracking-[0.14em] text-acf-dim">
-          Al final
+        <span aria-hidden="true" className={`${PLATE_BASE} ${plate}`}>
+          {Glyph ? <Glyph className="h-6 w-6" /> : null}
         </span>
+        <span
+          className={`text-micro font-semibold leading-snug transition-colors duration-200 group-hover:text-white ${
+            unlocked ? "text-white" : "text-acf-grey"
+          }`}
+        >
+          {entry.title}
+        </span>
+        {pending ? (
+          <span className="text-[0.5625rem] font-semibold uppercase tracking-[0.14em] text-acf-dim">
+            Al final
+          </span>
+        ) : null}
+        {/* The state, spoken on the tile itself. Visual today as colour and as
+            one word; the sentence that explains the entry is in the dialog. */}
+        <span className="sr-only">{STATE_SPOKEN[state]}</span>
+      </button>
+      {open ? (
+        <AchievementDescription
+          entry={entry}
+          state={state}
+          labelId={labelId}
+          onClose={close}
+          triggerRef={trigger}
+        />
       ) : null}
-      {/*
-       * The state is a colour on screen, which is not a state for a screen
-       * reader. The rule that decides the entry and the state it is in are both
-       * spoken here, once, so the visual recession never hides information.
-       */}
-      <span className="sr-only">
-        {entry.description}{" "}
-        {unlocked ? "Conseguido." : pending ? "Se entrega al final de la temporada." : "Pendiente."}
-      </span>
     </li>
   );
 }
