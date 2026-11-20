@@ -769,6 +769,94 @@ test("first yellow needs a reported card, not merely a name on a sheet", () => {
 });
 
 // ---------------------------------------------------------------------------
+// A player-scope entry is decided about ONE player
+//
+// The personal shelf paints these tiles under the reader's own name, so a tile
+// that is unlocked because SOMEBODY in the squad holds the fact is a lie in the
+// first person. The owner (Rup) has no card in src/data/club-record.json and the
+// shelf told him he had a yellow, because `player-first-yellow` was decided with
+// `facts.players.some(...)` — "someone in the squad took a card".
+//
+// So every player-scope entry is now decided against one player at a time, and
+// `player.byPlayer` publishes that reading, keyed by the normalised name the
+// evaluator has always used as a player's identity. `player.unlocked` stays as
+// the squad-wide reading, which is what a caller with no identity can ask.
+// ---------------------------------------------------------------------------
+
+/** The scope of one player, in the shape the personal shelf reads. */
+function scopeOfPlayer(result, name) {
+  const byPlayer = result.player.byPlayer;
+  assert.ok(byPlayer instanceof Map, "the evaluator publishes one scope per player");
+  const key = name.toUpperCase();
+  assert.ok(byPlayer.has(key), `the shelf has no scope for ${name}`);
+  return byPlayer.get(key);
+}
+
+test("a yellow card unlocks «1.ª amarilla» for the player who took it, and for nobody else", () => {
+  const result = evaluateAchievements({
+    fixtures: [match({ own: 1, against: 0 })],
+    record: recordOf({
+      cards: [{ player: "Albert", yellow: 1, red: 0, yellowAt: 1 }],
+      attendance: [sheet("league", 1, ["Albert", "Rup"])],
+    }),
+    squad: [
+      { id: 7, name: "Albert", number: 7 },
+      { id: 9, name: "Rup", number: 9 },
+    ],
+  });
+
+  const albert = scopeOfPlayer(result, "Albert");
+  const rup = scopeOfPlayer(result, "Rup");
+
+  assert.ok(albert.unlocked.includes("player-first-yellow"), "Albert took the card");
+  assert.equal(
+    rup.unlocked.includes("player-first-yellow"),
+    false,
+    "the club having a yellow is not «you have a yellow»",
+  );
+  assert.ok(rup.locked.includes("player-first-yellow"));
+  assert.equal(rup.progress.yellow, 0);
+  assert.equal(albert.progress.yellow, 1);
+
+  /* Two scopes of one catalogue: no entry is dropped and none is invented. */
+  assert.equal(albert.unlocked.length + albert.locked.length, playerAchievements.length);
+  assert.equal(rup.unlocked.length + rup.locked.length, playerAchievements.length);
+});
+
+test("three MVPs belong to the player who won them, and a ballot to the player who cast it", () => {
+  const result = evaluateAchievements({
+    fixtures: [1, 2, 3].map((matchday) =>
+      match({ matchday, date: day(matchday), own: 2, against: 0 }),
+    ),
+    record: recordOf({}),
+    squad: VOTES_SQUAD,
+    /* Albert wins all three; Pau casts every ballot. */
+    votes: [ballot(7, 3, "league:1"), ballot(7, 3, "league:2"), ballot(7, 3, "league:3")],
+  });
+
+  const albert = scopeOfPlayer(result, "Albert");
+  const pau = scopeOfPlayer(result, "Pau");
+
+  assert.ok(albert.unlocked.includes("player-three-mvps"), "Albert won three");
+  assert.equal(
+    pau.unlocked.includes("player-three-mvps"),
+    false,
+    "a team-mate's three MVPs are not his",
+  );
+  assert.equal(pau.progress.mvps, 0);
+  assert.equal(albert.progress.mvps, 3);
+
+  assert.ok(pau.unlocked.includes("player-first-vote"), "Pau cast the ballots");
+  assert.equal(
+    albert.unlocked.includes("player-first-vote"),
+    false,
+    "receiving a vote is not casting one",
+  );
+  assert.equal(albert.progress.ballots, 0);
+  assert.equal(pau.progress.ballots, 3);
+});
+
+// ---------------------------------------------------------------------------
 // The two season-end entries
 // ---------------------------------------------------------------------------
 

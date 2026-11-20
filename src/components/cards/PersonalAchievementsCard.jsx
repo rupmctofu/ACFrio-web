@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Medal } from "lucide-react";
-import { playerAchievements } from "../../data/achievements.js";
+import { playerAchievements, playerScopeFor } from "../../data/achievements.js";
 import { season } from "../../data/club-record.js";
 import { useIdentity } from "../../lib/identity.js";
 import Card from "./Card.jsx";
@@ -32,12 +32,14 @@ import AchievementsGrid, { seasonAchievements } from "../AchievementsGrid.jsx";
  * bound, the player's name rides in the hint, so the reader knows whose shelf he
  * is looking at.
  *
- * Honest limitation, stated rather than hidden: the evaluator decides each
- * player-scope entry for the squad as a whole ("un jugador llega a cinco
- * partidos"), not per player, so the grid shows the club's personal logros and
- * the name of the reader looking at them — it never claims a trophy is that
- * reader's alone. Per-player attribution does not exist in the data layer, and
- * this component does not invent it.
+ * And that name is now true. The grid draws the scope of the reader — his own
+ * figures, decided one entry at a time — and never the squad-wide scope the
+ * evaluator also publishes: `playerScopeFor(playerScope, player)` picks the row
+ * for this player out of `seasonAchievements.player.byPlayer`. Before that
+ * change the tiles were the club's personal logros drawn under the reader's
+ * name, and the owner, who has no card in the club record while Albert and Jonay
+ * do, read that he had a yellow (S13). A tile the squad earned and this man did
+ * not is dark here, which is the only honest way to draw it.
  */
 
 /** Twelve at a time: three columns by four rows at the dashboard's width (S6). */
@@ -60,11 +62,12 @@ export default function PersonalAchievementsCard({
   const { player } = useIdentity();
   const track = useRef(null);
   const [page, setPage] = useState(0);
-  const scope = seasonAchievements.player;
+  /* The reader's own shelf. `null` only before a device is bound. */
+  const scope = player ? playerScopeFor(seasonAchievements.player, player) : null;
   const total = playerAchievements.length;
-  const earned = scope.unlocked.length;
+  const earned = scope?.unlocked.length ?? 0;
   // The two end-of-season entries: locked today, and not a loss.
-  const seasonUnfinished = scope.progress.seasonComplete === false;
+  const seasonUnfinished = scope?.progress?.seasonComplete === false;
   const hasPending = seasonUnfinished && playerAchievements.some((entry) => entry.seasonEnd);
 
   /* Reading the offset back rather than keeping the swipe state in a variable:
@@ -91,7 +94,7 @@ export default function PersonalAchievementsCard({
       className={className}
       bodyClassName="flex flex-col"
     >
-      {player ? (
+      {player && scope ? (
         <>
           <div
             ref={track}

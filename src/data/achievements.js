@@ -148,6 +148,18 @@ const sum = (list, pick) => list.reduce((total, item) => total + (pick(item) || 
 
 const max = (list, pick) => list.reduce((best, item) => Math.max(best, pick(item) || 0), 0);
 
+/**
+ * One player's goals in one competition, off the record's league/cup split.
+ *
+ * The record publishes that split and only that split, so a competition the
+ * split does not name has no per-player figure — and a missing figure is never a
+ * goal. It is a module-level function and not a closure inside `seasonFacts`
+ * because the per-player entries read the same split, and two copies of this
+ * rule is how "Pichichi del equipo" and its own tile start to disagree.
+ */
+const competitionGoalsOf = (player, key) =>
+  key === "league" ? player.leagueGoals : key === "cup" ? player.cupGoals : 0;
+
 /** "2026-11-17" + "22:30", the way competition.js orders two fixtures. */
 const kickoffOf = (match) => `${match.date ?? ""}T${match.time ?? "00:00"}`;
 
@@ -287,29 +299,51 @@ function readLedgerFacts(ledger, played) {
     };
   });
 
-  const runs = [...names.keys()].map((key) => {
-    /* One slot per played match: true scored, false did not, null no acta. */
-    const scoring = timeline.map((match) => (match.goalsKnown ? match.scorers.has(key) : null));
-    const booked = timeline.map((match) => (match.cardsKnown ? match.booked.has(key) : null));
-    return {
-      scoringRun: longestRun(scoring, (state) => state === true),
-      scoringRunsOfThree: countRuns(scoring, THREE_MATCH_SCORING_RUN),
-      yellowRun: longestMatchdayRun(timeline, booked),
-    };
-  });
+  /*
+   * Every figure below is per player, keyed the same way the board keys a
+   * player, so a single-match entry can be asked about ONE man instead of about
+   * the best night anyone in the squad has had. The club-wide maxima the shelf
+   * used to read are the maxima of this map, and nothing else: one source, so a
+   * per-player answer and a squad-wide one cannot disagree.
+   */
+  const perPlayer = new Map();
+  const slot = (key) => {
+    if (!perPlayer.has(key)) {
+      perPlayer.set(key, {
+        goalsInAMatch: 0,
+        cardsInAMatch: 0,
+        scoringRun: 0,
+        scoringRunsOfThree: 0,
+        yellowRun: 0,
+      });
+    }
+    return perPlayer.get(key);
+  };
 
-  let bestGoalsInAMatch = 0;
   for (const report of goalReports.values()) {
     for (const goal of report.goals) {
-      bestGoalsInAMatch = Math.max(bestGoalsInAMatch, goal.goals);
+      const player = slot(goal.key);
+      player.goalsInAMatch = Math.max(player.goalsInAMatch, goal.goals);
     }
   }
 
-  let bestCardsInAMatch = 0;
   for (const report of cardReports.values()) {
     const counts = new Map();
     for (const card of report.cards) counts.set(card.key, (counts.get(card.key) ?? 0) + 1);
-    for (const count of counts.values()) bestCardsInAMatch = Math.max(bestCardsInAMatch, count);
+    for (const [key, count] of counts) {
+      const player = slot(key);
+      player.cardsInAMatch = Math.max(player.cardsInAMatch, count);
+    }
+  }
+
+  for (const key of names.keys()) {
+    /* One slot per played match: true scored, false did not, null no acta. */
+    const scoring = timeline.map((match) => (match.goalsKnown ? match.scorers.has(key) : null));
+    const booked = timeline.map((match) => (match.cardsKnown ? match.booked.has(key) : null));
+    const player = slot(key);
+    player.scoringRun = longestRun(scoring, (state) => state === true);
+    player.scoringRunsOfThree = countRuns(scoring, THREE_MATCH_SCORING_RUN);
+    player.yellowRun = longestMatchdayRun(timeline, booked);
   }
 
   /*
@@ -337,15 +371,19 @@ function readLedgerFacts(ledger, played) {
   return {
     ledgerMatches: [...goalReports.values()].filter((report) => report.known).length,
     ledgerPlayed: played.length,
-    bestGoalsInAMatch,
-    bestCardsInAMatch,
-    bestScoringRun: max(runs, (player) => player.scoringRun),
-    threeMatchScoringRuns: max(runs, (player) => player.scoringRunsOfThree),
-    yellowRun: max(runs, (player) => player.yellowRun),
+    bestGoalsInAMatch: max([...perPlayer.values()], (player) => player.goalsInAMatch),
+    bestCardsInAMatch: max([...perPlayer.values()], (player) => player.cardsInAMatch),
+    bestScoringRun: max([...perPlayer.values()], (player) => player.scoringRun),
+    threeMatchScoringRuns: max([...perPlayer.values()], (player) => player.scoringRunsOfThree),
+    yellowRun: max([...perPlayer.values()], (player) => player.yellowRun),
     firstScorerKnown,
     firstScorers,
     /* The acta's own per-player totals, over the played matches only. */
     ledgerPlayers: playerTotals(ledger, played.map((match) => match.key)).players,
+    /* The same figures the maxima above are taken from, one row per player. */
+    ledgerByPlayer: perPlayer,
+    /* The name an acta gives a key, so a row can be created for him. */
+    ledgerNames: names,
   };
 }
 
@@ -460,6 +498,17 @@ function readVotes(votes, squadBySlug) {
   }
 
   /*
+   * The same ballots, counted per voter instead of in total. "Mi voto" is the
+   * one entry that is about the person casting the vote rather than the person
+   * receiving it, so a player row needs his own count, not the club's.
+   */
+  const cast = new Map();
+  for (const ballot of ballots) {
+    const voter = ballot.slice(ballot.lastIndexOf("|") + 1);
+    cast.set(voter, (cast.get(voter) ?? 0) + 1);
+  }
+
+  /*
    * What each candidate received, and from whom. A ballot the table stores
    * without a voter still counts as a vote received, but it can never enlarge
    * the set of people who voted for him: no voter, no name to count. This is why
@@ -493,16 +542,31 @@ function readVotes(votes, squadBySlug) {
 
   const bestMvpVotes = max(awards, (award) => award.votes);
 
-  return { awards, ballots: ballots.size, bestMvpVotes, received };
+  return { awards, ballots: ballots.size, bestMvpVotes, received, cast };
 }
 
 /**
  * The player board: one row per player the club's own record names, from the
- * three sources that name players (goals, cards, called-up lists) plus the MVP
- * winners. Identity is the normalised name, the same key src/lib/club-code.js
- * uses, so "Rúp" and "Rup" are one player and not two.
+ * four sources that name players (goals, cards, called-up lists, the match
+ * reports) plus the MVP winners. Identity is the normalised name, the same key
+ * src/lib/club-code.js uses, so "Rúp" and "Rup" are one player and not two.
+ *
+ * Every row is the FULL set of facts about that one man, which is what lets a
+ * player-scope entry be decided about him instead of about the squad: `yellow`
+ * is his cards and nobody else's, and the ledger columns are his best night,
+ * not the best night of the team.
  */
-function readPlayerBoard({ record, played, mvpAwards, received, squadBySlug, attendance, cards }) {
+function readPlayerBoard({
+  record,
+  played,
+  mvpAwards,
+  received,
+  castVotes,
+  squadBySlug,
+  attendance,
+  cards,
+  ledgerFacts,
+}) {
   const board = new Map();
   /* Distinct voters per player, kept here because a player row is not a Set. */
   const voters = new Map();
@@ -514,6 +578,8 @@ function readPlayerBoard({ record, played, mvpAwards, received, squadBySlug, att
       board.set(key, {
         key,
         name: String(name).trim(),
+        /* The squad's own id, when a squad list names him: the voter slug. */
+        slug: null,
         matches: 0,
         goals: 0,
         leagueGoals: 0,
@@ -526,6 +592,14 @@ function readPlayerBoard({ record, played, mvpAwards, received, squadBySlug, att
         callUpRun: 0,
         votesReceived: 0,
         voters: 0,
+        /* Ballots HE cast, not ballots he received: "Mi voto" is about him. */
+        ballots: 0,
+        /* What the match reports prove about him, one match at a time. */
+        ledgerGoalsInAMatch: 0,
+        ledgerCardsInAMatch: 0,
+        scoringRun: 0,
+        scoringRunsOfThree: 0,
+        yellowRun: 0,
         topScorer: false,
         perfect: false,
       });
@@ -586,6 +660,42 @@ function readPlayerBoard({ record, played, mvpAwards, received, squadBySlug, att
   for (const [key, set] of voters) {
     const player = board.get(key);
     if (player) player.voters = set.size;
+  }
+
+  /*
+   * Ballots cast, credited to the man who cast them. The row names a voter slug
+   * and the squad list turns that slug into a name; a ballot from a voter the
+   * squad list does not name still proves a vote was emitted, but it cannot be
+   * credited to a player without inventing one, so it is left out here.
+   */
+  for (const [slug, count] of castVotes) {
+    const name = squadBySlug.get(slug);
+    if (!name) continue;
+    const player = ensure(name);
+    if (player) player.ballots += count;
+  }
+
+  /*
+   * The actas name players too. A man who scored on a night he was never called
+   * up for (or whose acta arrived before the called-up list) is a real player of
+   * this season, and his row is what makes his own double provable. The record's
+   * season totals stay authoritative for goals and cards — the ledger is a
+   * subset of them — so only the once-per-match columns are copied here.
+   */
+  for (const [key, figures] of ledgerFacts.ledgerByPlayer) {
+    const player = ensure(ledgerFacts.ledgerNames.get(key) ?? key);
+    if (!player) continue;
+    player.ledgerGoalsInAMatch = figures.goalsInAMatch;
+    player.ledgerCardsInAMatch = figures.cardsInAMatch;
+    player.scoringRun = figures.scoringRun;
+    player.scoringRunsOfThree = figures.scoringRunsOfThree;
+    player.yellowRun = figures.yellowRun;
+  }
+
+  /* The squad's own id, so a reader (who holds an id, not a name) can be found. */
+  for (const [slug, name] of squadBySlug) {
+    const player = board.get(normalise(name));
+    if (player) player.slug = slug;
   }
 
   /*
@@ -852,9 +962,11 @@ export function seasonFacts(input = {}) {
     played,
     mvpAwards: votes.awards,
     received: votes.received,
+    castVotes: votes.cast,
     squadBySlug,
     attendance,
     cards,
+    ledgerFacts,
   });
 
   const cardFreeMatches = cards.unplaceable
@@ -877,10 +989,6 @@ export function seasonFacts(input = {}) {
   const allSquadCalledUp =
     squad.length > 0 &&
     squad.every((player) => player?.name != null && calledUpNames.has(normalise(player.name)));
-
-  /* The per-competition goal split the record publishes is league and cup only. */
-  const goalsIn = (player, key) =>
-    key === "league" ? player.leagueGoals : key === "cup" ? player.cupGoals : 0;
 
   const finishedCompetitions = competitions.filter((competition) => competition.complete);
 
@@ -952,14 +1060,24 @@ export function seasonFacts(input = {}) {
     /*
      * "Top scorer of a competition" needs that competition to be over: with a
      * match still to play the record's split per competition is still moving.
+     *
+     * The next three figures (this one, `mostCards` and `mvpInLoss`) are
+     * SQUAD-WIDE summaries: they say whether somebody in the squad holds the
+     * fact, not who. The player-scope entries no longer read them — each one is
+     * decided against a single player row — and they stay here because they are
+     * facts about the season that a team screen can print, not because a trophy
+     * is decided on them.
      */
     competitionTopScorer: finishedCompetitions.some((competition) => {
-      const best = max(board.players, (player) => goalsIn(player, competition.key));
-      return best > 0 && board.players.some((player) => goalsIn(player, competition.key) === best);
+      const best = max(board.players, (player) => competitionGoalsOf(player, competition.key));
+      return (
+        best > 0 &&
+        board.players.some((player) => competitionGoalsOf(player, competition.key) === best)
+      );
     }),
     fiveScorersInACompetition: competitions.some(
       (competition) =>
-        board.players.filter((player) => goalsIn(player, competition.key) > 0).length >=
+        board.players.filter((player) => competitionGoalsOf(player, competition.key) > 0).length >=
         FIVE_SCORERS_IN_A_COMPETITION,
     ),
 
@@ -1012,7 +1130,50 @@ export function seasonFacts(input = {}) {
 }
 
 const teamEntry = (entry) => ({ scope: "team", ...entry });
-const playerEntry = (entry) => ({ scope: "player", ...entry });
+
+/**
+ * A player-scope entry, decided about ONE player.
+ *
+ * The catalogue used to write these as `facts.players.some((player) => ...)`,
+ * which answers "does anyone in the squad hold this?". That is the right
+ * question for a club wall and the wrong one for the personal shelf, which
+ * prints the tile under the reader's own name: the owner read "1.ª amarilla"
+ * while the club record named Albert and Jonay and nobody else (S13).
+ *
+ * So the rule of a player entry is written once, against one player row, and
+ * `playerEntry` derives the two readings from it:
+ *
+ *   testFor(player, facts)  the reading the personal shelf uses: does THIS man
+ *                           hold it? Every rule is his own figures, so a trophy
+ *                           cannot be inherited from a team-mate.
+ *   test(facts)             the squad-wide reading: does ANY player hold it?
+ *                           Exactly the old `some(...)` answer, kept because a
+ *                           caller with no identity (a shared screen, a future
+ *                           club wall) can honestly only ask that question, and
+ *                           `evaluateAchievements().player` says so by name.
+ *
+ * An entry may override `test` when the squad-wide reading is not the `some`
+ * of its own rule — "Mi voto" is about who cast the ballot, so the identity the
+ * caller passes decides it (see that entry). The override is the exception and
+ * it is written in the entry, never hidden here.
+ */
+function playerEntry(entry) {
+  const holdsFor = (player, facts) => {
+    try {
+      return entry.testFor(player, facts) === true;
+    } catch {
+      /* A predicate that throws has not been proven: locked, like `safeTest`. */
+      return false;
+    }
+  };
+
+  return {
+    scope: "player",
+    ...entry,
+    testFor: holdsFor,
+    test: entry.test ?? ((facts) => facts.players.some((player) => holdsFor(player, facts))),
+  };
+}
 
 /**
  * The catalogue.
@@ -1535,63 +1696,63 @@ const PLAYER = [
     title: "Debut",
     description: "Un jugador aparece convocado en un partido ya jugado.",
     icon: "Footprints",
-    test: (facts) => facts.players.some((player) => player.matches >= 1),
+    testFor: (player) => player.matches >= 1,
   }),
   playerEntry({
     id: "player-five-matches",
     title: "5 partidos",
     description: "Un jugador llega a cinco partidos jugados.",
     icon: "CalendarCheck",
-    test: (facts) => facts.players.some((player) => player.matches >= FIVE_MATCHES),
+    testFor: (player) => player.matches >= FIVE_MATCHES,
   }),
   playerEntry({
     id: "player-ten-matches",
     title: "10 partidos",
     description: "Un jugador llega a diez partidos jugados.",
     icon: "CalendarDays",
-    test: (facts) => facts.players.some((player) => player.matches >= TEN_MATCHES),
+    testFor: (player) => player.matches >= TEN_MATCHES,
   }),
   playerEntry({
     id: "player-first-goal",
     title: "1er gol",
     description: "Un jugador marca su primer gol de la temporada.",
     icon: "Goal",
-    test: (facts) => facts.topGoals >= 1,
+    testFor: (player) => player.goals >= 1,
   }),
   playerEntry({
     id: "player-five-goals",
     title: "5 goles",
     description: "Un jugador llega a cinco goles en la temporada.",
     icon: "Target",
-    test: (facts) => facts.topGoals >= FIVE_GOALS,
+    testFor: (player) => player.goals >= FIVE_GOALS,
   }),
   playerEntry({
     id: "player-ten-goals",
     title: "10 goles",
     description: "Un jugador llega a diez goles en la temporada.",
     icon: "Flame",
-    test: (facts) => facts.topGoals >= TEN_GOALS,
+    testFor: (player) => player.goals >= TEN_GOALS,
   }),
   playerEntry({
     id: "player-first-mvp",
     title: "1er MVP",
     description: "Un jugador gana el MVP de un partido.",
     icon: "Star",
-    test: (facts) => facts.players.some((player) => player.mvps >= 1),
+    testFor: (player) => player.mvps >= 1,
   }),
   playerEntry({
     id: "player-three-mvps",
     title: "3 MVP",
     description: "Un jugador gana el MVP de tres partidos.",
     icon: "Crown",
-    test: (facts) => facts.players.some((player) => player.mvps >= THREE_MVPS),
+    testFor: (player) => player.mvps >= THREE_MVPS,
   }),
   playerEntry({
     id: "player-first-yellow",
     title: "1.ª amarilla",
     description: "Un jugador ve su primera tarjeta amarilla.",
     icon: "RectangleVertical",
-    test: (facts) => facts.players.some((player) => player.yellow >= 1),
+    testFor: (player) => player.yellow >= 1,
   }),
   playerEntry({
     id: "player-first-vote",
@@ -1603,12 +1764,20 @@ const PLAYER = [
      * a vote row that names its voter. Holding a club code does not count —
      * holding a code is a state, not a feat, and the debut already covers the
      * onboarding case. With no backend and no rows, nothing was emitted, so the
-     * entry stays locked. When the caller says who is reading (`voterSlug`), the
-     * row must be that voter's own; without an identity the fact is read as "a
-     * ballot exists", which is all the rows can prove.
+     * entry stays locked.
+     *
+     * The actor is the reader, so this is the one entry whose two readings are
+     * not the same fold: `testFor` asks whether THIS player cast a ballot (the
+     * row's voter slug resolved through the squad list), and the squad-wide
+     * reading keeps the identity the caller passed — when the caller says who is
+     * looking (`voterSlug`), the row must be that voter's own, and without an
+     * identity the fact can only be read as "somebody cast a ballot".
      */
+    testFor: (player) => player.ballots >= 1,
     test: (facts) =>
-      facts.voterSlug ? facts.voterBallots >= 1 : facts.ballots >= 1,
+      facts.voterSlug
+        ? facts.voterBallots >= 1
+        : facts.players.some((player) => player.ballots >= 1),
   }),
   playerEntry({
     id: "player-top-scorer",
@@ -1624,7 +1793,7 @@ const PLAYER = [
      * record. See `seasonComplete` in seasonFacts: it is false while any fixture
      * the source published for the club is still unplayed.
      */
-    test: (facts) => facts.seasonComplete && facts.topScorer !== null,
+    testFor: (player, facts) => facts.seasonComplete && player.topScorer,
   }),
   playerEntry({
     id: "player-perfect-attendance",
@@ -1640,7 +1809,7 @@ const PLAYER = [
      * count is complete, so nobody is "perfect". Both conditions are stated in
      * the description the screen prints, not only in this comment.
      */
-    test: (facts) => facts.seasonComplete && facts.perfectAttendance.length >= 1,
+    testFor: (player, facts) => facts.seasonComplete && player.perfect,
   }),
 
   /*
@@ -1653,35 +1822,35 @@ const PLAYER = [
     description: "Un jugador llega a quince goles en la temporada.",
     icon: "Target",
     /* Proved by the season goal total the club reports per player. */
-    test: (facts) => facts.topGoals >= FIFTEEN_GOALS,
+    testFor: (player) => player.goals >= FIFTEEN_GOALS,
   }),
   playerEntry({
     id: "player-twenty-goals",
     title: "20 goles",
     description: "Un jugador llega a veinte goles en la temporada.",
     icon: "Flame",
-    test: (facts) => facts.topGoals >= TWENTY_GOALS,
+    testFor: (player) => player.goals >= TWENTY_GOALS,
   }),
   playerEntry({
     id: "player-twentyfive-goals",
     title: "25 goles",
     description: "Un jugador llega a veinticinco goles en la temporada.",
     icon: "Crown",
-    test: (facts) => facts.topGoals >= TWENTYFIVE_GOALS,
+    testFor: (player) => player.goals >= TWENTYFIVE_GOALS,
   }),
   playerEntry({
     id: "player-fifteen-matches",
     title: "15 partidos",
     description: "Un jugador llega a quince partidos convocado.",
     icon: "CalendarDays",
-    test: (facts) => facts.players.some((player) => player.matches >= FIFTEEN_MATCHES),
+    testFor: (player) => player.matches >= FIFTEEN_MATCHES,
   }),
   playerEntry({
     id: "player-twenty-matches",
     title: "20 partidos",
     description: "Un jugador llega a veinte partidos convocado.",
     icon: "CalendarCheck",
-    test: (facts) => facts.players.some((player) => player.matches >= TWENTY_MATCHES),
+    testFor: (player) => player.matches >= TWENTY_MATCHES,
   }),
   playerEntry({
     id: "player-five-consecutive-call-ups",
@@ -1694,9 +1863,8 @@ const PLAYER = [
      * an unknown, not an absence, so the run is not computed at all and the entry
      * stays locked. When the lists are complete, the run comes from kickoff order.
      */
-    test: (facts) =>
-      facts.everyMatchHasList &&
-      facts.players.some((player) => player.callUpRun >= FIVE_CONSECUTIVE_CALL_UPS),
+    testFor: (player, facts) =>
+      facts.everyMatchHasList && player.callUpRun >= FIVE_CONSECUTIVE_CALL_UPS,
   }),
   playerEntry({
     id: "player-ten-consecutive-call-ups",
@@ -1704,9 +1872,8 @@ const PLAYER = [
     description:
       "Un jugador aparece en la lista de convocados de diez partidos jugados consecutivos.",
     icon: "Repeat",
-    test: (facts) =>
-      facts.everyMatchHasList &&
-      facts.players.some((player) => player.callUpRun >= TEN_CONSECUTIVE_CALL_UPS),
+    testFor: (player, facts) =>
+      facts.everyMatchHasList && player.callUpRun >= TEN_CONSECUTIVE_CALL_UPS,
   }),
   playerEntry({
     id: "player-first-vote-received",
@@ -1715,42 +1882,42 @@ const PLAYER = [
       "Un jugador recibe su primer voto de MVP. Recibir un voto no es ganar la votación: eso es «1er MVP».",
     icon: "Vote",
     /* Proved by a ballot row that names him, not by the award he may or may not win. */
-    test: (facts) => facts.players.some((player) => player.votesReceived >= ONE_VOTE),
+    testFor: (player) => player.votesReceived >= ONE_VOTE,
   }),
   playerEntry({
     id: "player-five-votes-received",
     title: "5 votos",
     description: "Un jugador acumula cinco votos de MVP.",
     icon: "Vote",
-    test: (facts) => facts.players.some((player) => player.votesReceived >= FIVE_VOTES),
+    testFor: (player) => player.votesReceived >= FIVE_VOTES,
   }),
   playerEntry({
     id: "player-ten-votes-received",
     title: "10 votos",
     description: "Un jugador acumula diez votos de MVP.",
     icon: "Vote",
-    test: (facts) => facts.players.some((player) => player.votesReceived >= TEN_VOTES),
+    testFor: (player) => player.votesReceived >= TEN_VOTES,
   }),
   playerEntry({
     id: "player-twenty-votes-received",
     title: "20 votos",
     description: "Un jugador acumula veinte votos de MVP.",
     icon: "Vote",
-    test: (facts) => facts.players.some((player) => player.votesReceived >= TWENTY_VOTES),
+    testFor: (player) => player.votesReceived >= TWENTY_VOTES,
   }),
   playerEntry({
     id: "player-five-mvps",
     title: "5 MVP",
     description: "Un jugador gana el MVP de cinco partidos.",
     icon: "Star",
-    test: (facts) => facts.players.some((player) => player.mvps >= FIVE_MVPS),
+    testFor: (player) => player.mvps >= FIVE_MVPS,
   }),
   playerEntry({
     id: "player-ten-mvps",
     title: "10 MVP",
     description: "Un jugador gana el MVP de diez partidos.",
     icon: "Crown",
-    test: (facts) => facts.players.some((player) => player.mvps >= TEN_MVPS),
+    testFor: (player) => player.mvps >= TEN_MVPS,
   }),
   playerEntry({
     id: "player-consecutive-mvps",
@@ -1762,7 +1929,7 @@ const PLAYER = [
      * key resolves to a played fixture can be placed; a vote for a match the
      * source has not played is not invented into a slot.
      */
-    test: (facts) => facts.players.some((player) => player.mvpRun >= TWO_MVPS_IN_A_ROW),
+    testFor: (player) => player.mvpRun >= TWO_MVPS_IN_A_ROW,
   }),
   playerEntry({
     id: "player-five-voters",
@@ -1770,14 +1937,14 @@ const PLAYER = [
     description: "Un jugador recibe votos de cinco compañeros diferentes.",
     icon: "Users",
     /* Proved by distinct voter slugs on his ballots, not by the number of votes. */
-    test: (facts) => facts.players.some((player) => player.voters >= FIVE_VOTERS),
+    testFor: (player) => player.voters >= FIVE_VOTERS,
   }),
   playerEntry({
     id: "player-ten-voters",
     title: "10 votantes",
     description: "Un jugador recibe votos de diez compañeros diferentes.",
     icon: "UsersRound",
-    test: (facts) => facts.players.some((player) => player.voters >= TEN_VOTERS),
+    testFor: (player) => player.voters >= TEN_VOTERS,
   }),
   playerEntry({
     id: "player-three-yellows",
@@ -1785,28 +1952,28 @@ const PLAYER = [
     description: "Un jugador acumula tres tarjetas amarillas.",
     icon: "RectangleVertical",
     /* Proved by the card totals the club reports per player. */
-    test: (facts) => facts.players.some((player) => player.yellow >= THREE_YELLOWS),
+    testFor: (player) => player.yellow >= THREE_YELLOWS,
   }),
   playerEntry({
     id: "player-five-yellows",
     title: "5 amarillas",
     description: "Un jugador acumula cinco tarjetas amarillas.",
     icon: "RectangleVertical",
-    test: (facts) => facts.players.some((player) => player.yellow >= FIVE_YELLOWS),
+    testFor: (player) => player.yellow >= FIVE_YELLOWS,
   }),
   playerEntry({
     id: "player-ten-yellows",
     title: "10 amarillas",
     description: "Un jugador acumula diez tarjetas amarillas.",
     icon: "RectangleVertical",
-    test: (facts) => facts.players.some((player) => player.yellow >= TEN_YELLOWS),
+    testFor: (player) => player.yellow >= TEN_YELLOWS,
   }),
   playerEntry({
     id: "player-first-red",
     title: "1.ª roja",
     description: "Un jugador ve su primera tarjeta roja.",
     icon: "Ban",
-    test: (facts) => facts.players.some((player) => player.red >= 1),
+    testFor: (player) => player.red >= 1,
   }),
   playerEntry({
     id: "player-yellow-and-red",
@@ -1818,14 +1985,14 @@ const PLAYER = [
      * and both colours in it. It says nothing about which match each came in, so
      * no entry is claimed about the same afternoon.
      */
-    test: (facts) => facts.players.some((player) => player.yellow >= 1 && player.red >= 1),
+    testFor: (player) => player.yellow >= 1 && player.red >= 1,
   }),
   playerEntry({
     id: "player-two-reds",
     title: "2 rojas",
     description: "Un jugador acumula dos tarjetas rojas.",
     icon: "Ban",
-    test: (facts) => facts.players.some((player) => player.red >= TWO_REDS),
+    testFor: (player) => player.red >= TWO_REDS,
   }),
   playerEntry({
     id: "player-most-cards",
@@ -1836,9 +2003,13 @@ const PLAYER = [
     /*
      * Proved by the card totals once the season is over; a tie leaves the entry
      * unlocked for every player on the top figure, because the claim is "as many
-     * as the most", not "more than the rest".
+     * as the most", not "more than the rest". The figure he is compared with is
+     * the squad's, because "the most" is a comparison, not a fact about him.
      */
-    test: (facts) => facts.seasonComplete && facts.mostCards,
+    testFor: (player, facts) =>
+      facts.seasonComplete &&
+      player.cards > 0 &&
+      player.cards === max(facts.players, (other) => other.cards),
   }),
   playerEntry({
     id: "player-five-league-goals",
@@ -1846,22 +2017,21 @@ const PLAYER = [
     description: "Un jugador marca cinco goles en la liga.",
     icon: "Layers",
     /* Proved by the league column of the scorer record, not the season total. */
-    test: (facts) => facts.players.some((player) => player.leagueGoals >= FIVE_LEAGUE_GOALS),
+    testFor: (player) => player.leagueGoals >= FIVE_LEAGUE_GOALS,
   }),
   playerEntry({
     id: "player-three-cup-goals",
     title: "3 en copa",
     description: "Un jugador marca tres goles en la copa.",
     icon: "Medal",
-    test: (facts) => facts.players.some((player) => player.cupGoals >= THREE_CUP_GOALS),
+    testFor: (player) => player.cupGoals >= THREE_CUP_GOALS,
   }),
   playerEntry({
     id: "player-goal-in-both",
     title: "Liga y copa",
     description: "Un jugador marca al menos un gol en la liga y otro en la copa.",
     icon: "Shuffle",
-    test: (facts) =>
-      facts.players.some((player) => player.leagueGoals >= 1 && player.cupGoals >= 1),
+    testFor: (player) => player.leagueGoals >= 1 && player.cupGoals >= 1,
   }),
   playerEntry({
     id: "player-competition-top-scorer",
@@ -1869,8 +2039,18 @@ const PLAYER = [
     description:
       "Al acabar una competición, un jugador es el máximo goleador del equipo en ella, según el reparto liga/copa del registro.",
     icon: "Crosshair",
-    /* Proved by the league/cup split of a finished competition, not the season total. */
-    test: (facts) => facts.competitionTopScorer,
+    /*
+     * Proved by the league/cup split of a finished competition, not the season
+     * total. "The team's top scorer in it" is a comparison, so the entry compares
+     * him against the squad's own split for that competition — and still needs his
+     * own figure to be a goal, so a competition nobody scored in crowns nobody.
+     */
+    testFor: (player, facts) =>
+      facts.finishedCompetitions.some((competition) => {
+        const goals = competitionGoalsOf(player, competition.key);
+        const best = max(facts.players, (other) => competitionGoalsOf(other, competition.key));
+        return goals > 0 && goals === best;
+      }),
   }),
   playerEntry({
     id: "player-mvp-in-loss",
@@ -1881,9 +2061,19 @@ const PLAYER = [
     /*
      * Proved by joining the award to the result of its own match: the vote rows say
      * who won it, the calendar says the club lost it. A vote for a player the squad
-     * does not know is not credited to anyone, so it cannot unlock this.
+     * does not know is not credited to anyone, so it cannot unlock this. The award
+     * is matched to him by the name it carries, so a team-mate's MVP in a defeat is
+     * not his trophy.
      */
-    test: (facts) => facts.mvpInLoss,
+    testFor: (player, facts) =>
+      facts.mvpAwards.some(
+        (award) =>
+          award.name != null &&
+          normalise(award.name) === player.key &&
+          facts.played.some(
+            (match) => match.key === award.matchKey && match.result === "loss",
+          ),
+      ),
   }),
 
   /*
@@ -1904,21 +2094,21 @@ const PLAYER = [
     description: "Un jugador marca dos goles en un mismo partido, según el acta.",
     icon: "Goal",
     /* Proved by one ledger row: the acta counts the goals per player in that match. */
-    test: (facts) => facts.bestGoalsInAMatch >= DOUBLE,
+    testFor: (player) => player.ledgerGoalsInAMatch >= DOUBLE,
   }),
   playerEntry({
     id: "player-three-goals-in-a-match",
     title: "Hat-trick",
     description: "Un jugador marca tres goles en un mismo partido, según el acta.",
     icon: "Sparkles",
-    test: (facts) => facts.bestGoalsInAMatch >= HAT_TRICK,
+    testFor: (player) => player.ledgerGoalsInAMatch >= HAT_TRICK,
   }),
   playerEntry({
     id: "player-four-goals-in-a-match",
     title: "Noche inspirada",
     description: "Un jugador marca cuatro goles en un mismo partido, según el acta.",
     icon: "Flame",
-    test: (facts) => facts.bestGoalsInAMatch >= FOUR_GOALS_IN_A_MATCH,
+    testFor: (player) => player.ledgerGoalsInAMatch >= FOUR_GOALS_IN_A_MATCH,
   }),
   playerEntry({
     id: "player-scoring-run-three",
@@ -1931,14 +2121,14 @@ const PLAYER = [
      * him. A played match with no acta is an unknown, so the run stops there: the
      * goals of the missing report could be the ones that break it.
      */
-    test: (facts) => facts.bestScoringRun >= THREE_MATCH_SCORING_RUN,
+    testFor: (player) => player.scoringRun >= THREE_MATCH_SCORING_RUN,
   }),
   playerEntry({
     id: "player-scoring-run-five",
     title: "No perdona",
     description: "Un jugador marca en cinco partidos consecutivos, con acta en todos ellos.",
     icon: "ChevronsUp",
-    test: (facts) => facts.bestScoringRun >= FIVE_MATCH_SCORING_RUN,
+    testFor: (player) => player.scoringRun >= FIVE_MATCH_SCORING_RUN,
   }),
   playerEntry({
     id: "player-three-scoring-runs",
@@ -1952,7 +2142,7 @@ const PLAYER = [
      * ends a run where it stands, because the goals of that night are unknown and
      * cannot be counted into it.
      */
-    test: (facts) => facts.threeMatchScoringRuns >= THREE_SCORING_RUNS,
+    testFor: (player) => player.scoringRunsOfThree >= THREE_SCORING_RUNS,
   }),
   playerEntry({
     id: "player-first-scorer-of-the-season",
@@ -1966,7 +2156,9 @@ const PLAYER = [
      * season could be sitting in that gap. The acta does not order the goals
      * inside one match, so two scorers in that first match are both "the first".
      */
-    test: (facts) => facts.firstScorerKnown && facts.firstScorers.length >= 1,
+    testFor: (player, facts) =>
+      facts.firstScorerKnown &&
+      facts.firstScorers.some((name) => normalise(name) === player.key),
   }),
   playerEntry({
     id: "player-two-cards-in-a-match",
@@ -1974,7 +2166,7 @@ const PLAYER = [
     description: "Un jugador ve dos tarjetas en un mismo partido, tal y como las registra el acta.",
     icon: "TriangleAlert",
     /* Two card lines for the same player in one row: the acta saw both that night. */
-    test: (facts) => facts.bestCardsInAMatch >= TWO_CARDS_IN_A_MATCH,
+    testFor: (player) => player.ledgerCardsInAMatch >= TWO_CARDS_IN_A_MATCH,
   }),
   playerEntry({
     id: "player-yellows-in-a-row",
@@ -1987,7 +2179,7 @@ const PLAYER = [
      * competition change is not a following jornada, and a matchday with no acta
      * breaks the chain instead of being assumed card-free.
      */
-    test: (facts) => facts.yellowRun >= THREE_YELLOWS_IN_A_ROW,
+    testFor: (player) => player.yellowRun >= THREE_YELLOWS_IN_A_ROW,
   }),
 ];
 
@@ -2028,6 +2220,17 @@ export const achievementById = (id) => achievements.find((entry) => entry.id ===
  * Output, per scope, the unlocked ids (and the locked ones, so a screen does not
  * have to diff) plus the progress figures behind them. Pure: no state, no clock,
  * no I/O, and the input is never mutated.
+ *
+ * The player scope is returned TWICE on purpose, because the two questions are
+ * different and the shelf picked the wrong one for months (S13):
+ *
+ *   player.unlocked          the squad-wide reading: does ANY player hold it?
+ *                            Honest, and it says nothing about the reader. It is
+ *                            labelled `attribution: "squad"` so no screen can
+ *                            mistake it for "yours", and it is the only answer a
+ *                            caller with no identity can ask.
+ *   player.byPlayer          one scope per player, decided against that player's
+ *                            own figures, which is what the personal shelf draws.
  */
 export function evaluateAchievements(input = {}) {
   const scopeFacts = seasonFacts(input);
@@ -2082,6 +2285,13 @@ export function evaluateAchievements(input = {}) {
     },
     player: {
       ...player,
+      /*
+       * Which question `unlocked` above answered. A squad-wide list drawn under
+       * one player's name is exactly the bug this field exists to make
+       * impossible to write by accident.
+       */
+      attribution: "squad",
+      byPlayer: decidePlayerScopes(scopeFacts),
       progress: {
         playedMatches: scopeFacts.playedMatches,
         everyMatchHasList: scopeFacts.everyMatchHasList,
@@ -2096,6 +2306,107 @@ export function evaluateAchievements(input = {}) {
         voterBallots: scopeFacts.voterBallots,
         players: scopeFacts.players,
       },
+    },
+  };
+}
+
+/**
+ * One scope per player, decided against that player's own figures.
+ *
+ * Keyed by the normalised name, the identity the evaluator has always used, and
+ * carrying the squad slug when a squad list names the man so a caller holding
+ * only an id can find him. A player with no row (no call-up, no card, no goal,
+ * no vote, no acta) is not in the map: `playerScopeFor` turns that absence into
+ * an all-locked scope, because a man whom no report names has not proven a
+ * thing — and definitely has not inherited a team-mate's trophy.
+ *
+ * It is rebuilt per evaluation rather than cached at module load: the evaluator
+ * is a pure function of its input, so a cache keyed on nothing would be a lie as
+ * soon as a caller passes a different season, and the cost is 49 predicates per
+ * player over a squad of fifteen.
+ */
+function decidePlayerScopes(facts) {
+  const scopes = new Map();
+  for (const player of facts.players) {
+    const unlocked = [];
+    const locked = [];
+    for (const entry of PLAYER) {
+      (safeTestFor(entry, player, facts) ? unlocked : locked).push(entry.id);
+    }
+    scopes.set(player.key, {
+      key: player.key,
+      slug: player.slug ?? null,
+      name: player.name,
+      unlocked,
+      locked,
+      progress: {
+        playedMatches: facts.playedMatches,
+        seasonComplete: facts.seasonComplete,
+        everyMatchHasList: facts.everyMatchHasList,
+        matches: player.matches,
+        goals: player.goals,
+        leagueGoals: player.leagueGoals,
+        cupGoals: player.cupGoals,
+        mvps: player.mvps,
+        yellow: player.yellow,
+        red: player.red,
+        cards: player.cards,
+        votesReceived: player.votesReceived,
+        voters: player.voters,
+        ballots: player.ballots,
+      },
+    });
+  }
+  return scopes;
+}
+
+/**
+ * The scope of ONE reader, out of the evaluated personal scope.
+ *
+ * This is the function the personal shelf reads, and the only one it should: it
+ * answers "what has THIS player unlocked" and never "what has the squad
+ * unlocked", which is the difference between a trophy and a misunderstanding.
+ * `identity` is what the app knows about the device — `{ id, name }` from
+ * teamData.json — so the lookup works whether the caller has the squad id or only
+ * the name.
+ *
+ * A reader the evaluator has no row for gets an all-locked scope rather than
+ * `null`: the shelf must be able to say "nothing yet" about a real player who
+ * has not appeared in a report, and must never fall back to the squad-wide
+ * reading to fill the gap.
+ */
+export function playerScopeFor(playerScope, identity = {}) {
+  const byPlayer = playerScope?.byPlayer;
+  if (!(byPlayer instanceof Map)) return null;
+
+  const slug = identity?.id != null ? String(identity.id) : null;
+  const key = identity?.name ? normalise(identity.name) : null;
+  if (!key) return null;
+
+  const found = byPlayer.get(key);
+  if (found) return found;
+
+  return {
+    key,
+    slug,
+    name: String(identity.name).trim(),
+    unlocked: [],
+    locked: PLAYER.map((entry) => entry.id),
+    progress: {
+      playedMatches: playerScope?.progress?.playedMatches ?? 0,
+      seasonComplete: playerScope?.progress?.seasonComplete ?? null,
+      everyMatchHasList: playerScope?.progress?.everyMatchHasList === true,
+      matches: 0,
+      goals: 0,
+      leagueGoals: 0,
+      cupGoals: 0,
+      mvps: 0,
+      yellow: 0,
+      red: 0,
+      cards: 0,
+      votesReceived: 0,
+      voters: 0,
+      ballots: 0,
     },
   };
 }
@@ -2124,6 +2435,15 @@ function countBallots(votes, voterSlug) {
 function safeTest(entry, facts) {
   try {
     return entry.test(facts) === true;
+  } catch {
+    return false;
+  }
+}
+
+/** The same rule, asked about one player. Locked when the predicate throws. */
+function safeTestFor(entry, player, facts) {
+  try {
+    return entry.testFor(player, facts) === true;
   } catch {
     return false;
   }
