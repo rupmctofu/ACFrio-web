@@ -39,7 +39,7 @@
  * names. A namespace import would ship the whole set, which is exactly the cost
  * this file was changed to stop paying.
  */
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   RiAddFill,
@@ -335,81 +335,117 @@ const STATE_TONE = {
 const TAP_SLOP = 8;
 
 /**
- * The little dialog behind a tile (S8).
+ * The explanation a tile opens (S8, S20).
  *
- * Four decisions a reader can feel, so each one is named here:
+ * It is a small card next to the tile, not a screen-wide dialog: the owner asked
+ * for something that comes out of the pointer, and a full-page ground over a
+ * four-word explanation is a locked door in front of a note.
  *
- *   It is portalled to `document.body`. The personal shelf is a horizontal
- *   scroll container with snap points, and anything mounted inside it inherits
- *   that container: focusing it would scroll the track sideways, which is
- *   exactly the slide the owner did not ask for on a tap. The body has no such
- *   ancestor, so opening a dialog cannot move the shelf. Focus is moved with
- *   `preventScroll` as well, for the same reason.
+ * Two ways in, because there are two ways to point at things:
  *
- *   It is a focusable panel, not a focus trap. There is one sentence and one
- *   button in it, and trapping Tab inside a box that small earns nothing while
- *   it costs a reader the page behind. `aria-modal` is deliberately NOT set,
- *   because that would promise the rest of the page is inert and it is not.
- *   What the panel does promise: it carries a label (`role="dialog"` +
- *   `aria-labelledby`), it takes focus when it opens so it is read aloud, Escape
- *   closes it, a click on the ground closes it and the «Cerrar» button closes
- *   it.
+ *   With a mouse the card opens on hover and closes when the pointer leaves both
+ *   the tile and the card, with a short grace period so travelling from one to
+ *   the other does not blink it. It is `role="tooltip"`, it holds no controls
+ *   and it never takes focus: a tooltip you have to tab into is a dialog wearing
+ *   the wrong name.
  *
- *   Closing hands focus back to the tile that opened it — with `preventScroll`,
- *   so the shelf is exactly where the reader left it. The effect's cleanup is
- *   the return trip, which means it runs however the dialog went away.
+ *   With a finger or a keyboard it opens on tap or focus and stays until it is
+ *   dismissed — Escape, a click on the ground, the «Cerrar» pill, or a blur. Then
+ *   it is a `role="dialog"` with a label, it takes focus with `preventScroll` so
+ *   the shelf cannot slide under it, and it hands focus back to the tile.
+ *
+ * Either way it is portalled to `document.body` and positioned `fixed` from the
+ * tile's own rect, so no scrolling ancestor can move it, and it flips above the
+ * tile when there is no room underneath. `left` is clamped to the viewport, so a
+ * tile at the edge of a phone still gets a card you can read.
  */
-function AchievementDescription({ entry, state, labelId, onClose, triggerRef }) {
+function AchievementDescription({
+  entry,
+  state,
+  labelId,
+  onClose,
+  triggerRef,
+  interactive = false,
+  onPointerEnter,
+  onPointerLeave,
+}) {
   const panel = useRef(null);
+  const [pos, setPos] = useState(null);
+
+  useLayoutEffect(() => {
+    const tile = triggerRef.current;
+    const card = panel.current;
+    if (!tile || !card) return;
+    const rect = tile.getBoundingClientRect();
+    const gap = 8;
+    const width = card.offsetWidth;
+    const height = card.offsetHeight;
+    const left = Math.min(
+      Math.max(gap, rect.left + rect.width / 2 - width / 2),
+      Math.max(gap, window.innerWidth - width - gap),
+    );
+    const below = rect.bottom + gap;
+    const top =
+      below + height > window.innerHeight - gap
+        ? Math.max(gap, rect.top - height - gap)
+        : below;
+    setPos({ left, top });
+  }, [triggerRef]);
 
   useEffect(() => {
-    panel.current?.focus({ preventScroll: true });
+    if (interactive) panel.current?.focus({ preventScroll: true });
 
     const onKeyDown = (event) => {
       if (event.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKeyDown);
 
+    /* A touch card with no ground needs its own way out: any press that is not on
+       the tile and not on the card closes it. */
+    const onPointerDown = (event) => {
+      const card = panel.current;
+      const tile = triggerRef.current;
+      if (card?.contains(event.target) || tile?.contains(event.target)) return;
+      onClose();
+    };
+    if (interactive) document.addEventListener("pointerdown", onPointerDown);
+
     return () => {
       document.removeEventListener("keydown", onKeyDown);
-      triggerRef.current?.focus({ preventScroll: true });
+      document.removeEventListener("pointerdown", onPointerDown);
+      if (interactive) triggerRef.current?.focus({ preventScroll: true });
     };
-  }, [onClose, triggerRef]);
+  }, [interactive, onClose, triggerRef]);
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-      /* The ground is a target, not a listener on every child: only a click that
-         landed on the ground itself closes, so a click inside the panel is never
-         read as a dismissal. */
-      onClick={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
+      ref={panel}
+      role={interactive ? "dialog" : "tooltip"}
+      aria-labelledby={labelId}
+      tabIndex={interactive ? -1 : undefined}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
+      style={pos ? { left: pos.left, top: pos.top } : { left: -9999, top: 0 }}
+      className="surface-deep fixed z-50 w-[17rem] max-w-[calc(100vw-1rem)] rounded-card border border-acf-line p-3.5 text-left shadow-acf focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
     >
-      <div
-        ref={panel}
-        role="dialog"
-        aria-labelledby={labelId}
-        tabIndex={-1}
-        className="surface-deep w-full max-w-sm rounded-card border border-acf-line p-5 text-left shadow-acf focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
+      <p id={labelId} className="text-row font-semibold leading-tight text-white">
+        {entry.title}
+      </p>
+      <p
+        className={`mt-1.5 inline-flex rounded-full border px-2.5 py-0.5 text-[0.5625rem] font-semibold uppercase tracking-[0.14em] ${STATE_TONE[state]}`}
       >
-        <p id={labelId} className="text-title font-semibold leading-tight text-white">
-          {entry.title}
-        </p>
-        <p
-          className={`mt-2 inline-flex rounded-full border px-2.5 py-0.5 text-micro font-semibold uppercase tracking-[0.14em] ${STATE_TONE[state]}`}
-        >
-          {STATE_LABEL[state]}
-        </p>
-        <p className="mt-3 text-row leading-relaxed text-acf-grey">{entry.description}</p>
+        {STATE_LABEL[state]}
+      </p>
+      <p className="mt-2 text-micro leading-relaxed text-acf-grey">{entry.description}</p>
+      {interactive ? (
         <button
           type="button"
           onClick={onClose}
-          className="mt-4 rounded-full border border-acf-line px-3 py-1.5 text-micro font-semibold uppercase tracking-[0.14em] text-acf-snow/80 transition-colors duration-200 hover:border-white/25 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
+          className="mt-3 rounded-full border border-acf-line px-3 py-1 text-[0.5625rem] font-semibold uppercase tracking-[0.14em] text-acf-snow/80 transition-colors duration-200 hover:border-white/25 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
         >
           Cerrar
         </button>
-      </div>
+      ) : null}
     </div>,
     document.body,
   );
@@ -440,12 +476,33 @@ export function AchievementTile({ entry, unlocked = false, pending = false }) {
   const state = unlocked ? "unlocked" : pending ? "pending" : "locked";
 
   const [open, setOpen] = useState(false);
+  /* Asked once per mount: whether this device points with a mouse. A phone does
+     not, and a hybrid that does gets the tooltip when the pointer is a mouse. */
+  const [hoverable] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(hover: hover) and (pointer: fine)").matches,
+  );
   const trigger = useRef(null);
   const press = useRef(null);
+  const closeTimer = useRef(null);
   const labelId = useId();
   /* Stable, because the dialog's effect returns focus when it unmounts: a new
      `onClose` on every render would re-run that effect and yank focus around. */
   const close = useCallback(() => setOpen(false), []);
+
+  /* Leaving a tile for the card is a short trip across a gap of 8 px, and a card
+     that blinks out mid-journey cannot be read. The delay is the journey. */
+  const cancelClose = useCallback(() => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = null;
+  }, []);
+  const laterClose = useCallback(() => {
+    cancelClose();
+    closeTimer.current = setTimeout(() => setOpen(false), 140);
+  }, [cancelClose]);
+  useEffect(() => cancelClose, [cancelClose]);
 
   /*
    * Pointer bookkeeping only decides whether a click was a tap or a swipe. The
@@ -482,7 +539,10 @@ export function AchievementTile({ entry, unlocked = false, pending = false }) {
       event.preventDefault();
       return;
     }
-    setOpen(true);
+    /* A mouse already has it open from the hover, so a click only confirms it; a
+       finger has no hover to lean on, so the tap is the toggle. */
+    cancelClose();
+    setOpen((current) => (hoverable ? true : !current));
   };
 
   return (
@@ -495,8 +555,12 @@ export function AchievementTile({ entry, unlocked = false, pending = false }) {
         onPointerMove={(event) => noteTravel(event)}
         onPointerUp={(event) => noteTravel(event)}
         onPointerCancel={(event) => noteTravel(event, true)}
-        aria-haspopup="dialog"
-        aria-expanded={open}
+        onPointerEnter={hoverable ? () => { cancelClose(); setOpen(true); } : undefined}
+        onPointerLeave={hoverable ? laterClose : undefined}
+        onFocus={() => setOpen(true)}
+        onBlur={laterClose}
+        aria-haspopup={hoverable ? undefined : "dialog"}
+        aria-expanded={hoverable ? undefined : open}
         className="group flex w-full cursor-pointer flex-col items-center gap-2 rounded-tile text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
       >
         <span aria-hidden="true" className={`${PLATE_BASE} ${plate}`}>
@@ -525,6 +589,9 @@ export function AchievementTile({ entry, unlocked = false, pending = false }) {
           labelId={labelId}
           onClose={close}
           triggerRef={trigger}
+          interactive={!hoverable}
+          onPointerEnter={hoverable ? cancelClose : undefined}
+          onPointerLeave={hoverable ? laterClose : undefined}
         />
       ) : null}
     </li>
