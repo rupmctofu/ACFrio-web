@@ -196,15 +196,18 @@ function QuietResultRow({ fixture }) {
       <span className="shrink-0 text-micro font-semibold uppercase tracking-[0.14em] text-acf-dim">
         {fixtureDateLabel(fixture)}
       </span>
-      <span className="flex w-12 shrink-0 items-baseline justify-end gap-0.5 font-display text-row font-medium tabular-nums">
+      {/* Three glyphs, two of them numbers: the column is wide enough for the
+          widest pair the season can print, and the ink is `red-soft` rather than
+          the brand red because the brand red only clears 4.5:1 on pure black. */}
+      <span className="flex w-14 shrink-0 items-baseline justify-end gap-0.5 tabular-nums">
         {score ? (
           <>
-            <span className="text-acf-snow/45">{score.rival}</span>
-            <span className="text-acf-dim">–</span>
-            <span className="text-acf-red">{score.own}</span>
+            <span className="text-row font-semibold text-acf-snow/45">{score.rival}</span>
+            <span className="text-row font-semibold text-acf-dim">–</span>
+            <span className="text-row font-bold text-acf-red-soft">{score.own}</span>
           </>
         ) : (
-          <span className="text-acf-dim">–</span>
+          <span className="text-row font-semibold text-acf-dim">–</span>
         )}
       </span>
     </li>
