@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { X } from "lucide-react";
 import teamData from "../data/teamData.json";
 import { CLUB_SLUG, fixtureKickoffIso } from "../data/competition.js";
 import { season } from "../data/club-record.js";
@@ -25,38 +26,44 @@ import { availabilityOf } from "../lib/availability.js";
  * touched the site is corrected later by the acta, and this card never pretends
  * to be the truth about who played.
  *
- * Answering collapses the two buttons (owner, L16): once you have said
- * something, the card shows what you said plus a small "Editar" instead of
- * inviting you to answer again. "Editar" brings them back, and choosing again
- * collapses them again. The same collapse follows "No voy": the state a
- * player sees should not depend on which of the two he pressed.
+ * Answering yes takes the two buttons away (owner, S3, S4): your own pill then
+ * carries an X, and that X is the whole of the way back — it withdraws the
+ * answer instead of opening a panel with two more buttons in it. Saying no
+ * keeps the buttons on screen, because "no" is not a decision the card should
+ * lock you out of: press the X, then press "Sí, voy" again if you change your
+ * mind.
  *
  * The faces of who is coming sit above the buttons (owner, L18): the answer a
  * player wants before pressing is "how many are we?". The affirmative is the
  * solid red primary and the refusal the quiet outline, so the card asks the
- * question the way a player answers it at the field.
+ * question the way a player answers it at the field. Nobody who said no is
+ * listed anywhere: the band that used to carry them across the foot of the card
+ * is gone (S2), so the answer is a headcount and a row of faces, not two lists.
  *
- * Everything except the last strip is printed on the card's own gradient — the
- * block paints no ground, no border and no negative margin of its own, so there
- * is no second surface between the crests above and the bar below (owner's
- * mockup). The people who said no get the one band that does paint a ground:
- * full bleed, across the foot of the card, in a very dark grey.
+ * The block paints no ground, no border and no negative margin of its own: it
+ * sits straight on the card's own surface, so there is no second sheet between
+ * the crests above it and no band under it.
  *
  * Three honest states:
  *   * no backend configured — one line saying so, never a fake empty list;
  *   * backend, nobody identified — the headcount, plus a nudge to the face strip;
- *   * backend, identified — the answer, the faces of who is coming, and a way
- *     to change or edit it.
+ *   * backend, identified — the answer, the faces of who is coming, and the X
+ *     on your own face when you are one of them.
  */
 
 const SQUAD_BY_ID = new Map(teamData.squad.map((player) => [player.id, player]));
 
-/** One face as it appears in the attendee row: photo first, name after. */
-function FaceChip({ player, mine = false }) {
+/**
+ * One face as it appears in the attendee row: photo, then name, then — on your
+ * own pill only — the X that withdraws your answer.
+ */
+function FaceChip({ player, mine = false, onWithdraw = null }) {
   return (
     <span
-      className={`flex items-center gap-2 rounded-full border py-0.5 pl-0.5 pr-2.5 ${
-        mine ? "border-acf-red/60 bg-acf-red/10" : "border-acf-line bg-white/[0.03]"
+      className={`flex items-center gap-2 rounded-full border py-0.5 pl-0.5 ${
+        mine
+          ? "border-acf-red/60 bg-acf-red/10 pr-1"
+          : "border-acf-line bg-white/[0.03] pr-2.5"
       }`}
     >
       <span className="flex h-7 w-7 items-end justify-center overflow-hidden rounded-full border border-acf-line bg-acf-panel-light">
@@ -79,31 +86,30 @@ function FaceChip({ player, mine = false }) {
       <span className="text-micro font-semibold uppercase tracking-[0.12em] text-white">
         {player.name}
       </span>
+      {mine && onWithdraw ? (
+        <button
+          type="button"
+          onClick={onWithdraw}
+          aria-label={`${VOICE.buttons.withdraw}: ${player.name}`}
+          title={`${VOICE.buttons.withdraw}: ${player.name}`}
+          className="-ml-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-acf-red/40 bg-acf-dark/40 text-acf-snow/70 transition-colors duration-200 hover:border-acf-red hover:bg-acf-red hover:text-white focus-visible:border-acf-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-acf-red"
+        >
+          <X className="h-3.5 w-3.5" strokeWidth={3} aria-hidden="true" />
+        </button>
+      ) : null}
     </span>
   );
 }
-
-/*
- * The card's own padding, cancelled and put back.
- *
- * The "No van" strip is the only part of this block that is full bleed, and the
- * only way to be full bleed from inside a padded body is to reach outside that
- * padding. Both numbers are the hero body's `px-5 pb-6 sm:px-6` in
- * FixtureCardView, kept here in one constant so the offsets are not guessed in
- * two places — and they no longer move a surface, only an opaque band.
- */
-const BLEED = "-mx-5 -mb-6 px-5 pb-5 pt-3.5 sm:-mx-6 sm:-mb-6 sm:px-6";
 
 /**
  * The faces of who said yes.
  *
  * The split arrives as a prop because the bar and these faces are two views of
  * the same answers (S4): splitting them again here would let the number above
- * and the faces below drift apart. Whoever is not coming is no longer part of
- * this row — the mockup gives the absence list a band of its own at the foot of
- * the card, so the two lists are told apart by where they sit.
+ * and the faces below drift apart. Whoever is not coming is simply not in this
+ * row — and only the reader's own pill is interactive (S3).
  */
-function GoingFaces({ going, chosenId }) {
+function GoingFaces({ going, chosenId, onWithdraw }) {
   if (going.length === 0) {
     return (
       <p className="text-micro font-semibold uppercase tracking-[0.18em] text-acf-snow/60">
@@ -115,36 +121,13 @@ function GoingFaces({ going, chosenId }) {
   return (
     <div className="flex flex-wrap items-center gap-1">
       {going.map((player) => (
-        <FaceChip key={player.id} player={player} mine={player.id === chosenId} />
+        <FaceChip
+          key={player.id}
+          player={player}
+          mine={player.id === chosenId}
+          onWithdraw={player.id === chosenId ? onWithdraw : null}
+        />
       ))}
-    </div>
-  );
-}
-
-/**
- * The last strip: the people who are not coming, on the only ground of this
- * block that paints one.
- *
- * The owner drew it full bleed across the card's foot in a very dark grey that
- * is deliberately not the pure black it used to be (`bg-black`, which he asked
- * to lift). `acf-panel` is that grey: a documented step above the gradient's
- * floor, so the band reads as its own surface instead of a black hole at the
- * bottom of a red card. Its ink is checked against that grey, not against a
- * guess: white names 16.6:1, the red "No van:" 3.6:1 (see the note in the
- * handoff — the brand red is the one ink this palette cannot lift to 4.5:1 on a
- * dark grey; it is 4.56:1 only on pure black).
- */
-function MissingStrip({ missing, chosenId }) {
-  return (
-    <div className={`${BLEED} bg-acf-panel`}>
-      <div className="flex flex-wrap items-center gap-1">
-        <p className="mr-1 text-micro font-bold uppercase tracking-[0.16em] text-acf-red-soft">
-          No van:
-        </p>
-        {missing.map((player) => (
-          <FaceChip key={player.id} player={player} mine={player.id === chosenId} />
-        ))}
-      </div>
     </div>
   );
 }
@@ -156,7 +139,6 @@ export default function MatchAttendance({ fixture }) {
   const [loadError, setLoadError] = useState(null);
   const [saveError, setSaveError] = useState(null);
   const [busy, setBusy] = useState(false);
-  const [editing, setEditing] = useState(false);
 
   const load = useCallback(async () => {
     if (!isConfigured || !fixture) return;
@@ -182,20 +164,12 @@ export default function MatchAttendance({ fixture }) {
     load();
   }, [load]);
 
-  // Changing user (or a re-ask after the squad changed) must not leave the
-  // previous player's answer collapsed into a panel the new player cannot edit.
-  useEffect(() => {
-    setEditing(false);
-  }, [player?.id]);
-
   const declare = async (status) => {
     if (!matchId || !player || busy) return;
     const previous = answers[player.id];
     // Optimistic: the press must feel instant on a phone at the field.
     setAnswers((current) => ({ ...current, [player.id]: status }));
     setBusy(true);
-    // The buttons have done their job: answer first, then collapse.
-    setEditing(false);
     try {
       await setAnswer({ matchId, playerId: player.id, status });
       setSaveError(null);
@@ -230,15 +204,14 @@ export default function MatchAttendance({ fixture }) {
   }
 
   /*
-   * Split once, here, and hand the two lists down: the bar, the faces and the
-   * "no van" line all read the same answers, in the order they were stored.
+   * Split once, here, and hand the row down: the bar and the faces read the
+   * same answers, in the order they were stored. Only the people who said yes
+   * are drawn — the ones who said no are a headcount, not a list (S2).
    */
   const going = [];
-  const missing = [];
   for (const [id, status] of Object.entries(answers)) {
     const squadPlayer = SQUAD_BY_ID.get(Number(id));
-    if (!squadPlayer) continue;
-    (status === "in" ? going : missing).push(squadPlayer);
+    if (squadPlayer && status === "in") going.push(squadPlayer);
   }
   const availability = availabilityOf(going.length, teamData.squad.length);
   /*
@@ -252,14 +225,21 @@ export default function MatchAttendance({ fixture }) {
       : `Faltan ${availability.missing} para jugar`;
 
   const mine = player ? answers[player.id] : undefined;
-  const showButtons = editing || !mine;
+  /*
+   * The buttons are on screen unless you already said you are coming. Saying no
+   * leaves them there on purpose: the X is not the only way back, and a card
+   * that hides its own question after a "no" would be a card you cannot change
+   * your mind on.
+   */
+  const showButtons = mine !== "in";
+  const withdraw = () => declare("out");
 
   const button = (status, label, variant) => {
     const active = mine === status;
     /*
      * The affirmative is the only solid red on the card; the refusal keeps the
-     * outline. While editing, the answer you already gave stays at full weight
-     * and the other one steps back, so you can see what you are changing from.
+     * outline. When you have already said no, that no stays at full weight and
+     * the other one steps back, so you can see what you are changing from.
      */
     const tone =
       variant === "primary"
@@ -283,9 +263,9 @@ export default function MatchAttendance({ fixture }) {
   return (
     <>
       {/*
-       * Everything above the last strip is printed straight onto the card's
-       * gradient: no ground, no border, no negative margin, so there is nothing
-       * here that could open the seam the stacked version used to show.
+       * One column, printed straight onto the card's own surface: no ground, no
+       * border, no negative margin, so nothing here can open a seam against the
+       * photograph above it.
        */}
       <div className="flex flex-col gap-3">
         <div className="flex items-baseline justify-between gap-3">
@@ -320,7 +300,11 @@ export default function MatchAttendance({ fixture }) {
           </p>
         </div>
 
-        <GoingFaces going={going} chosenId={player?.id ?? null} />
+        <GoingFaces
+          going={going}
+          chosenId={player?.id ?? null}
+          onWithdraw={withdraw}
+        />
 
         {!player ? (
           <p className="text-row text-acf-snow/70">
@@ -336,27 +320,16 @@ export default function MatchAttendance({ fixture }) {
         ) : null}
 
         {/*
-         * The answer itself. The mockup draws a card with no controls, but the
-         * controls are the reason this block exists, so they sit under the
-         * faces the mockup does draw and say nothing else: the two buttons while
-         * there is no answer, «Cambiar planes» once there is (L16).
+         * The answer itself: the two buttons while you have not said yes, and
+         * nothing once you have — your pill carries the X that takes it back
+         * (S3, S4).
          */}
         {showButtons ? (
           <div className="grid grid-cols-[1.6fr_1fr] gap-2">
             {button("in", "Sí, voy", "primary")}
             {button("out", "No voy", "secondary")}
           </div>
-        ) : (
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={() => setEditing(true)}
-              className="rounded-full border border-acf-snow/25 px-3 py-1 text-micro font-semibold uppercase tracking-[0.14em] text-acf-snow/80 transition-colors duration-200 hover:border-white/40 hover:text-white focus-visible:border-acf-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-acf-red"
-            >
-              {VOICE.buttons.editAnswer}
-            </button>
-          </div>
-        )}
+        ) : null}
 
         {saveError ? (
           <p className="text-row text-acf-red">
@@ -365,10 +338,6 @@ export default function MatchAttendance({ fixture }) {
           </p>
         ) : null}
       </div>
-
-      {missing.length ? (
-        <MissingStrip missing={missing} chosenId={player?.id ?? null} />
-      ) : null}
     </>
   );
 }

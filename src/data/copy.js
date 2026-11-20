@@ -41,8 +41,11 @@ export const VOICE = {
     noResults: "Todavía no hay números. Las leyendas tardan en escribirse.",
   },
 
-  /** The one button rename the owner asked for that keeps its meaning (S4). */
+  /**
+   * The X on your own pill (S3, S4). It replaces the old "Cambiar planes"
+   * button: withdrawing is an answer, not a settings panel.
+   */
   buttons: {
-    editAnswer: "Cambiar planes",
+    withdraw: "Quitarme",
   },
 };
