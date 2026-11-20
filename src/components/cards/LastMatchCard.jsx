@@ -196,8 +196,16 @@ function QuietResultRow({ fixture }) {
       <span className="shrink-0 text-micro font-semibold uppercase tracking-[0.14em] text-acf-dim">
         {fixtureDateLabel(fixture)}
       </span>
-      <span className="w-12 shrink-0 text-right font-display text-row font-medium tabular-nums text-acf-snow/70">
-        {score ? `${score.rival}–${score.own}` : "–"}
+      <span className="flex w-12 shrink-0 items-baseline justify-end gap-0.5 font-display text-row font-medium tabular-nums">
+        {score ? (
+          <>
+            <span className="text-acf-snow/45">{score.rival}</span>
+            <span className="text-acf-dim">–</span>
+            <span className="text-acf-red">{score.own}</span>
+          </>
+        ) : (
+          <span className="text-acf-dim">–</span>
+        )}
       </span>
     </li>
   );
