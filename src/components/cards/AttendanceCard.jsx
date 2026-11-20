@@ -68,9 +68,19 @@ export default function AttendanceCard({ className = "" }) {
          * Seven rows at a time. The list used to grow with the squad and turned
          * the right column into a page of its own (owner, L21); a fixed window
          * with its own scroll keeps the card the same size every matchday.
-         * 18.5rem = seven rows (7 x 2rem) plus six 0.75rem gutters.
+         *
+         * 20.75rem is seven rows measured, not assumed: a row is 36.5px tall
+         * (a 2.25rem face plus two lines) and the gutters are 0.75rem, so seven
+         * of them need 7 x 36.5 + 6 x 12 + the 4px top padding = 332px. The old
+         * 18.5rem took the row for a clean 2rem and showed six rows plus a sliver
+         * of the seventh, which read as clipped text (gate: cut-text on the 75%).
+         * A window that ends exactly on a row's edge shows whole rows only.
+         *
+         * It also shrinks with the card: this card is a flex item in a column and
+         * the browser may shrink it, and min-h-0 lets the flex layout take the
+         * room back so the list scrolls inside whatever the card ended up with.
          */
-        <div className="max-h-[18.5rem] overflow-y-auto overscroll-contain px-6 pb-6 pt-1">
+        <div className="min-h-0 max-h-[20.75rem] flex-1 overflow-y-auto overscroll-contain px-6 pb-6 pt-1">
           <ul className="flex flex-col gap-3">
             {rows.map((row, index) => (
               <li key={row.name} className="flex items-center gap-3">
