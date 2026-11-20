@@ -349,10 +349,15 @@ const TAP_SLOP = 8;
  *   and it never takes focus: a tooltip you have to tab into is a dialog wearing
  *   the wrong name.
  *
- *   With a finger or a keyboard it opens on tap or focus and stays until it is
- *   dismissed — Escape, a click on the ground, the «Cerrar» pill, or a blur. Then
- *   it is a `role="dialog"` with a label, it takes focus with `preventScroll` so
- *   the shelf cannot slide under it, and it hands focus back to the tile.
+ *   With a finger or a keyboard it opens on tap or focus. Then it is a
+ *   `role="dialog"` with a label, it takes focus with `preventScroll` so the
+ *   shelf cannot slide under it, and it hands that focus back to the tile.
+ *
+ * It comes down the same way on both, and that list is the whole contract:
+ * Escape, a press that is neither the tile nor the card, a second press on the
+ * tile itself, and the pointer leaving. One set of exits and not one per device,
+ * because the device that opens a card is not always the device that dismisses
+ * it — a hybrid laptop opens on hover and dismisses with a finger.
  *
  * Either way it is portalled to `document.body` and positioned `fixed` from the
  * tile's own rect, so no scrolling ancestor can move it, and it flips above the
@@ -365,16 +370,16 @@ function AchievementDescription({
   labelId,
   onClose,
   triggerRef,
+  panelRef,
   interactive = false,
   onPointerEnter,
   onPointerLeave,
 }) {
-  const panel = useRef(null);
   const [pos, setPos] = useState(null);
 
   useLayoutEffect(() => {
     const tile = triggerRef.current;
-    const card = panel.current;
+    const card = panelRef.current;
     if (!tile || !card) return;
     const rect = tile.getBoundingClientRect();
     const gap = 8;
@@ -390,36 +395,37 @@ function AchievementDescription({
         ? Math.max(gap, rect.top - height - gap)
         : below;
     setPos({ left, top });
-  }, [triggerRef]);
+  }, [triggerRef, panelRef]);
 
   useEffect(() => {
-    if (interactive) panel.current?.focus({ preventScroll: true });
+    if (interactive) panelRef.current?.focus({ preventScroll: true });
 
     const onKeyDown = (event) => {
       if (event.key === "Escape") onClose();
     };
     document.addEventListener("keydown", onKeyDown);
 
-    /* A touch card with no ground needs its own way out: any press that is not on
-       the tile and not on the card closes it. */
+    /* A card with no ground behind it needs its own way out, and the same one on
+       every device: a press that is neither on the card nor on the tile closes
+       it. A press on the tile is the tile's own business — it toggles — so it is
+       left alone here. */
     const onPointerDown = (event) => {
-      const card = panel.current;
+      const card = panelRef.current;
       const tile = triggerRef.current;
       if (card?.contains(event.target) || tile?.contains(event.target)) return;
       onClose();
     };
-    if (interactive) document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("pointerdown", onPointerDown);
 
     return () => {
       document.removeEventListener("keydown", onKeyDown);
       document.removeEventListener("pointerdown", onPointerDown);
-      if (interactive) triggerRef.current?.focus({ preventScroll: true });
     };
-  }, [interactive, onClose, triggerRef]);
+  }, [interactive, onClose, triggerRef, panelRef]);
 
   return createPortal(
     <div
-      ref={panel}
+      ref={panelRef}
       role={interactive ? "dialog" : "tooltip"}
       aria-labelledby={labelId}
       tabIndex={interactive ? -1 : undefined}
@@ -440,7 +446,7 @@ function AchievementDescription({
       {interactive ? (
         <button
           type="button"
-          onClick={onClose}
+          onClick={() => onClose()}
           className="mt-3 rounded-full border border-acf-line px-3 py-1 text-[0.5625rem] font-semibold uppercase tracking-[0.14em] text-acf-snow/80 transition-colors duration-200 hover:border-white/25 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
         >
           Cerrar
@@ -485,12 +491,14 @@ export function AchievementTile({ entry, unlocked = false, pending = false }) {
       window.matchMedia("(hover: hover) and (pointer: fine)").matches,
   );
   const trigger = useRef(null);
+  const panel = useRef(null);
   const press = useRef(null);
   const closeTimer = useRef(null);
   const labelId = useId();
-  /* Stable, because the dialog's effect returns focus when it unmounts: a new
-     `onClose` on every render would re-run that effect and yank focus around. */
-  const close = useCallback(() => setOpen(false), []);
+  /* Set while the focus is being handed back to this tile. Without it the tile
+     reads its own return trip as the reader arriving and reopens the card that
+     was just closed, which is how Escape and «Cerrar» stopped working. */
+  const returningFocus = useRef(false);
 
   /* Leaving a tile for the card is a short trip across a gap of 8 px, and a card
      that blinks out mid-journey cannot be read. The delay is the journey. */
@@ -503,6 +511,44 @@ export function AchievementTile({ entry, unlocked = false, pending = false }) {
     closeTimer.current = setTimeout(() => setOpen(false), 140);
   }, [cancelClose]);
   useEffect(() => cancelClose, [cancelClose]);
+
+  /*
+   * The focus goes back to the tile that opened the card, but only when it was
+   * inside the card: a mouse never gives it there, so a mouse dismissal leaves
+   * the focus where the reader put it.
+   */
+  const returnFocus = useCallback(() => {
+    const tile = trigger.current;
+    const card = panel.current;
+    if (!tile || !card || !card.contains(document.activeElement)) return;
+    returningFocus.current = true;
+    tile.focus({ preventScroll: true });
+  }, []);
+
+  /*
+   * One door out, whatever the device pressed it. Escape, a press on the ground
+   * and the «Cerrar» pill all land here, so no path can leave the card standing
+   * because its own event never came.
+   */
+  const close = useCallback(() => {
+    cancelClose();
+    returnFocus();
+    setOpen(false);
+  }, [cancelClose, returnFocus]);
+
+  /*
+   * The card takes the focus when it opens on a finger or from the keyboard, and
+   * the tile is blurred by exactly that. A blur like that is the card opening,
+   * not the reader leaving — closing on it made the two chase each other, one
+   * close per refocus, for as long as the card stayed mounted.
+   */
+  const closeOnBlur = useCallback(
+    (event) => {
+      if (panel.current?.contains(event.relatedTarget)) return;
+      close();
+    },
+    [close],
+  );
 
   /*
    * Pointer bookkeeping only decides whether a click was a tap or a swipe. The
@@ -527,7 +573,16 @@ export function AchievementTile({ entry, unlocked = false, pending = false }) {
 
   const onPointerDown = (event) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
-    press.current = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
+    /* `open` is noted here, at the press, and not read back at the click: the
+       focus this press leaves behind can open the card on the way to the click,
+       and a toggle against that state would open and close on one gesture. */
+    press.current = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      moved: false,
+      wasOpen: open,
+    };
   };
 
   const openDescription = (event) => {
@@ -539,10 +594,26 @@ export function AchievementTile({ entry, unlocked = false, pending = false }) {
       event.preventDefault();
       return;
     }
-    /* A mouse already has it open from the hover, so a click only confirms it; a
-       finger has no hover to lean on, so the tap is the toggle. */
+    /* The tile is one control with one meaning on every device: it toggles. A
+       mouse has the card open from the hover already, so its first press closes
+       it; a finger has no hover to lean on, so the tap is what opens it. A click
+       with no press behind it is Enter or Space on a tile that the focus had
+       already opened, and it stays open. */
+    returningFocus.current = false;
     cancelClose();
-    setOpen((current) => (hoverable ? true : !current));
+    setOpen(started ? !started.wasOpen : true);
+  };
+
+  /*
+   * Focus opens the card, which is how a keyboard reaches it. One focus event is
+   * not the reader arriving: the trip back from a card that was just closed.
+   */
+  const onFocus = () => {
+    if (returningFocus.current) {
+      returningFocus.current = false;
+      return;
+    }
+    setOpen(true);
   };
 
   return (
@@ -557,8 +628,8 @@ export function AchievementTile({ entry, unlocked = false, pending = false }) {
         onPointerCancel={(event) => noteTravel(event, true)}
         onPointerEnter={hoverable ? () => { cancelClose(); setOpen(true); } : undefined}
         onPointerLeave={hoverable ? laterClose : undefined}
-        onFocus={() => setOpen(true)}
-        onBlur={laterClose}
+        onFocus={onFocus}
+        onBlur={closeOnBlur}
         aria-haspopup={hoverable ? undefined : "dialog"}
         aria-expanded={hoverable ? undefined : open}
         className="group flex w-full cursor-pointer flex-col items-center gap-2 rounded-tile text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
@@ -589,6 +660,7 @@ export function AchievementTile({ entry, unlocked = false, pending = false }) {
           labelId={labelId}
           onClose={close}
           triggerRef={trigger}
+          panelRef={panel}
           interactive={!hoverable}
           onPointerEnter={hoverable ? cancelClose : undefined}
           onPointerLeave={hoverable ? laterClose : undefined}

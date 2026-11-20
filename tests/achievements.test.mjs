@@ -119,10 +119,13 @@ test("every icon exists in the installed react-icons Remix set", async () => {
   // `Goal`), so the name is read through the grid's registry and the two glyphs
   // behind it are looked up in `react-icons/ri` — the library the grid renders.
   const { readFileSync } = await import("node:fs");
+  /* One line ending on both sides of the comparison. A Windows checkout holds
+     this file with CRLF, and every assertion below matches `\n` literally, so
+     the file is normalised on the way in instead of being read as it lies. */
   const source = readFileSync(
     new URL("../src/components/AchievementsGrid.jsx", import.meta.url),
     "utf8",
-  );
+  ).replace(/\r\n/g, "\n");
   const start = source.indexOf("const PLATE_ICONS = {");
   const end = source.indexOf("};\n", start);
   assert.ok(start !== -1 && end !== -1, "the grid must resolve icon names through PLATE_ICONS");
@@ -1319,7 +1322,7 @@ test("the grid registers every icon the catalogue names", async () => {
   const source = readFileSync(
     new URL("../src/components/AchievementsGrid.jsx", import.meta.url),
     "utf8",
-  );
+  ).replace(/\r\n/g, "\n");
   const start = source.indexOf("const PLATE_ICONS = {");
   const end = source.indexOf("};\n", start);
   assert.ok(start !== -1 && end !== -1, "the grid must resolve icon names through PLATE_ICONS");
@@ -1939,4 +1942,53 @@ test("a broken acta row is unknown, not an empty one", () => {
   assert.equal(broken.player.unlocked.includes("player-two-goals-in-a-match"), false);
   /* The rest of the catalogue does not depend on the ledger, so it still decides. */
   assert.equal(broken.team.unlocked.includes("team-three-goals"), true);
+});
+
+// ---------------------------------------------------------------------------
+// The explanation closes (S6)
+//
+// No DOM in this suite, so this one reads the source it guards, the same way the
+// icon registry test above does. What it pins is the pair that left the card up
+// on a phone: the dialog takes the focus when it opens, so the tile is blurred
+// while its own card is on screen. Closing on that blur handed the focus back to
+// the tile, the tile reopened the card on the focus it had just been given, and
+// Escape, «Cerrar» and a tap on the ground all came back to life a frame later.
+// ---------------------------------------------------------------------------
+
+test("the tile does not close the card on the blur its own card caused", async () => {
+  const { readFileSync } = await import("node:fs");
+  const source = readFileSync(
+    new URL("../src/components/AchievementsGrid.jsx", import.meta.url),
+    "utf8",
+  ).replace(/\r\n/g, "\n");
+
+  assert.ok(
+    !/onBlur=\{laterClose\}/.test(source),
+    "a blur closes the card only when the focus went somewhere else",
+  );
+  assert.match(source, /onBlur=\{closeOnBlur\}/);
+  assert.match(
+    source,
+    /panel\.current\?\.contains\(event\.relatedTarget\)/,
+    "the card taking the focus is the card opening, not the reader leaving",
+  );
+  assert.match(
+    source,
+    /if \(returningFocus\.current\)/,
+    "the focus handed back to the tile is not the reader arriving",
+  );
+  assert.match(
+    source,
+    /wasOpen: open/,
+    "the press notes whether the card was already open before the gesture",
+  );
+  assert.match(
+    source,
+    /setOpen\(started \? !started\.wasOpen : true\)/,
+    "a press toggles what the gesture found, so a second press closes what the first opened",
+  );
+  assert.ok(
+    source.includes('if (event.key === "Escape") onClose();'),
+    "Escape is one of the ways out, and it goes through the same close",
+  );
 });
