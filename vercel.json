@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/competicion",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/competicion/(.*)",
+      "destination": "/index.html"
+    },
+    {
       "source": "/jornada",
       "destination": "/index.html"
     },

@@ -6,32 +6,48 @@
  * history entry so the back button works, and a re-render when the path
  * changes; that is `pushState` plus `popstate`, and it is all in this file.
  *
- * The paths are the shareable ones (S7): a `/jornada/7` or an `/equipo/<slug>`
- * can be pasted into the group and opened by whoever reads it. Serving a direct
- * load of one is the hosting's job, not ours — `vercel.json` rewrites them to
- * `index.html`, and Vite already answers them in dev and preview — so the app
- * only ever mounts on a path it can match.
+ * The paths are the shareable ones (S7): a `/competicion/liga/7` or an
+ * `/equipo/<slug>` can be pasted into the group and opened by whoever reads it.
+ * Serving a direct load of one is the hosting's job, not ours — `vercel.json`
+ * rewrites them to `index.html`, and Vite already answers them in dev and
+ * preview — so the app only ever mounts on a path it can match.
  */
 import { useEffect, useState } from "react";
 
 const HOME = "/";
 
 /**
+ * The three tabs of `/competicion`, in the order the bar and the page show them,
+ * and the one the section lands on when the address names no tab (S14).
+ */
+export const COMPETITION_TABS = ["liga", "copa", "equipos"];
+
+/**
  * The fixed sections. Anything else is either a dynamic segment or unknown.
  *
- * `reglamento` is one of these and not one of the bar's six: the pills already
- * fill the width at 1024, so the league rules are opened from the dashboard
- * card and from the footer and the bar simply lights nothing while a reader is
- * there. It is a plain section all the same — one page, one address.
+ * The site is three of these now (S14): Inicio, the Competición section with its
+ * three tabs, and Logros. `reglamento` is the fourth address and not a pill of
+ * the bar: the rules are opened from the dashboard card and from the footer, and
+ * the bar simply lights nothing while a reader is there. It is a plain section
+ * all the same — one page, one address.
  */
-const SECTIONS = new Set([
-  "jornada",
-  "equipos",
-  "clasificacion",
-  "copa",
-  "logros",
-  "reglamento",
-]);
+const SECTIONS = new Set(["logros", "reglamento"]);
+
+const UNKNOWN = { name: "unknown", params: {} };
+
+/**
+ * The paths the fold retired (S14). Each one still resolves — the club has been
+ * pasting them into the group for a season, and a link that lands on the
+ * dashboard instead of on the page it names is worse than no link at all — but
+ * the app corrects the address bar to the tab it became, so a reader who opens
+ * an old link ends up on the canonical path.
+ *
+ * `jornada` carried a round in its second segment, and the round is carried
+ * across: `/jornada/3` becomes `/competicion/liga/3`, which is the same night on
+ * the same tab. The aliases need the same hosting rewrite every other deep link
+ * has — `vercel.json` — so they resolve on a cold load and not only in-app.
+ */
+const RETIRED = new Set(["jornada", "copa", "equipos", "clasificacion"]);
 
 /** `/jornada/` and `/jornada` are one route; so are `""` and `/`. */
 export const normalise = (path) => String(path ?? "").replace(/\/+$/, "") || HOME;
@@ -107,25 +123,65 @@ const decode = (segment) => {
   }
 };
 
+/** A round is a positive whole number, because a jornada is counted, not named. */
+const isRound = (segment) => /^[1-9][0-9]*$/.test(segment ?? "");
+
 /**
  * What a path means.
  *
- * One level of dynamic segment, and one only: `/equipo/<slug>` is the team page
- * (S7) and `/jornada/<n>` is a round. The team view arrives in the next task,
- * but the shape it will read is settled here, so the router does not have to
- * change under it later. `/copa` is a plain section, like `/clasificacion` and
- * `/logros`: the cup needs no segment because it has one group and one knockout,
- * and the shelf has one page because the catalogue is one list. Everything it
- * cannot match is `unknown`, and the app decides what to do with that.
+ * `/competicion/<tab>` is the section and its tab (S14), and `/competicion/liga/<n>`
+ * adds the round — the shape the standalone jornada page had, kept because the
+ * round is the part people share. `/equipo/<slug>` is still one dynamic segment
+ * of its own: a club page is not a tab of anything.
+ *
+ * The retired paths are matched before anything else and answered with the tab
+ * they became plus a `redirect`, so `App` can replace the address without the
+ * reader ever seeing a page under a path the site no longer has. Everything
+ * unmatched is `unknown`, and the app decides what to do with that.
  */
 export function matchRoute(path) {
-  const [first, second, ...rest] = normalise(path).split("/").filter(Boolean);
+  const [first, second, third, ...rest] = normalise(path).split("/").filter(Boolean);
   if (!first) return { name: "home", params: {} };
-  if (!second) {
-    return SECTIONS.has(first) ? { name: first, params: {} } : { name: "unknown", params: {} };
+
+  /* ---- The fold (S14): four retired paths, each one a tab of Competición. ---- */
+  if (first === "jornada") {
+    if (third || rest.length) return UNKNOWN;
+    /* A second segment that is not a round is not a reason to send a shared link
+       home: the tab opens on its default round and the address is corrected,
+       the way a bad round already landed before the fold. */
+    const matchday = isRound(second) ? second : null;
+    return {
+      name: "competicion",
+      params: { tab: "liga", matchday },
+      redirect: `/competicion/liga${matchday ? `/${matchday}` : ""}`,
+    };
   }
-  if (rest.length) return { name: "unknown", params: {} };
-  if (first === "equipo") return { name: "team", params: { slug: decode(second) } };
-  if (first === "jornada") return { name: "jornada", params: { matchday: second } };
-  return { name: "unknown", params: {} };
+  if (RETIRED.has(first)) {
+    if (second) return UNKNOWN;
+    /* `/clasificacion` was the league table, and the table is the left column of
+       the liga tab: it opens there, next to the jornadas it is read with. */
+    const tab = first === "copa" ? "copa" : first === "equipos" ? "equipos" : "liga";
+    return { name: "competicion", params: { tab }, redirect: `/competicion/${tab}` };
+  }
+
+  /* ---- Competición and its tabs. ---- */
+  if (first === "competicion") {
+    if (!second) return { name: "competicion", params: { tab: COMPETITION_TABS[0] } };
+    if (!COMPETITION_TABS.includes(second)) return UNKNOWN;
+    if (rest.length) return UNKNOWN;
+    /* Only the liga tab counts rounds; a `/competicion/copa/3` names nothing. */
+    if (!third) return { name: "competicion", params: { tab: second, matchday: null } };
+    if (second !== "liga" || !isRound(third)) return UNKNOWN;
+    return { name: "competicion", params: { tab: "liga", matchday: third } };
+  }
+
+  /* ---- One dynamic segment, and one only: a club's own page (S7). ---- */
+  if (second) {
+    if (third || rest.length) return UNKNOWN;
+    if (first === "equipo") return { name: "team", params: { slug: decode(second) } };
+    return UNKNOWN;
+  }
+
+  if (SECTIONS.has(first)) return { name: first, params: {} };
+  return UNKNOWN;
 }

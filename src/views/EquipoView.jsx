@@ -189,7 +189,7 @@ function FixtureGroup({ id, title, fixtures, page, empty }) {
 function BackToTeams() {
   return (
     <a
-      {...routeLink("/equipos")}
+      {...routeLink("/competicion/equipos")}
       className="inline-flex items-center gap-2 text-micro font-semibold uppercase tracking-[0.22em] text-acf-grey transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
     >
       <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
@@ -240,7 +240,7 @@ function UnknownTeam() {
             están en Equipos, cada uno con su ficha.
           </p>
           <a
-            {...routeLink("/equipos")}
+            {...routeLink("/competicion/equipos")}
             className="mt-6 inline-flex rounded-full border border-acf-line px-4 py-2 text-row font-bold tracking-tight text-acf-snow transition-colors hover:border-white/25 hover:bg-white/[0.06] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
           >
             Ver los equipos

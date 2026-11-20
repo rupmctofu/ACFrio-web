@@ -4,10 +4,7 @@ import PageBackdrop from "./components/PageBackdrop.jsx";
 import teamData from "./data/teamData.json";
 import { matchRoute, navigate, routeLink, useRoute } from "./lib/router.js";
 import HomeView from "./views/HomeView.jsx";
-import JornadaView from "./views/JornadaView.jsx";
-import EquiposView from "./views/EquiposView.jsx";
-import ClasificacionView from "./views/ClasificacionView.jsx";
-import CopaView from "./views/CopaView.jsx";
+import CompeticionView from "./views/CompeticionView.jsx";
 import EquipoView from "./views/EquipoView.jsx";
 import LogrosView from "./views/LogrosView.jsx";
 import ReglamentoView from "./views/ReglamentoView.jsx";
@@ -54,21 +51,21 @@ function Footer() {
 }
 
 /**
- * One view per section (S2), keyed by the name the router resolves.
+ * One view per route, keyed by the name the router resolves.
  *
- * The six labels in the bar are six of the keys: Inicio, Jornada, Equipos,
- * Clasificación, Copa and Logros. `team` has no label of its own: it is one of
- * the eleven, opened from Equipos, and the bar keeps lighting Equipos while a
- * reader is on a club's page. `reglamento` has no label either, on purpose —
- * six pills fill the bar at 1024 — and is opened from the dashboard's rotating
- * card and from the footer. Anything else is a fallback, below.
+ * The site is three pills and four views (S14): Inicio, Competición — one page
+ * with the liga, the copa and the club list as tabs, and the tab in the URL —
+ * and Logros. `competicion` is therefore the whole old quarter (jornada,
+ * clasificación, equipos, copa): the router hands it the tab and the round.
+ * `team` has no label of its own: it is one of the eleven, opened from the
+ * Equipos tab, and the bar keeps lighting Competición while a reader is on a
+ * club's page. `reglamento` has no label either, on purpose — three pills fill
+ * the bar — and is opened from the dashboard's rules card and from the footer.
+ * Anything else is a fallback, below.
  */
 const VIEWS = {
   home: HomeView,
-  jornada: JornadaView,
-  equipos: EquiposView,
-  clasificacion: ClasificacionView,
-  copa: CopaView,
+  competicion: CompeticionView,
   logros: LogrosView,
   team: EquipoView,
   reglamento: ReglamentoView,
@@ -94,6 +91,16 @@ export default function App() {
     if (!known) navigate("/", { replace: true });
   }, [known]);
 
+  /*
+   * A path the fold retired is served as the tab it became, and the address is
+   * corrected in place — `replace`, so the back button does not walk through an
+   * alias on the way out. The reader keeps their place: the view has already
+   * rendered the right tab from the same match, so nothing flickers.
+   */
+  useEffect(() => {
+    if (route.redirect) navigate(route.redirect, { replace: true });
+  }, [route.redirect]);
+
   return (
     <div className="acf-ambience relative min-h-screen bg-acf-dark text-acf-snow">
       {/*
@@ -106,7 +113,7 @@ export default function App() {
         <Navbar />
         <main>
           {/* The router's params are handed to whichever view asked for them: the
-              round a `/jornada` names, and the club a `/equipo` names. */}
+              tab and the round of `/competicion`, and the club an `/equipo` names. */}
           <View {...route.params} />
         </main>
         <Footer />

@@ -12,15 +12,18 @@ import { Crest } from "../components/cards/Crest.jsx";
 import { routeLink } from "../lib/router.js";
 
 /**
- * `/equipos` — the eleven clubs of the season, each one a way into its page
- * (S5, S7).
+ * The Equipos tab of `/competicion` (S14): the eleven clubs of the season, each
+ * one a way into its page (S5, S7).
  *
  * The list is the league table and the cup table put together, which is exactly
  * the eleven clubs the source publishes: no roster is kept here, so a club that
- * joins either competition appears on this page without anyone editing it. The
- * order is the way the page is read — the league ranking first, because a
+ * joins either competition appears on this tab without anyone editing it. The
+ * order is the way the tab is read — the league ranking first, because a
  * position is information — and the clubs that only play the cup follow it in
  * alphabetical order with no position to show.
+ *
+ * The page heading and the tab strip belong to `CompeticionView`; this file
+ * draws the list and nothing else.
  */
 
 const collator = new Intl.Collator("es");
@@ -88,47 +91,30 @@ function ClubRow({ club }) {
   );
 }
 
-export default function EquiposView() {
+export default function EquiposTab() {
   const clubs = allClubs();
 
   return (
-    <section className="relative pb-16 pt-28">
-      <div className="wrap">
-        <header className="max-w-2xl">
-          <p className="text-micro font-semibold uppercase tracking-[0.3em] text-acf-red-soft">
-            {league.name}
-          </p>
-          <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            Equipos
-          </h1>
-          <p className="mt-3 text-row leading-relaxed text-acf-snow/70">
-            Los once clubes de la liga y la copa, en el orden en que están. Elige uno
-            y mira lo suyo.
-          </p>
-        </header>
-
-        <Card
-          title="Los once"
-          hint={`${league.name} · ${clubs.length} clubes`}
-          icon={Shield}
-          href={league.sources.table}
-          linkLabel="Abrir la clasificación oficial de la liga en CEGARRAF"
-          className="mt-8"
-          bodyClassName="flex flex-col"
-        >
-          <ul className="divide-y divide-acf-line-soft border-t border-acf-line-soft">
-            {clubs.map((club) => (
-              <ClubRow key={club.slug} club={club} />
-            ))}
-          </ul>
-          {/* The figure on the right is a league position, and one club can have
-              none: the cup publishes its own group. The dash says that, instead
-              of a zero that would read as last place. */}
-          <p className="mt-auto border-t border-acf-line-soft px-4 py-3.5 text-micro font-semibold uppercase tracking-[0.16em] text-acf-dim sm:px-6">
-            La cifra es la posición en liga. Un guion: juega la copa.
-          </p>
-        </Card>
-      </div>
-    </section>
+    <Card
+      id="competicion-equipos"
+      title="Los once"
+      hint={`${league.name} · ${clubs.length} clubes`}
+      icon={Shield}
+      href={league.sources.table}
+      linkLabel="Abrir la clasificación oficial de la liga en CEGARRAF"
+      bodyClassName="flex flex-col"
+    >
+      <ul className="divide-y divide-acf-line-soft border-t border-acf-line-soft">
+        {clubs.map((club) => (
+          <ClubRow key={club.slug} club={club} />
+        ))}
+      </ul>
+      {/* The figure on the right is a league position, and one club can have
+          none: the cup publishes its own group. The dash says that, instead of a
+          zero that would read as last place. */}
+      <p className="mt-auto border-t border-acf-line-soft px-4 py-3.5 text-micro font-semibold uppercase tracking-[0.16em] text-acf-dim sm:px-6">
+        La cifra es la posición en liga. Un guion: juega la copa.
+      </p>
+    </Card>
   );
 }

@@ -4,38 +4,29 @@ import { matchRoute, routeLink, useRoute } from "../lib/router.js";
 import { NavbarIdentity } from "./WhoAreYou.jsx";
 
 /**
- * The six sections of the site: the four the owner approved (S2) — Inicio ·
- * Jornada · Equipos · Clasificación —, Copa, which he asked for by name when
- * he wanted the elimination visible, and Logros, the shelf he asked for with the
- * personal block below Goleadores. The labels are his words.
+ * The three sections of the site (S14). Six pills were one row of labels with no
+ * idea behind it; the owner's decision was the other way round: three, with the
+ * three competition pages folded into one that carries its own tabs.
  *
- * These are routes now, not in-page anchors. The bar used to jump to `#partidos`
- * and `#clasificacion` inside one long page; the site has six pages, and a
- * navbar that names them is the whole point of the change (S1). The section ids
- * on the dashboard are untouched, so a `/#clasificacion` bookmark still scrolls
- * to the block — the bar simply no longer sends anyone there.
+ * `Competición` points at its first tab, which is what `/competicion` lands on
+ * any way, so the pill is a real address and not a redirect.
  */
 const NAV_LINKS = [
   { label: "Inicio", path: "/", name: "home" },
-  { label: "Jornada", path: "/jornada", name: "jornada" },
-  { label: "Equipos", path: "/equipos", name: "equipos" },
-  { label: "Clasificación", path: "/clasificacion", name: "clasificacion" },
-  { label: "Copa", path: "/copa", name: "copa" },
+  { label: "Competición", path: "/competicion/liga", name: "competicion" },
   { label: "Logros", path: "/logros", name: "logros" },
 ];
 
 /**
- * Which pill lights up for a route. A club's own page belongs to Equipos: it is
- * one of the eleven, opened from that list, and the bar should keep saying where
- * the reader is rather than going blank on a page that is not a section.
+ * Which pill lights up for a route. The whole Competición section is one pill —
+ * every `/competicion/*` path lights it, tabs included — and a club's own page
+ * belongs to it too: it is one of the eleven, opened from the Equipos tab, and
+ * the bar should keep saying where the reader is rather than going blank.
  */
 const SECTION_OF_ROUTE = {
   home: "home",
-  jornada: "jornada",
-  equipos: "equipos",
-  team: "equipos",
-  clasificacion: "clasificacion",
-  copa: "copa",
+  competicion: "competicion",
+  team: "competicion",
   logros: "logros",
 };
 
@@ -48,7 +39,8 @@ const PILL_IDLE =
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const route = matchRoute(useRoute());
+  const path = useRoute();
+  const route = matchRoute(path);
   const activeName = SECTION_OF_ROUTE[route.name] ?? null;
   const { club } = teamData;
 
@@ -63,10 +55,12 @@ export default function Navbar() {
   }, []);
 
   // A route change closes the phone menu, so the reader lands on the new view
-  // instead of on a menu that is still open over it.
+  // instead of on a menu that is still open over it. It watches the path and not
+  // the route name: switching tab inside Competición is a navigation too, and
+  // the name stays the same across it.
   useEffect(() => {
     setMenuOpen(false);
-  }, [route.name]);
+  }, [path]);
 
   return (
     <header

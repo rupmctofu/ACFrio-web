@@ -14,15 +14,19 @@ import { Crest } from "../components/cards/Crest.jsx";
 import { routeLink } from "../lib/router.js";
 
 /**
- * `/copa` — the cup, as the federation publishes it: one group, five matchdays,
- * and a knockout phase that has been announced and not yet drawn.
+ * The Copa tab of `/competicion` (S14): the cup, as the federation publishes it —
+ * one group, five matchdays, and a knockout phase that has been announced and
+ * not yet drawn.
  *
- * The board of the fase final opens the page. It is the one thing here that
+ * The board of the fase final opens the tab. It is the one thing here that
  * cannot be drawn from the data (see `KnockoutBoard` for what it does and does
  * not say), and it is also the only card that needs the whole width of the page
  * to be read as a bracket: the clubs sit at the two edges and the empty slots
  * converge towards the centre, so a half-width column would break the drawing.
  * The group follows it — the table, then the rounds — in the order it is played.
+ *
+ * The page heading and the tab strip belong to `CompeticionView`; this file
+ * draws its cards and nothing else, so the section has one title and not three.
  */
 
 /* The rounds the source publishes, in order: a round exists because the calendar
@@ -46,9 +50,9 @@ const FIGURE_CELL = "px-1 py-3 text-center text-figure tabular-nums text-acf-sno
 const collator = new Intl.Collator("es");
 
 /**
- * The liguilla table, with the same anatomy the league table has in
- * `/clasificacion`: the club's row tinted, its rank carrying a red bar against
- * the left edge and its points in red, so the two pages read as the same table.
+ * The liguilla table, with the same anatomy the league table has in the Liga
+ * tab: the club's row tinted, its rank carrying a red bar against the left edge
+ * and its points in red, so the two competitions read as the same table.
  *
  * Only the figures the cup publishes are drawn — played and points — because
  * this table answers "how is the group going", and the goals are on the
@@ -390,74 +394,57 @@ function KnockoutBoard({ rows }) {
   );
 }
 
-export default function CopaView() {
+export default function CopaTab() {
   const cupData = cupTable();
 
   return (
-    <section className="relative pb-16 pt-28">
-      <div className="wrap">
-        <header className="max-w-2xl">
-          <p className="text-micro font-semibold uppercase tracking-[0.3em] text-acf-red-soft">
-            {cup.name}
-          </p>
-          <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            Copa
-          </h1>
-          <p className="mt-3 text-row leading-relaxed text-acf-snow/70">
-            Seis clubes, cinco jornadas y una pizarra vacía. El sorteo lo hace la
-            federación; aquí se verá cuando lo publique.
-          </p>
-        </header>
+    /* The board takes the whole width from 1024: the bracket is a horizontal
+       drawing, and half a page is not enough to read it. The group keeps the two
+       columns underneath, table beside rounds. */
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <Card
+        id="copa-fase-final"
+        title="Fase final"
+        hint="Sorteo sin publicar"
+        icon={Trophy}
+        href={cup.sources.calendar}
+        linkLabel="Abrir el calendario oficial de la Copa en CEGARRAF"
+        className="surface-deep lg:col-span-2"
+        bodyClassName="flex flex-col"
+      >
+        <KnockoutBoard rows={cupData.rows} />
+      </Card>
 
-        {/* The board takes the whole width on a wide screen: the bracket is a
-            horizontal drawing, and half a page is not enough to read it. The
-            group keeps the two columns underneath, table beside rounds. */}
-        <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <Card
-            id="copa-fase-final"
-            title="Fase final"
-            hint="Sorteo sin publicar"
-            icon={Trophy}
-            href={cup.sources.calendar}
-            linkLabel="Abrir el calendario oficial de la Copa en CEGARRAF"
-            className="surface-deep lg:col-span-2"
-            bodyClassName="flex flex-col"
-          >
-            <KnockoutBoard rows={cupData.rows} />
-          </Card>
+      <Card
+        id="copa-liguilla"
+        title="Liguilla"
+        hint={`${cupData.rows.length} clubes · ${ROUNDS.length} jornadas`}
+        icon={BarChart3}
+        href={cup.sources.table}
+        linkLabel="Abrir la clasificación oficial de la Copa en CEGARRAF"
+        className="surface-deep"
+        bodyClassName="flex flex-col"
+      >
+        <GroupTable id="copa-liguilla" rows={cupData.rows} />
+        <p className="mt-auto border-t border-acf-line-soft px-4 py-3.5 text-micro font-semibold uppercase tracking-[0.16em] text-acf-dim sm:px-6">
+          {PLAYED_ROUNDS.length} de {ROUNDS.length} jornadas jugadas. La tabla la lleva la
+          federación.
+        </p>
+      </Card>
 
-          <Card
-            id="copa-liguilla"
-            title="Liguilla"
-            hint={`${cupData.rows.length} clubes · ${ROUNDS.length} jornadas`}
-            icon={BarChart3}
-            href={cup.sources.table}
-            linkLabel="Abrir la clasificación oficial de la Copa en CEGARRAF"
-            className="surface-deep"
-            bodyClassName="flex flex-col"
-          >
-            <GroupTable id="copa-liguilla" rows={cupData.rows} />
-            <p className="mt-auto border-t border-acf-line-soft px-4 py-3.5 text-micro font-semibold uppercase tracking-[0.16em] text-acf-dim sm:px-6">
-              {PLAYED_ROUNDS.length} de {ROUNDS.length} jornadas jugadas. La tabla la lleva
-              la federación.
-            </p>
-          </Card>
-
-          <Card
-            id="copa-jornadas"
-            title="Jornadas"
-            hint={`${ROUNDS.length} jornadas · ${cup.fixtures.length} partidos`}
-            icon={CalendarDays}
-            href={cup.sources.calendar}
-            linkLabel="Abrir el calendario oficial de la Copa en CEGARRAF"
-            bodyClassName="flex flex-col"
-          >
-            {ROUNDS.map((round) => (
-              <RoundBlock key={round} round={round} />
-            ))}
-          </Card>
-        </div>
-      </div>
-    </section>
+      <Card
+        id="copa-jornadas"
+        title="Jornadas"
+        hint={`${ROUNDS.length} jornadas · ${cup.fixtures.length} partidos`}
+        icon={CalendarDays}
+        href={cup.sources.calendar}
+        linkLabel="Abrir el calendario oficial de la Copa en CEGARRAF"
+        bodyClassName="flex flex-col"
+      >
+        {ROUNDS.map((round) => (
+          <RoundBlock key={round} round={round} />
+        ))}
+      </Card>
+    </div>
   );
 }
