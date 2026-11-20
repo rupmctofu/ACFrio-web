@@ -66,3 +66,10 @@ L12 — Left open, with the reason each needs a person rather than a patch:
 - **The structural family** — `container-edges` 8, `row-lines` 4, `one-section` 3, `section-height` 2, `hero-fold`/`hero-screen`, `centre-axis` 4, `collide` 3, `focus-ring`/`focus-visible`/`focus-hidden` 6, `photo-upscale` 3, `visual-caption`, `overlap-text`, `contrast` — is the bento dashboard measured against a one-section-per-screen landing page, the same family L5 diagnosed. `text-contrast` (17) is the documented palette limit of the brand red over black.
 
 L13 — Delivery shape: the branch is 25 commits and ~376.7k changed lines against `main` since the assets landed (lock files aside), so the slice boundary matters more than the diff size. Push, PR and merge remain the owner's decisions.
+
+L14 — The three findings that needed a person, answered by the owner (verbatim):
+- **Visible h1 (`copy-headline`):** «Dejar el h1 oculto y documentarlo». The page keeps the sr-only h1 and the finding is a design decision, not a defect.
+- **Closing action (`cta`):** «Sin botón, documentar que no aplica». The squad is content; the page's actions are at the top (identity, attendance).
+- **The Plantilla counter (`edge-left`):** «Mover el contador a la izquierda». The count now sits under the section title on the container's own left edge, and it keeps the h2 size so it cannot outrank the heading.
+
+L15 — After the counter moved, a re-armed build measured the page again: `edge-left` gone from the report, and with the owner's two decisions written as waivers (the sr-only h1 and the missing closing button) the gate stands at **FAIL 66, 58 WARN, 4 waivers** — down from 76 FAIL at the start of the slice. Closed and verified by name: `cut-text` on the attendance figure, `heading-order`, two of the three `heading-scale`, `edge-left`, plus `cta` and `copy-headline` as decisions with a written reason. The report's membership drifts between builds (`spill`, `nav` and `overlap-text` come and go on the same page), so the names matter more than the total.
