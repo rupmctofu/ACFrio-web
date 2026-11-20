@@ -2,7 +2,6 @@ import { ClipboardCheck } from "lucide-react";
 import {
   hasAnyAttendance,
   perPlayerAttendance,
-  playedMatches,
   playerPhoto,
   totalAppearances,
 } from "../../data/club-record";
@@ -39,16 +38,17 @@ function Face({ name, photo }) {
 
 /**
  * Who turned up, as a ranked list of players instead of a per-match roster.
- * The order and the percentage come from the club record: the denominator is
- * the club's played matches in the official table, so every bar is arithmetic
- * (count / played), never a guess. The club keeps the list by hand, so an empty
- * list means "not reported yet" and the card says so.
+ * The order and the percentage come from the club record: every row carries its
+ * own denominator (the matches that player could have played), so the bar is
+ * arithmetic (count / of), never a guess, and a player who joined mid-season is
+ * measured from his first match instead of against matches he never saw. The
+ * club keeps the list by hand, so an empty list means "not reported yet" and
+ * the card says so.
  */
 export default function AttendanceCard({ className = "" }) {
   const hasData = hasAnyAttendance();
   const players = totalAppearances();
   const rows = perPlayerAttendance();
-  const played = playedMatches();
 
   return (
     <Card
@@ -85,7 +85,7 @@ export default function AttendanceCard({ className = "" }) {
                         face on the right edge, the raw count as its quiet label. */}
                     <span className="flex shrink-0 items-baseline gap-1.5">
                       <span className="text-micro font-semibold tabular-nums tracking-[0.06em] text-acf-grey">
-                        {row.count}/{played}
+                        {row.count}/{row.of}
                       </span>
                       <span className="font-display text-xl font-medium leading-none tabular-nums text-acf-red-soft">
                         {row.pct}%

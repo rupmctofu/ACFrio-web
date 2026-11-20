@@ -152,12 +152,21 @@ export function derivedNews() {
 
   const attendance = perPlayerAttendance();
   if (attendance.length) {
-    const perfect = attendance.filter((entry) => entry.count === attendance[0].count);
-    items.push({
-      tag: "Vestuario",
-      text: `${perfect.length} han venido a todos: ${list(perfect.map((entry) => entry.name))}. El premio, seguir viniendo.`,
-    });
-    const less = attendance.filter((entry) => entry.pct <= 34);
+    /*
+     * "All of them" is every match that player could have played, which is his
+     * own `of` and not the club total: someone who joined in November and came
+     * to the cup is a hundred per cent of his matches, and never appears in the
+     * excuses line below for having turned up only once.
+     */
+    const perfect = attendance.filter((entry) => entry.of > 0 && entry.count === entry.of);
+    if (perfect.length) {
+      items.push({
+        tag: "Vestuario",
+        text: `${perfect.length} han venido a todos: ${list(perfect.map((entry) => entry.name))}. El premio, seguir viniendo.`,
+      });
+    }
+    // "Seen once" only means something when there were several matches to come to.
+    const less = attendance.filter((entry) => entry.of > 1 && entry.pct <= 34);
     if (less.length) {
       items.push({
         tag: "Excusas",
