@@ -162,7 +162,12 @@ export function Crest({ slug, size = "sm", ink = false, className = "", to = nul
     <a
       {...routeLink(to)}
       aria-label={`Ficha de ${teamFullName(slug)}`}
-      className="group inline-flex shrink-0 rounded-[inherit] transition duration-200 ease-out hover:scale-105 hover:opacity-90 focus-visible:outline-none motion-reduce:transition-none motion-reduce:hover:scale-100"
+      /* A crest is artwork, so it is only as big as the artwork — 28 px at the
+         small size, which is a thumb's width away from being a coin toss. On a
+         phone the link takes the 44 px a finger needs; from `sm` up it goes back
+         to hugging the artwork, because a pointer does not need the room and the
+         table rows should not grow for it. */
+      className="group inline-flex min-h-11 shrink-0 items-center rounded-[inherit] transition duration-200 ease-out hover:scale-105 hover:opacity-90 focus-visible:outline-none motion-reduce:transition-none motion-reduce:hover:scale-100 sm:min-h-0"
     >
       {mark}
     </a>
