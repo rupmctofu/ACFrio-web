@@ -93,33 +93,32 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* On phones the columns dissolve (display: contents) and every card
-              gets its own order, so the owner's mobile sequence is: the two
-              fixture cards, the calendar, the rules, scorers, the personal
-              logros right after them, attendance, the last match with its vote,
-              then the rest, gallery last. The numbers run 1 to 12 with no gap:
-              merging the vote and the form card into one took out one slot, so
-              everything after it moved up one place. On desktop the three
-              columns return untouched. */}
+              gets its own order. The owner's sequence (L1): the next fixture,
+              then the last match with its MVP vote, then the cup card and the
+              calendar, then the table, the scorers and the personal shelf, and
+              the plain reference cards last — rules, attendance, news, album.
+              The numbers run 1 to 12 with no gap. On desktop the three columns
+              return untouched: the new order is the phone's reading. */}
           <div className="flex max-lg:contents flex-col gap-6 lg:col-span-4">
-            <Standings className="max-lg:order-9" />
-            <LastMatchCard className="max-lg:order-8" />
+            <Standings className="max-lg:order-6" />
+            <LastMatchCard className="max-lg:order-2" />
             <ScorersCard className="max-lg:order-5" />
-            <PersonalAchievementsCard className="max-h-[36rem] max-lg:order-6" />
+            <PersonalAchievementsCard className="max-h-[36rem] max-lg:order-7" />
           </div>
 
           <div className="flex max-lg:contents flex-col gap-6 lg:col-span-5">
             <NextMatchCard className="max-lg:order-1" />
             {/* The centre column holds the two fixtures, the newsroom and the
                 album: the content a visitor came to look at. */}
-            <CupCard className="max-lg:order-2" />
+            <CupCard className="max-lg:order-3" />
             <NewsCard className="max-lg:order-10" />
             <GalleryCard className="max-lg:order-11" />
           </div>
 
           <div className="flex max-lg:contents flex-col gap-6 lg:col-span-3">
-            <FixturesCard className="max-lg:order-3" />
-            <AttendanceCard className="max-lg:order-7" />
-            <RulesCard className="max-lg:order-4" />
+            <FixturesCard className="max-lg:order-4" />
+            <AttendanceCard className="max-lg:order-9" />
+            <RulesCard className="max-lg:order-8" />
             <BrandModule className="max-lg:order-12 mt-auto" />
           </div>
         </div>
