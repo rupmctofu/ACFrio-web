@@ -122,7 +122,7 @@ const HERO_PHOTO = {
 };
 
 const HERO_VEIL =
-  "pointer-events-none absolute inset-0 bg-linear-to-b from-acf-red/70 via-acf-dark/45 via-42% to-acf-dark/92";
+  "pointer-events-none absolute inset-0 bg-linear-to-b from-acf-red/55 via-acf-dark/55 via-38% to-acf-bar/88";
 
 /** The dormant and the rested cards: the plain panel, no red, no photograph. */
 const BASE_SURFACE = "border-acf-line bg-acf-panel shadow-acf";
@@ -312,12 +312,8 @@ function MatchupFaces({ fixture, competitionKey, tone }) {
   return (
     <div className="@container">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 gap-y-2.5 sm:gap-x-4">
-        <div
-          className={`col-start-1 row-start-1 flex justify-center ${
-            dormant ? "opacity-45 grayscale" : ""
-          }`}
-        >
-          <Crest slug={CLUB_SLUG} size={crest} to={`/equipo/${CLUB_SLUG}`} />
+        <div className="col-start-1 row-start-1 flex justify-center">
+          <Crest slug={CLUB_SLUG} size={crest} to={`/equipo/${CLUB_SLUG}`} ink={dormant} />
         </div>
         {/*
          * Only rendered once the card is 24rem wide, because only then do the
@@ -369,12 +365,8 @@ function MatchupFaces({ fixture, competitionKey, tone }) {
             </Fragment>
           ))}
         </p>
-        <div
-          className={`col-start-3 row-start-1 flex justify-center ${
-            dormant ? "opacity-45 grayscale" : ""
-          }`}
-        >
-          <Crest slug={rival.slug} size={crest} to={`/equipo/${rival.slug}`} />
+        <div className="col-start-3 row-start-1 flex justify-center">
+          <Crest slug={rival.slug} size={crest} to={`/equipo/${rival.slug}`} ink={dormant} />
         </div>
         <div className="col-start-1 row-start-2 px-0.5">
           <p
@@ -438,7 +430,9 @@ export function FixtureCardView({
       } ${className}`}
     >
       {/* The photograph and the veil it sits under: content is positioned, so
-          it always paints on top of both without a z-index anywhere. */}
+          it always paints on top of both without a z-index anywhere. The
+          photograph is blurred and nudged past the card's edges, because a blur
+          that stops at the edge leaves a soft rim. */}
       {hero ? (
         <>
           <img
@@ -446,7 +440,7 @@ export function FixtureCardView({
             alt=""
             aria-hidden="true"
             decoding="async"
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+            className="pointer-events-none absolute inset-0 h-full w-full scale-105 object-cover blur-[2px]"
           />
           <div aria-hidden="true" className={HERO_VEIL} />
         </>
