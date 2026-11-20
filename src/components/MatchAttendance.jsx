@@ -36,6 +36,12 @@ import { availabilityOf } from "../lib/availability.js";
  * solid red primary and the refusal the quiet outline, so the card asks the
  * question the way a player answers it at the field.
  *
+ * Everything except the last strip is printed on the card's own gradient — the
+ * block paints no ground, no border and no negative margin of its own, so there
+ * is no second surface between the crests above and the bar below (owner's
+ * mockup). The people who said no get the one band that does paint a ground:
+ * full bleed, across the foot of the card, in a very dark grey.
+ *
  * Three honest states:
  *   * no backend configured — one line saying so, never a fake empty list;
  *   * backend, nobody identified — the headcount, plus a nudge to the face strip;
@@ -77,51 +83,73 @@ function FaceChip({ player, mine = false }) {
   );
 }
 
-/**
- * The faces of the answers, already split by whoever owns the answers.
+/*
+ * The card's own padding, cancelled and put back.
  *
- * Both lists arrive as props because the availability bar and these rows are
- * two views of the same answers (S4): computing the split here as well would
- * let the number above and the faces below drift apart. The headcount sentence
- * that used to live here is gone too — the availability line says it once.
+ * The "No van" strip is the only part of this block that is full bleed, and the
+ * only way to be full bleed from inside a padded body is to reach outside that
+ * padding. Both numbers are the hero body's `px-5 pb-6 sm:px-6` in
+ * FixtureCardView, kept here in one constant so the offsets are not guessed in
+ * two places — and they no longer move a surface, only an opaque band.
  */
-function Tally({ going, missing, chosenId }) {
-  if (going.length + missing.length === 0) {
+const BLEED = "-mx-5 -mb-6 px-5 pb-5 pt-3.5 sm:-mx-6 sm:-mb-6 sm:px-6";
+
+/**
+ * The faces of who said yes.
+ *
+ * The split arrives as a prop because the bar and these faces are two views of
+ * the same answers (S4): splitting them again here would let the number above
+ * and the faces below drift apart. Whoever is not coming is no longer part of
+ * this row — the mockup gives the absence list a band of its own at the foot of
+ * the card, so the two lists are told apart by where they sit.
+ */
+function GoingFaces({ going, chosenId }) {
+  if (going.length === 0) {
     return (
-      <p className="text-micro font-semibold uppercase tracking-[0.18em] text-acf-dim">
+      <p className="text-micro font-semibold uppercase tracking-[0.18em] text-acf-snow/60">
         {VOICE.states.attendanceEmpty}
       </p>
     );
   }
 
   return (
-    /*
-     * Two lists, two labels: who goes sits under the bar that counts them, and
-     * whoever does not go keeps the same face and the same white name, told
-     * apart only by the red «No van:» heading (owner, S10-S12). Folding the
-     * label into the row keeps the block from growing a third heading.
-     */
-    <div className="flex flex-col gap-1.5">
-      <div className="flex flex-wrap items-center gap-1">
-        {going.map((player) => (
-          <FaceChip key={player.id} player={player} mine={player.id === chosenId} />
-        ))}
-      </div>
-      {missing.length ? (
-        <div className="flex flex-wrap items-center gap-1">
-          <p className="mr-1 text-micro font-bold uppercase tracking-[0.16em] text-acf-red">
-            No van:
-          </p>
-          {missing.map((player) => (
-            <FaceChip key={player.id} player={player} mine={player.id === chosenId} />
-          ))}
-        </div>
-      ) : null}
+    <div className="flex flex-wrap items-center gap-1">
+      {going.map((player) => (
+        <FaceChip key={player.id} player={player} mine={player.id === chosenId} />
+      ))}
     </div>
   );
 }
 
-export default function MatchAttendance({ fixture, variant = "poster" }) {
+/**
+ * The last strip: the people who are not coming, on the only ground of this
+ * block that paints one.
+ *
+ * The owner drew it full bleed across the card's foot in a very dark grey that
+ * is deliberately not the pure black it used to be (`bg-black`, which he asked
+ * to lift). `acf-panel` is that grey: a documented step above the gradient's
+ * floor, so the band reads as its own surface instead of a black hole at the
+ * bottom of a red card. Its ink is checked against that grey, not against a
+ * guess: white names 16.6:1, the red "No van:" 3.6:1 (see the note in the
+ * handoff — the brand red is the one ink this palette cannot lift to 4.5:1 on a
+ * dark grey; it is 4.56:1 only on pure black).
+ */
+function MissingStrip({ missing, chosenId }) {
+  return (
+    <div className={`${BLEED} bg-acf-panel`}>
+      <div className="flex flex-wrap items-center gap-1">
+        <p className="mr-1 text-micro font-bold uppercase tracking-[0.16em] text-acf-red-soft">
+          No van:
+        </p>
+        {missing.map((player) => (
+          <FaceChip key={player.id} player={player} mine={player.id === chosenId} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function MatchAttendance({ fixture }) {
   const { player } = useIdentity();
   const [matchId, setMatchId] = useState(null);
   const [answers, setAnswers] = useState({});
@@ -184,35 +212,17 @@ export default function MatchAttendance({ fixture, variant = "poster" }) {
     }
   };
 
-  /*
-   * The band is the card's footer, so it has to cancel the padding of whoever
-   * renders it and put the same amount back as its own: the poster pads 20 px
-   * (24 from sm up) and the shared hero card pads a flat 24. Guessing one of the
-   * two leaves a seam of surface on the other, which is why the variant is a
-   * parameter and not a constant.
-   *
-   * The hero container stacks its children with a 28 px gap, and the band is one
-   * of them: without `-mt-7` that gap stays above the footer as a strip of card
-   * surface, which is what showed between the fixture sentence and ASISTENCIA.
-   */
-  const BAND =
-    variant === "hero"
-      ? "-mx-6 -mb-6 -mt-7 px-6 pb-6 pt-5"
-      : "-mx-5 -mb-5 px-5 pb-5 pt-4 sm:-mx-6 sm:-mb-6 sm:px-6 sm:pb-6";
-
   if (!isConfigured) {
     /*
-     * No backend is not zero confirmed, it is unknown confirmed: the same plain
-     * separator as the rest of the block, and deliberately no bar (S6, D3).
+     * No backend is not zero confirmed, it is unknown confirmed: one line on the
+     * card's own gradient, and deliberately no bar (S6, D3).
      */
     return (
-      <div
-        className={`${BAND} border-t border-acf-line-soft bg-black`}
-      >
-        <p className="text-micro font-semibold uppercase tracking-[0.18em] text-acf-grey">
+      <div className="flex flex-col gap-1">
+        <p className="text-micro font-semibold uppercase tracking-[0.22em] text-acf-snow/70">
           Asistencia
         </p>
-        <p className="mt-1 text-row text-acf-grey">
+        <p className="text-row text-acf-snow/70">
           Falta conectar el registro de asistencia. La lista aparecerá aquí.
         </p>
       </div>
@@ -271,38 +281,18 @@ export default function MatchAttendance({ fixture, variant = "poster" }) {
   };
 
   return (
-    /*
-     * The block is the card's footer: the black band runs to the card's edges
-     * and to its bottom corner, so the attendance reads as its own part of the
-     * poster instead of a strip of the red surface (owner, S11).
-     */
-    <div className={`${BAND} flex flex-col gap-2.5 border-t border-acf-line-soft bg-black`}>
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-micro font-semibold uppercase tracking-[0.22em] text-acf-dim">
-          ¿Vas al partido?
-        </p>
-        {mine && !editing ? (
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            className="rounded-full border border-acf-line px-3 py-1 text-micro font-semibold uppercase tracking-[0.14em] text-acf-snow/70 transition-colors duration-200 hover:border-white/25 hover:text-white focus-visible:border-acf-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-acf-red"
-          >
-            {VOICE.buttons.editAnswer}
-          </button>
-        ) : null}
-      </div>
-
+    <>
       {/*
-       * The availability first: it is the answer to the question the label
-       * asks, and it is the loudest thing in the block (S2, S6). Nothing wraps
-       * it — a card inside the card was the thing to remove.
+       * Everything above the last strip is printed straight onto the card's
+       * gradient: no ground, no border, no negative margin, so there is nothing
+       * here that could open the seam the stacked version used to show.
        */}
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-3">
         <div className="flex items-baseline justify-between gap-3">
-          <p className="text-micro font-semibold uppercase tracking-[0.22em] text-acf-dim">
+          <p className="text-micro font-semibold uppercase tracking-[0.22em] text-acf-snow/70">
             Disponibilidad
           </p>
-          <p className="font-display text-2xl leading-none tabular-nums text-white">
+          <p className="font-display text-4xl font-medium leading-none tabular-nums text-white">
             {availability.percent}%
           </p>
         </div>
@@ -323,42 +313,62 @@ export default function MatchAttendance({ fixture, variant = "poster" }) {
           </p>
           <p
             className={`ml-auto text-micro font-bold uppercase tracking-[0.16em] ${
-              availability.ready ? "text-acf-red" : "text-acf-grey"
+              availability.ready ? "text-acf-red" : "text-acf-snow/70"
             }`}
           >
             {stateLabel}
           </p>
         </div>
+
+        <GoingFaces going={going} chosenId={player?.id ?? null} />
+
+        {!player ? (
+          <p className="text-row text-acf-snow/70">
+            Elige quién eres arriba para apuntarte.
+          </p>
+        ) : null}
+
+        {loadError ? (
+          <p className="text-row text-acf-snow/70">
+            No se pudo cargar la lista de asistencia.
+            <span className="mt-1 block text-micro text-acf-snow/50">{loadError}</span>
+          </p>
+        ) : null}
+
+        {/*
+         * The answer itself. The mockup draws a card with no controls, but the
+         * controls are the reason this block exists, so they sit under the
+         * faces the mockup does draw and say nothing else: the two buttons while
+         * there is no answer, «Cambiar planes» once there is (L16).
+         */}
+        {showButtons ? (
+          <div className="grid grid-cols-[1.6fr_1fr] gap-2">
+            {button("in", "Sí, voy", "primary")}
+            {button("out", "No voy", "secondary")}
+          </div>
+        ) : (
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="rounded-full border border-acf-snow/25 px-3 py-1 text-micro font-semibold uppercase tracking-[0.14em] text-acf-snow/80 transition-colors duration-200 hover:border-white/40 hover:text-white focus-visible:border-acf-red focus-visible:outline focus-visible:outline-2 focus-visible:outline-acf-red"
+            >
+              {VOICE.buttons.editAnswer}
+            </button>
+          </div>
+        )}
+
+        {saveError ? (
+          <p className="text-row text-acf-red">
+            No se pudo guardar tu respuesta. Vuelve a intentarlo.
+            <span className="mt-1 block text-micro text-acf-snow/70">{saveError}</span>
+          </p>
+        ) : null}
       </div>
 
-      <Tally going={going} missing={missing} chosenId={player?.id ?? null} />
-
-      {!player ? (
-        <p className="text-row text-acf-grey">
-          Elige quién eres arriba para apuntarte.
-        </p>
+      {missing.length ? (
+        <MissingStrip missing={missing} chosenId={player?.id ?? null} />
       ) : null}
-
-      {loadError ? (
-        <p className="text-row text-acf-grey">
-          No se pudo cargar la lista de asistencia.
-          <span className="mt-1 block text-micro text-acf-dim">{loadError}</span>
-        </p>
-      ) : null}
-
-      {showButtons ? (
-        <div className="grid grid-cols-[1.6fr_1fr] gap-2">
-          {button("in", "Sí, voy", "primary")}
-          {button("out", "No voy", "secondary")}
-        </div>
-      ) : null}
-
-      {saveError ? (
-        <p className="text-row text-acf-red">
-          No se pudo guardar tu respuesta. Vuelve a intentarlo.
-          <span className="mt-1 block text-micro text-acf-dim">{saveError}</span>
-        </p>
-      ) : null}
-    </div>
+    </>
   );
 }

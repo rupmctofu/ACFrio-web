@@ -50,3 +50,9 @@ actas/*.png
 # Exports of the club group: personal data, never committed and never built.
 whatsapp/*
 !whatsapp/README.md
+
+# Vendored skill install and local tool scratch, never committed
+.agents/
+.comfy-scratch/
+.playwright-mcp/
+undefined/

@@ -2,13 +2,15 @@ import { useEffect } from "react";
 import Navbar from "./components/Navbar.jsx";
 import PageBackdrop from "./components/PageBackdrop.jsx";
 import teamData from "./data/teamData.json";
-import { matchRoute, navigate, useRoute } from "./lib/router.js";
+import { matchRoute, navigate, routeLink, useRoute } from "./lib/router.js";
 import HomeView from "./views/HomeView.jsx";
 import JornadaView from "./views/JornadaView.jsx";
 import EquiposView from "./views/EquiposView.jsx";
 import ClasificacionView from "./views/ClasificacionView.jsx";
 import CopaView from "./views/CopaView.jsx";
 import EquipoView from "./views/EquipoView.jsx";
+import LogrosView from "./views/LogrosView.jsx";
+import ReglamentoView from "./views/ReglamentoView.jsx";
 
 function Footer() {
   const { club } = teamData;
@@ -31,6 +33,15 @@ function Footer() {
           <p className="text-center text-row text-acf-grey">
             © 2026 {club.name}
             {club.founded ? ` · Fundado en ${club.founded}` : ""}
+            {/* The rules live outside the bar, so the footer is the second door
+                to them: a reader who has scrolled to the bottom of the site is
+                looking for exactly this and cannot get it from the pills. */}
+            <a
+              {...routeLink("/reglamento")}
+              className="mx-auto mt-2 block w-fit text-micro font-semibold uppercase tracking-[0.22em] text-acf-grey transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
+            >
+              Reglamento
+            </a>
           </p>
 
           <p className="text-center text-micro font-semibold uppercase tracking-[0.22em] text-acf-dim">
@@ -45,10 +56,12 @@ function Footer() {
 /**
  * One view per section (S2), keyed by the name the router resolves.
  *
- * The five labels in the bar are five of the keys: Inicio, Jornada, Equipos,
- * Clasificación and Copa. `team` is the sixth and has no label of its own: it is
- * one of the eleven, opened from Equipos, and the bar keeps lighting Equipos
- * while a reader is on a club's page. Anything else is a fallback, below.
+ * The six labels in the bar are six of the keys: Inicio, Jornada, Equipos,
+ * Clasificación, Copa and Logros. `team` has no label of its own: it is one of
+ * the eleven, opened from Equipos, and the bar keeps lighting Equipos while a
+ * reader is on a club's page. `reglamento` has no label either, on purpose —
+ * six pills fill the bar at 1024 — and is opened from the dashboard's rotating
+ * card and from the footer. Anything else is a fallback, below.
  */
 const VIEWS = {
   home: HomeView,
@@ -56,7 +69,9 @@ const VIEWS = {
   equipos: EquiposView,
   clasificacion: ClasificacionView,
   copa: CopaView,
+  logros: LogrosView,
   team: EquipoView,
+  reglamento: ReglamentoView,
 };
 
 export default function App() {

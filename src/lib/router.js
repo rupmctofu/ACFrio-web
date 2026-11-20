@@ -1,5 +1,5 @@
 /**
- * A router of our own, because the site has five routes and no more.
+ * A router of our own, because the site has a handful of routes and no more.
  *
  * A routing library would be more code and more bytes than the routes it would
  * serve here. What the site actually needs is a path in the address bar, a
@@ -16,8 +16,22 @@ import { useEffect, useState } from "react";
 
 const HOME = "/";
 
-/** The fixed sections. Anything else is either a dynamic segment or unknown. */
-const SECTIONS = new Set(["jornada", "equipos", "clasificacion", "copa"]);
+/**
+ * The fixed sections. Anything else is either a dynamic segment or unknown.
+ *
+ * `reglamento` is one of these and not one of the bar's six: the pills already
+ * fill the width at 1024, so the league rules are opened from the dashboard
+ * card and from the footer and the bar simply lights nothing while a reader is
+ * there. It is a plain section all the same — one page, one address.
+ */
+const SECTIONS = new Set([
+  "jornada",
+  "equipos",
+  "clasificacion",
+  "copa",
+  "logros",
+  "reglamento",
+]);
 
 /** `/jornada/` and `/jornada` are one route; so are `""` and `/`. */
 export const normalise = (path) => String(path ?? "").replace(/\/+$/, "") || HOME;
@@ -99,8 +113,9 @@ const decode = (segment) => {
  * One level of dynamic segment, and one only: `/equipo/<slug>` is the team page
  * (S7) and `/jornada/<n>` is a round. The team view arrives in the next task,
  * but the shape it will read is settled here, so the router does not have to
- * change under it later. `/copa` is a plain section, like `/clasificacion`: the
- * cup needs no segment because it has one group and one knockout. Everything it
+ * change under it later. `/copa` is a plain section, like `/clasificacion` and
+ * `/logros`: the cup needs no segment because it has one group and one knockout,
+ * and the shelf has one page because the catalogue is one list. Everything it
  * cannot match is `unknown`, and the app decides what to do with that.
  */
 export function matchRoute(path) {

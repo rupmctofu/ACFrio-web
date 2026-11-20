@@ -42,7 +42,7 @@ const COLOUR = {
   // applied to it here rather than asking for a second file.
   "ac-frio": "ac-frio-color.svg",
   "el-templo": "templo-color.svg",
-  "autoescola-giner": null,
+  "autoescola-giner": "giner-color.svg",
   "bayer-leverkolocon": "bayer-color.svg",
   "bonsi-fc": "bonsi-color.svg",
   "bar-dansaires-niu-projectes": "dansaires-color.svg",
@@ -72,9 +72,7 @@ export const crestColourArt = (slug) => {
  * card reads as a sticker. The same silhouette the quiet cards use, tinted white,
  * is the honest version of a crest that only exists in one ink (owner, L3).
  */
-const WHITE = {
-  "autoescola-giner": "giner-negro.svg",
-};
+const WHITE = {};
 
 /** The one-ink file to paint white, or null when the club has real colour art. */
 export const crestWhiteArt = (slug) => {

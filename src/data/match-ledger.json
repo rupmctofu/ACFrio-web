@@ -1,0 +1,23 @@
+{
+  "season": "2026-2027",
+  "updatedAt": "2026-11-17",
+  "source": "Actas firmadas de los partidos del AC FRÍO. Cada fila es un partido con acta: los goles contados por jugador y las tarjetas. Una fila ausente no es un partido sin goles ni sin tarjetas: es un partido cuya acta todavía no está transcrita, y por tanto no prueba nada.",
+  "matches": [
+    {
+      "competition": "cup",
+      "matchday": 1,
+      "date": "2026-11-17",
+      "goals": [
+        {
+          "player": "Rup",
+          "goals": 2
+        },
+        {
+          "player": "Cristian",
+          "goals": 1
+        }
+      ],
+      "cards": []
+    }
+  ]
+}

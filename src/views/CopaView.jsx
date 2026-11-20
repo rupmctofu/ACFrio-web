@@ -17,13 +17,12 @@ import { routeLink } from "../lib/router.js";
  * `/copa` — the cup, as the federation publishes it: one group, five matchdays,
  * and a knockout phase that has been announced and not yet drawn.
  *
- * The page is in the order the competition is played: the liguilla first (its
- * table, then its rounds), and the fase final underneath. The owner wanted the
- * elimination visible already, so it is not hidden at the foot of a long page —
- * it sits beside the table on a wide screen and directly under it on a phone.
- *
- * The board is the interesting part, because it is the one thing here that
- * cannot be drawn from the data. See `KnockoutBoard` for what it does not say.
+ * The board of the fase final opens the page. It is the one thing here that
+ * cannot be drawn from the data (see `KnockoutBoard` for what it does and does
+ * not say), and it is also the only card that needs the whole width of the page
+ * to be read as a bracket: the clubs sit at the two edges and the empty slots
+ * converge towards the centre, so a half-width column would break the drawing.
+ * The group follows it — the table, then the rounds — in the order it is played.
  */
 
 /* The rounds the source publishes, in order: a round exists because the calendar
@@ -41,6 +40,10 @@ const PLAYED_ROUNDS = ROUNDS.filter((round) =>
 
 const HEAD_CELL = "py-2.5 text-micro font-semibold uppercase tracking-[0.12em] text-acf-dim";
 const FIGURE_CELL = "px-1 py-3 text-center text-figure tabular-nums text-acf-snow/60";
+
+/* One collator for the club names, so the board is ordered the same way on every
+   render and an accent does not move a club up or down. */
+const collator = new Intl.Collator("es");
 
 /**
  * The liguilla table, with the same anatomy the league table has in
@@ -219,56 +222,163 @@ function RoundBlock({ round }) {
 }
 
 /**
- * The board of the fase final: one column of slots, one per club of the group,
- * every one of them reading "Por sortear".
+ * The geometry of the drawing, written once because the connector lines are
+ * placed against it: the vertical bar of each side runs from the centre of the
+ * first slot to the centre of the last, which is `inset-y-6` only while every
+ * slot box is `h-12` tall and the two of them are `gap-3` apart.
  *
- * It is deliberately empty of shape. The regulation says only "fase final
- * eliminatoria": it does not say how many clubs qualify, it does not name the
- * rounds, and the federation has published no draw. So there is no round name
- * here (no "cuartos", no "semifinal", no "final"), no pairing, no line joining
- * two slots and no count of rounds — each of those would be a fact invented on
- * the club's own page, and a board that lies is worse than a board that waits.
+ * The boxes are narrow on a phone (`w-20`, the label wraps onto two lines) and
+ * wider from `sm` up, so the whole bracket is 288px wide at its narrowest: it
+ * fits the 326px the card leaves at 390 without pushing the page sideways.
+ */
+const SLOT_BOX =
+  "flex h-12 w-20 shrink-0 items-center justify-center rounded-tile border border-dashed border-acf-line px-2 text-center text-micro font-semibold uppercase leading-tight tracking-[0.14em] sm:w-28";
+const SLOT_ARM = "h-px w-3 shrink-0 bg-acf-line";
+const SLOT_BAR = "absolute inset-y-6 w-px bg-acf-line";
+
+/**
+ * One box of the board that has no club in it yet.
  *
- * What is left is honest and still useful: the six clubs that are in the cup,
- * the state of the draw, and a surface that will fill in when the draw exists.
- * The slots are alphabetical rather than in table order on purpose: reading the
- * group's ranking into a bracket would suggest a seeding nobody has published.
+ * The label is the whole content: there is no club, no score and no opponent to
+ * print, and inventing any of them is the thing this whole card refuses to do.
+ * `centre` is the middle box only — it says `Ganador`, which is what the one
+ * place in the middle of an elimination produces, and is not a round name.
+ */
+function DrawSlot({ label, centre = false }) {
+  return (
+    <span className={`${SLOT_BOX} ${centre ? "text-acf-snow/70" : "text-acf-grey"}`}>
+      {label}
+    </span>
+  );
+}
+
+/**
+ * The empty shape of the fase final, drawn without claiming a single match.
+ *
+ * Why the connectors are here and the pairings are not: the federation has
+ * published no draw, so a line from a club into a slot would be a claim that
+ * this club plays that match, and a line between two slots would be a claim
+ * about who meets whom. So the lines start where the facts stop — they join the
+ * *slot columns* to each other and to the centre box, which says only what a
+ * knockout always says: two empty places on each side, one finish in the middle.
+ * No line leaves the club columns.
+ *
+ * The drawing is one flex row of five columns: two slots, a stub, the centre
+ * slot, a stub, two slots. Each side is a small column whose two slots reach
+ * their inner edge with a hairline, and a bar joins those two arms at the edge
+ * of the column; the stub then carries that join into the centre. Mirrored, the
+ * two sides meet on the one box in the middle.
+ */
+function DrawBracket() {
+  return (
+    <div
+      role="img"
+      aria-label="Cuadro de la fase final: dos plazas por sortear a cada lado que acaban en un solo ganador en el centro."
+      className="flex w-full items-center justify-center lg:w-auto lg:flex-1"
+    >
+      {/* Left side: two slots whose arms meet a bar, and the bar reaches the centre. */}
+      <div className="relative flex flex-col gap-3">
+        {[0, 1].map((index) => (
+          <div key={index} className="flex items-center">
+            <DrawSlot label="Por sortear" />
+            <span aria-hidden="true" className={SLOT_ARM} />
+          </div>
+        ))}
+        <span aria-hidden="true" className={`${SLOT_BAR} right-0`} />
+      </div>
+      <span aria-hidden="true" className={SLOT_ARM} />
+      <DrawSlot label="Ganador" centre />
+      <span aria-hidden="true" className={SLOT_ARM} />
+      {/* Right side, mirrored: the bar sits on the inner edge of the column. */}
+      <div className="relative flex flex-col gap-3">
+        {[0, 1].map((index) => (
+          <div key={index} className="flex items-center">
+            <span aria-hidden="true" className={SLOT_ARM} />
+            <DrawSlot label="Por sortear" />
+          </div>
+        ))}
+        <span aria-hidden="true" className={`${SLOT_BAR} left-0`} />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The clubs at one edge of the board: the pool that will enter the fase final,
+ * never a pairing and never a seeding.
+ *
+ * They keep the order the card has always used — alphabetical, not the table's —
+ * and their slot carries no label now: "Por sortear" belongs to the empty boxes
+ * in the middle, where the draw will write. A club here is only a club that is
+ * in the cup.
+ */
+function ClubPool({ clubs }) {
+  return (
+    <ul
+      aria-label="Clubes de la copa"
+      className="flex w-full flex-col gap-1.5 lg:w-56 lg:shrink-0"
+    >
+      {clubs.map((row) => {
+        const ours = row.slug === CLUB_SLUG;
+        return (
+          <li
+            key={row.slug}
+            className={`flex min-h-12 items-center gap-3 rounded-tile border border-dashed px-3 py-2 ${
+              ours ? "border-acf-red/40 bg-acf-red/[0.08]" : "border-acf-line"
+            }`}
+          >
+            {/* The slot is not a link: it names no match and opens nothing.
+                Only the crest is one, as on every other club mark that does not
+                already sit inside an anchor. */}
+            <Crest slug={row.slug} size="sm" ink to={`/equipo/${row.slug}`} />
+            {/* Two lines at most, instead of one truncated line: the pool
+                columns are narrow enough that the longest names ("TECNOCASA -
+                DELTA MONTAJES") would otherwise lose their second half. */}
+            <span
+              title={teamFullName(row.slug)}
+              className={`line-clamp-2 min-w-0 flex-1 text-row font-bold uppercase leading-tight tracking-[0.04em] ${
+                ours ? "text-white" : "text-acf-snow/70"
+              }`}
+            >
+              {teamName(row.slug)}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/**
+ * The board of the fase final, drawn as a bracket: the six clubs of the cup at
+ * the two edges, three per side, and the empty shape they will fill between them.
+ *
+ * It gives the shape without inventing the facts. The regulation says only "fase
+ * final eliminatoria": it does not say how many clubs qualify, it names no
+ * rounds and the federation has published no draw. So there is no round name here
+ * (no "cuartos", no "semifinal", no "final"), no pairing and no seeded order —
+ * the six clubs are the pool that enters, listed alphabetically, and the boxes in
+ * the middle read "Por sortear" because that is exactly what they are.
+ *
+ * The shape is the honest part and the reason the board is worth drawing: six
+ * entrants produce two empty places on each side that meet in one in the middle,
+ * and the connectors join those places, not the clubs. Two slots per side is not
+ * a claim either — it is how six entrants split into a bracket once the draw
+ * exists, and the copy under the board says the draw does not exist yet.
  */
 function KnockoutBoard({ rows }) {
-  const collator = new Intl.Collator("es");
   const clubs = [...rows].sort((a, b) => collator.compare(teamFullName(a.slug), teamFullName(b.slug)));
 
   return (
     <>
-      <ol className="space-y-1.5 px-4 pb-4 pt-1 sm:px-6" aria-label="Plazas de la fase final">
-        {clubs.map((row) => {
-          const ours = row.slug === CLUB_SLUG;
-          return (
-            <li
-              key={row.slug}
-              className={`flex items-center gap-3 rounded-tile border border-dashed px-3 py-2.5 ${
-                ours ? "border-acf-red/40 bg-acf-red/[0.08]" : "border-acf-line"
-              }`}
-            >
-              {/* The slot is not a link: it names no match and opens nothing.
-                  Only the crest is one, as on every other club mark that does
-                  not already sit inside an anchor. */}
-              <Crest slug={row.slug} size="sm" ink to={`/equipo/${row.slug}`} />
-              <span
-                title={teamFullName(row.slug)}
-                className={`min-w-0 flex-1 truncate text-row font-bold uppercase tracking-[0.04em] ${
-                  ours ? "text-white" : "text-acf-snow/70"
-                }`}
-              >
-                {teamName(row.slug)}
-              </span>
-              <span className="shrink-0 text-micro font-semibold uppercase tracking-[0.16em] text-acf-dim">
-                Por sortear
-              </span>
-            </li>
-          );
-        })}
-      </ol>
+      {/* One row from `lg`, one column below it: on a phone the drawing cannot
+          run sideways without breaking, so the three clubs of each edge become
+          the group above and the group below, and the bracket sits between them. */}
+      <div className="flex flex-col items-stretch gap-4 px-4 pb-4 pt-1 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-3">
+        <ClubPool clubs={clubs.slice(0, 3)} />
+        <DrawBracket />
+        <ClubPool clubs={clubs.slice(3)} />
+      </div>
       {/* The one line the board owes the reader: why it is empty, and what will
           fill it. No badge and no "próximamente": the sentence is more exact,
           because it names who is missing and what has to happen. */}
@@ -294,12 +404,28 @@ export default function CopaView() {
             Copa
           </h1>
           <p className="mt-3 text-row leading-relaxed text-acf-snow/70">
-            Seis clubes, cinco jornadas y una pizarra vacía. El sorteo lo pone la
+            Seis clubes, cinco jornadas y una pizarra vacía. El sorteo lo hace la
             federación; aquí se verá cuando lo publique.
           </p>
         </header>
 
+        {/* The board takes the whole width on a wide screen: the bracket is a
+            horizontal drawing, and half a page is not enough to read it. The
+            group keeps the two columns underneath, table beside rounds. */}
         <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <Card
+            id="copa-fase-final"
+            title="Fase final"
+            hint="Sorteo sin publicar"
+            icon={Trophy}
+            href={cup.sources.calendar}
+            linkLabel="Abrir el calendario oficial de la Copa en CEGARRAF"
+            className="surface-deep lg:col-span-2"
+            bodyClassName="flex flex-col"
+          >
+            <KnockoutBoard rows={cupData.rows} />
+          </Card>
+
           <Card
             id="copa-liguilla"
             title="Liguilla"
@@ -318,33 +444,19 @@ export default function CopaView() {
           </Card>
 
           <Card
-            id="copa-fase-final"
-            title="Fase final"
-            hint="Sorteo sin publicar"
-            icon={Trophy}
+            id="copa-jornadas"
+            title="Jornadas"
+            hint={`${ROUNDS.length} jornadas · ${cup.fixtures.length} partidos`}
+            icon={CalendarDays}
             href={cup.sources.calendar}
             linkLabel="Abrir el calendario oficial de la Copa en CEGARRAF"
-            className="surface-deep"
             bodyClassName="flex flex-col"
           >
-            <KnockoutBoard rows={cupData.rows} />
+            {ROUNDS.map((round) => (
+              <RoundBlock key={round} round={round} />
+            ))}
           </Card>
         </div>
-
-        <Card
-          id="copa-jornadas"
-          title="Jornadas"
-          hint={`${ROUNDS.length} jornadas · ${cup.fixtures.length} partidos`}
-          icon={CalendarDays}
-          href={cup.sources.calendar}
-          linkLabel="Abrir el calendario oficial de la Copa en CEGARRAF"
-          className="mt-6"
-          bodyClassName="flex flex-col"
-        >
-          {ROUNDS.map((round) => (
-            <RoundBlock key={round} round={round} />
-          ))}
-        </Card>
       </div>
     </section>
   );

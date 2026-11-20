@@ -4,11 +4,13 @@ import { matchRoute, routeLink, useRoute } from "../lib/router.js";
 import { NavbarIdentity } from "./WhoAreYou.jsx";
 
 /**
- * The five sections of the site, in the order the owner approved (S2), with the
- * labels he read back: Inicio · Jornada · Equipos · Clasificación · Copa.
+ * The six sections of the site: the four the owner approved (S2) — Inicio ·
+ * Jornada · Equipos · Clasificación —, Copa, which he asked for by name when
+ * he wanted the elimination visible, and Logros, the shelf he asked for with the
+ * personal block below Goleadores. The labels are his words.
  *
  * These are routes now, not in-page anchors. The bar used to jump to `#partidos`
- * and `#clasificacion` inside one long page; the site has five pages, and a
+ * and `#clasificacion` inside one long page; the site has six pages, and a
  * navbar that names them is the whole point of the change (S1). The section ids
  * on the dashboard are untouched, so a `/#clasificacion` bookmark still scrolls
  * to the block — the bar simply no longer sends anyone there.
@@ -19,6 +21,7 @@ const NAV_LINKS = [
   { label: "Equipos", path: "/equipos", name: "equipos" },
   { label: "Clasificación", path: "/clasificacion", name: "clasificacion" },
   { label: "Copa", path: "/copa", name: "copa" },
+  { label: "Logros", path: "/logros", name: "logros" },
 ];
 
 /**
@@ -33,6 +36,7 @@ const SECTION_OF_ROUTE = {
   team: "equipos",
   clasificacion: "clasificacion",
   copa: "copa",
+  logros: "logros",
 };
 
 const PILL_BASE =

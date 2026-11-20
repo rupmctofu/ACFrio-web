@@ -1,10 +1,40 @@
 {
   "rewrites": [
-    { "source": "/jornada", "destination": "/index.html" },
-    { "source": "/jornada/(.*)", "destination": "/index.html" },
-    { "source": "/equipos", "destination": "/index.html" },
-    { "source": "/clasificacion", "destination": "/index.html" },
-    { "source": "/copa", "destination": "/index.html" },
-    { "source": "/equipo/(.*)", "destination": "/index.html" }
+    {
+      "source": "/jornada",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/jornada/(.*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/equipos",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/clasificacion",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/copa",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/equipo/(.*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/logros",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/reglamento",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/copa/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }

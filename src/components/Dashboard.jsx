@@ -3,28 +3,40 @@ import { IdentityDoor } from "./WhoAreYou.jsx";
 import NextMatchCard from "./cards/NextMatchCard.jsx";
 import BreakingTicker from "./cards/BreakingTicker.jsx";
 import ScorersCard from "./cards/ScorersCard.jsx";
+import PersonalAchievementsCard from "./cards/PersonalAchievementsCard.jsx";
 import FormCard from "./cards/FormCard.jsx";
 import FixturesCard from "./cards/FixturesCard.jsx";
 import CupCard from "./cards/CupCard.jsx";
-import CopaStatsCard from "./cards/CopaStatsCard.jsx";
 import AttendanceCard from "./cards/AttendanceCard.jsx";
 import MvpCard from "./cards/MvpCard.jsx";
 import GalleryCard from "./cards/GalleryCard.jsx";
 import NewsCard from "./cards/NewsCard.jsx";
 import BrandModule from "./cards/BrandModule.jsx";
+import RulesCard from "./cards/RulesCard.jsx";
 
 /**
  * Home grid: a full-width news band, then the centre column as the page's
- * protagonist — the next league match, the next cup match, the cup's own
- * statistics, the club's newsroom and the photo gallery — while standings,
- * scorers and form sit on the left and calendar, attendance, the MVP vote and the
- * brand module on the right. Every card reads only synced or club-reported data.
+ * protagonist — the next league match, the next cup match, the club's newsroom
+ * and the photo gallery — while standings, scorers, the personal achievements
+ * and form sit on the left and calendar, attendance, the MVP vote and the brand
+ * module on the right. Every card reads only synced or club-reported data.
+ *
+ * The cup's table used to be a card of its own here (CopaStatsCard, right under
+ * the two fixtures) and the owner took it out: `/copa` already draws that table,
+ * so the dashboard was showing the same table twice. The component file stays in
+ * the repo, unused, and nothing else in the centre column changed order on
+ * desktop.
+ *
+ * The personal achievements card sits directly under Goleadores, as the owner
+ * asked: the goals first, then what they have earned. It is the same component
+ * `/logros` opens as its narrow left block, so the dashboard and the shelf are
+ * one block in two places and not two drawings of one idea.
  *
  * The MVP card sits directly under the attendance card, the two surfaces about
  * the last played match together: who turned up, then who was the best of them.
  * It renders NOTHING unless there is a played match, a device bound to a player
  * and a configured backend, so on most visits the grid is exactly what it was;
- * it carries `max-lg:order-7`, which pushes standings, form, news, gallery and
+ * it carries `max-lg:order-8`, which pushes standings, form, news, gallery and
  * the brand module one step down in the phone sequence and changes nothing on
  * desktop.
  *
@@ -33,8 +45,18 @@ import BrandModule from "./cards/BrandModule.jsx";
  * them is the active card — the one whose kickoff comes first owns the red hero
  * surface and the only attendance block (S10). When the next league match is more
  * than a week away the league card shrinks to its flat grey note and the cup card
- * takes the hero surface (S7, S8). The cup's 0/15 counter and team list moved to
- * their own card right below the pair (S9).
+ * takes the hero surface (S7, S8). The cup's 0/15 counter and team list live on
+ * their own card below the pair (S9), which is now only on `/copa`: see above.
+ *
+ * The rules card closes the right column, above the brand module: it is a side
+ * surface and not the centre, so it sits where nothing else is competing for
+ * attention. On a phone it takes the fourth slot — right after the calendar —
+ * which is the position it already had when the cup's stats card occupied the
+ * third; with that card gone, everything from the calendar on moved one place up
+ * so the sequence has no gap: Calendario 4→3, Reglamento 5→4, Goleadores 6→5,
+ * Logros personales 7→6, Asistencia 8→7, MVP 9→8, Clasificación 10→9, Forma
+ * 11→10, Noticias 12→11, Galería 13→12 and the brand module 14→13. Nothing
+ * changed on desktop; the columns there are the same three.
  *
  * The card hierarchy is otherwise unchanged: only the active fixture card owns
  * `.surface-hero` and the scorers card the accent surface (see `.surface-hero` /
@@ -68,30 +90,33 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* On phones the columns dissolve (display: contents) and every card
               gets its own order, so the owner's mobile sequence is: the two
-              fixture cards, the cup's stats, calendar, scorers, attendance, the
-              MVP vote, then the rest, gallery last. On desktop the three columns
-              return untouched. */}
+              fixture cards, the calendar, the rules, scorers, the personal
+              logros right after them, attendance, the MVP vote, then the rest,
+              gallery last. The numbers run 1 to 13 with no gap, which is why the
+              rules card kept its place at 4 when the cup's stats card left the
+              grid. On desktop the three columns return untouched. */}
           <div className="flex max-lg:contents flex-col gap-6 lg:col-span-4">
-            <Standings className="max-lg:order-8" />
+            <Standings className="max-lg:order-9" />
             <ScorersCard className="max-lg:order-5" />
-            <FormCard className="max-lg:order-9" />
+            <PersonalAchievementsCard className="max-lg:order-6" />
+            <FormCard className="max-lg:order-10" />
           </div>
 
           <div className="flex max-lg:contents flex-col gap-6 lg:col-span-5">
             <NextMatchCard className="max-lg:order-1" />
-            {/* The centre column holds the two fixtures, the cup's stats, the
-                newsroom and the album: the content a visitor came to look at. */}
+            {/* The centre column holds the two fixtures, the newsroom and the
+                album: the content a visitor came to look at. */}
             <CupCard className="max-lg:order-2" />
-            <CopaStatsCard className="max-lg:order-3" />
-            <NewsCard className="max-lg:order-10" />
-            <GalleryCard className="max-lg:order-11" />
+            <NewsCard className="max-lg:order-11" />
+            <GalleryCard className="max-lg:order-12" />
           </div>
 
           <div className="flex max-lg:contents flex-col gap-6 lg:col-span-3">
-            <FixturesCard className="max-lg:order-4" />
-            <AttendanceCard className="max-lg:order-6" />
-            <MvpCard className="max-lg:order-7" />
-            <BrandModule className="max-lg:order-12 mt-auto" />
+            <FixturesCard className="max-lg:order-3" />
+            <AttendanceCard className="max-lg:order-7" />
+            <MvpCard className="max-lg:order-8" />
+            <RulesCard className="max-lg:order-4" />
+            <BrandModule className="max-lg:order-13 mt-auto" />
           </div>
         </div>
       </div>
