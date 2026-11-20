@@ -28,8 +28,14 @@ export default function Squad() {
               Plantilla 2026/2027
             </h2>
           </div>
-          <div className="text-center sm:text-right">
-            <span className="font-display text-4xl leading-none tabular-nums text-white sm:text-5xl">
+          {/* The counter is a right-hand stack, and its two lines start on one
+              edge: right-aligned lines left the label at a different x from the
+              figure it names (gate: edge-left). The block is still pushed to the
+              row's right end; only the alignment inside it changes. */}
+          <div className="text-center sm:ml-auto sm:text-left">
+            {/* A stat, not the section's heading: the figure stays at the h2 size,
+                so it cannot outrank the title above it (gate: heading-scale). */}
+            <span className="font-display text-2xl leading-none tabular-nums text-white sm:text-3xl">
               {squad.length}
             </span>
             <p className="mt-1 text-micro font-semibold uppercase tracking-[0.22em] text-acf-dim">

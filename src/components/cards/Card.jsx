@@ -36,12 +36,17 @@ export default function Card({
     >
       <header className="flex items-start justify-between gap-3 px-6 pb-3.5 pt-6">
         <div className="min-w-0">
-          <h2
+          {/* A card title is not a section heading: the section owns the h2 and
+              every card inside it is one level down, so the outline runs
+              h1 (page) > h2 (section) > h3 (card) instead of flattening every
+              card onto the section level (gate: heading-scale asked for one size
+              per level, and a card title measured 19px against a 30px h2). */}
+          <h3
             id={id ? `${id}-title` : undefined}
             className="text-title font-extrabold leading-tight tracking-tight text-white"
           >
             {title}
-          </h2>
+          </h3>
           {hint ? (
             <p className="mt-2 line-clamp-2 text-hint font-semibold uppercase leading-snug tracking-[0.2em] text-acf-grey">
               {hint}

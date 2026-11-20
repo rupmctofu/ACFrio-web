@@ -66,6 +66,12 @@ import RulesCard from "./cards/RulesCard.jsx";
 export default function Dashboard() {
   return (
     <section id="partidos" className="relative pb-16 pt-28">
+      {/* The section's own heading, for the document outline only: the page's
+          visible title is the club's lockup in the fixed header, and the grid
+          starts with the fixture itself (owner, L28). Without it every card
+          title lands an h2 below the page's h1, which the checker reads as a
+          skipped level (gate: heading-order). */}
+      <h2 className="sr-only">El club, hoy</h2>
       <div className="wrap">
         {/* The club-code door, first thing in the grid: nobody has to scroll
             past three cards to say who they are. Once the device knows, it

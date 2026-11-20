@@ -149,7 +149,7 @@ function MatchRow({ fixture }) {
           <Crest slug={opponent.slug} size="sm" to={`/equipo/${opponent.slug}`} />
         </div>
         <span
-          className={`whitespace-nowrap font-display text-4xl font-medium leading-none tabular-nums ${
+          className={`whitespace-nowrap font-display text-2xl font-medium leading-none tabular-nums sm:text-3xl ${
             outcome === "win" ? "text-acf-red" : "text-white"
           }`}
         >

@@ -272,7 +272,7 @@ export default function MatchAttendance({ fixture }) {
           <p className="text-micro font-semibold uppercase tracking-[0.22em] text-acf-snow/70">
             Disponibilidad
           </p>
-          <p className="font-display text-4xl font-medium leading-none tabular-nums text-white">
+          <p className="font-display text-2xl font-medium leading-none tabular-nums text-white sm:text-3xl">
             {availability.percent}%
           </p>
         </div>

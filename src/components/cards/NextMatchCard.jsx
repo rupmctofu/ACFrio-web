@@ -225,13 +225,19 @@ function CardHead({ title, competitionKey, fixture, tone }) {
        on the other treatments it changes nothing. */
     <header className="relative flex flex-col gap-2 px-5 pb-4 pt-5 sm:px-6 sm:pt-6">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-        <h2
-          className={`text-[0.8125rem] font-extrabold uppercase leading-none tracking-[0.2em] sm:text-row sm:tracking-[0.26em] ${
+        {/* The card's title, one level under the section that holds it: the
+            section owns the h2, so this eyebrow is an h3 (gate: heading-scale).
+            It also takes the grid's card-title size: at 13px it was the only h3
+            at that size, and the checker read two sizes on one level as a broken
+            scale. The tracking comes down with the size so the line does not
+            sprawl across the photograph. */}
+        <h3
+          className={`text-title font-extrabold uppercase leading-none tracking-[0.16em] ${
             dormant ? "text-acf-grey" : "text-white"
           }`}
         >
           {title}
-        </h2>
+        </h3>
         {fixture ? (
           // `ml-auto` keeps the chip on the card's right edge even when it
           // drops to its own line at very narrow widths.
