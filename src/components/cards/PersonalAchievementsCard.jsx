@@ -70,6 +70,8 @@ export default function PersonalAchievementsCard({
       title="Logros personales"
       hint={player ? `${player.name} · ${earned} de ${total}` : `Temporada ${season}`}
       icon={Medal}
+      image={player?.photo}
+      imageFit="scale-125 object-cover object-top"
       className={className}
       bodyClassName={`flex min-h-0 flex-col ${bodyClassName}`}
     >

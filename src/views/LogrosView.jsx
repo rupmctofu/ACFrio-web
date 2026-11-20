@@ -4,6 +4,7 @@ import PersonalAchievementsCard from "../components/cards/PersonalAchievementsCa
 import AchievementsGrid, { seasonAchievements } from "../components/AchievementsGrid.jsx";
 import { teamAchievements } from "../data/achievements.js";
 import { season } from "../data/club-record.js";
+import teamData from "../data/teamData.json";
 
 /**
  * `/logros` — the whole catalogue on one screen, at the owner's proportions:
@@ -56,6 +57,8 @@ export default function LogrosView() {
             title="Logros de equipo"
             hint={`Temporada ${season} · ${earned} de ${total}`}
             icon={Trophy}
+            image={teamData.club.logo}
+            imageFit="object-contain p-0.5"
             className="surface-deep h-full"
             bodyClassName="flex min-h-0 flex-col overflow-y-auto"
           >

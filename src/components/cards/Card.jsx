@@ -7,12 +7,20 @@
  * mark becomes the link to that source: same circle, same icon, same size, no
  * label in the page — the destination is named only for assistive tech, because
  * an icon alone must still say where it goes.
+ *
+ * A card that has a face to show passes `image` instead of `icon`: the same 32 px
+ * circle, with the picture in it. `imageFit` decides how the picture sits in that
+ * circle — a portrait is cropped from the top, a crest is contained whole — and
+ * the mark keeps its border, so a cut-out portrait with a transparent corner
+ * does not float on nothing.
  */
 export default function Card({
   id,
   title,
   hint,
   icon: Icon,
+  image,
+  imageFit = "object-cover object-top",
   href,
   linkLabel,
   className = "",
@@ -40,7 +48,14 @@ export default function Card({
             </p>
           ) : null}
         </div>
-        {Icon ? (
+        {image ? (
+          <img
+            src={image}
+            alt=""
+            aria-hidden="true"
+            className={`${mark} bg-acf-panel-light object-center ${imageFit}`}
+          />
+        ) : Icon ? (
           href ? (
             <a
               href={href}
