@@ -43,8 +43,15 @@ function Row({ row }) {
        * found before anything is read. An inset shadow on the first cell draws
        * it above the collapsed table borders, which a border on the row cannot.
        */}
+      {/*
+       * `min-w-7` and not only `w-7`: the table's automatic layout may shrink a
+       * column below its stated width when the sum of the min-content widths
+       * passes the card, and at 390px the rank column collapsed to 7px with the
+       * digit sitting on its own edge (gate: cut-text on the sixth row). A floor
+       * makes the row scroller scroll instead of squeezing the digit away.
+       */}
       <td
-        className={`rank w-7 py-3 pl-3 pr-1 text-center font-display text-lg leading-none tabular-nums ${
+        className={`rank min-w-7 w-7 py-3 pl-3 pr-1 text-center font-display text-lg leading-none tabular-nums ${
           isAcf
             ? "text-acf-red shadow-[inset_3px_0_0_var(--color-acf-red)]"
             : "text-acf-snow/40"
