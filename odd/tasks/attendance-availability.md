@@ -105,3 +105,18 @@ atrás, y el resto de la web no cambian.
   fuera, lo de "una preocupacion menos..." fuera. el 9/15 en rojo y más grande. Y luego, la parte
   inferior de la tarjeta que sea fondo negro y , en rojo NO VAN: y los nombres de los jugadores que
   no vayan en blanco con su img de perfil». Fija S10-S13.
+
+L7 — Regresión de S13, reportada por el propietario (verbatim): «ahora no aparecen los que han
+vitado que no asisten». No era una petición nueva: el bloque se reconstruyó y con él se perdió la
+segunda lista que S13 ya pedía («en rojo NO VAN: y los nombres de los jugadores que no vayan en
+blanco con su img de perfil»). Lo entregado en `24ccbb3`: la segunda lista vuelve con el rótulo rojo
+«No van:» y las mismas fichas que la primera (foto circular y nombre blanco), con la X en la ficha
+propia para retirar un no desde donde se dijo. El reparto de respuestas sale del componente a
+`src/lib/attendance-split.js`, que se prueba sin navegador (`tests/attendance-split.test.mjs`).
+
+L8 — Verificación de L7: `npm test` 151 pass / 0 fail y `npm run build` limpio. La línea en pantalla
+no se pudo ver en local: el bloque de asistencia está detrás de `isConfigured` (Supabase) y sin `.env`
+la tarjeta dice «Falta conectar el registro de asistencia», así que su aspecto se comprueba en
+producción, donde hay datos. Los dos tests de `route-meta` que se pusieron rojos en esta rama eran la
+trampa de fin de línea ya conocida (`core.autocrlf=true` sin `.gitattributes`: el checkout entrega
+CRLF y el generador escribe LF) y ahora normalizan al leer.
