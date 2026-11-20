@@ -4,11 +4,10 @@ import NextMatchCard from "./cards/NextMatchCard.jsx";
 import BreakingTicker from "./cards/BreakingTicker.jsx";
 import ScorersCard from "./cards/ScorersCard.jsx";
 import PersonalAchievementsCard from "./cards/PersonalAchievementsCard.jsx";
-import FormCard from "./cards/FormCard.jsx";
+import LastMatchCard from "./cards/LastMatchCard.jsx";
 import FixturesCard from "./cards/FixturesCard.jsx";
 import CupCard from "./cards/CupCard.jsx";
 import AttendanceCard from "./cards/AttendanceCard.jsx";
-import MvpCard from "./cards/MvpCard.jsx";
 import GalleryCard from "./cards/GalleryCard.jsx";
 import NewsCard from "./cards/NewsCard.jsx";
 import BrandModule from "./cards/BrandModule.jsx";
@@ -17,8 +16,8 @@ import RulesCard from "./cards/RulesCard.jsx";
 /**
  * Home grid: a full-width news band, then the centre column as the page's
  * protagonist — the next league match, the next cup match, the club's newsroom
- * and the photo gallery — while standings, scorers, the personal achievements
- * and form sit on the left and calendar, attendance, the MVP vote and the brand
+ * and the photo gallery — while standings, the last match, scorers and the
+ * personal achievements sit on the left, and calendar, attendance and the brand
  * module on the right. Every card reads only synced or club-reported data.
  *
  * The cup's table used to be a card of its own here (CopaStatsCard, right under
@@ -32,13 +31,15 @@ import RulesCard from "./cards/RulesCard.jsx";
  * `/logros` opens as its narrow left block, so the dashboard and the shelf are
  * one block in two places and not two drawings of one idea.
  *
- * The MVP card sits directly under the attendance card, the two surfaces about
- * the last played match together: who turned up, then who was the best of them.
- * It renders NOTHING unless there is a played match, a device bound to a player
- * and a configured backend, so on most visits the grid is exactly what it was;
- * it carries `max-lg:order-8`, which pushes standings, form, news, gallery and
- * the brand module one step down in the phone sequence and changes nothing on
- * desktop.
+ * The last match card (S9) replaced two cards with one: the MVP vote of the last
+ * played match, the result itself and, under a hairline and in small type, the
+ * three results the form card used to list alone. It sits directly above
+ * Goleadores, as the owner asked — what happened, then who scores — and it is
+ * the card `#mvp` still scrolls to. On a phone it takes the slot the vote had
+ * (`max-lg:order-8`, right after the attendance card: who turned up, then who
+ * was the best of them), and the hole the form card left at 10 closed behind it:
+ * Noticias 11→10, Galería 12→11 and the brand module 13→12. Twelve cards now,
+ * numbered 1 to 12 with no gap.
  *
  * The two fixture cards are one pair, not two unrelated modules (S6): the league
  * fixture on top and the cup fixture under it, same anatomy, and exactly one of
@@ -51,11 +52,8 @@ import RulesCard from "./cards/RulesCard.jsx";
  * The rules card closes the right column, above the brand module: it is a side
  * surface and not the centre, so it sits where nothing else is competing for
  * attention. On a phone it takes the fourth slot — right after the calendar —
- * which is the position it already had when the cup's stats card occupied the
- * third; with that card gone, everything from the calendar on moved one place up
- * so the sequence has no gap: Calendario 4→3, Reglamento 5→4, Goleadores 6→5,
- * Logros personales 7→6, Asistencia 8→7, MVP 9→8, Clasificación 10→9, Forma
- * 11→10, Noticias 12→11, Galería 13→12 and the brand module 14→13. Nothing
+ * the place it kept when the cup's stats card left the grid and everything from
+ * the calendar on moved up one place, so the sequence has no gap. Nothing
  * changed on desktop; the columns there are the same three.
  *
  * The card hierarchy is otherwise unchanged: only the active fixture card owns
@@ -91,15 +89,16 @@ export default function Dashboard() {
           {/* On phones the columns dissolve (display: contents) and every card
               gets its own order, so the owner's mobile sequence is: the two
               fixture cards, the calendar, the rules, scorers, the personal
-              logros right after them, attendance, the MVP vote, then the rest,
-              gallery last. The numbers run 1 to 13 with no gap, which is why the
-              rules card kept its place at 4 when the cup's stats card left the
-              grid. On desktop the three columns return untouched. */}
+              logros right after them, attendance, the last match with its vote,
+              then the rest, gallery last. The numbers run 1 to 12 with no gap:
+              merging the vote and the form card into one took out one slot, so
+              everything after it moved up one place. On desktop the three
+              columns return untouched. */}
           <div className="flex max-lg:contents flex-col gap-6 lg:col-span-4">
             <Standings className="max-lg:order-9" />
+            <LastMatchCard className="max-lg:order-8" />
             <ScorersCard className="max-lg:order-5" />
             <PersonalAchievementsCard className="max-lg:order-6" />
-            <FormCard className="max-lg:order-10" />
           </div>
 
           <div className="flex max-lg:contents flex-col gap-6 lg:col-span-5">
@@ -107,16 +106,15 @@ export default function Dashboard() {
             {/* The centre column holds the two fixtures, the newsroom and the
                 album: the content a visitor came to look at. */}
             <CupCard className="max-lg:order-2" />
-            <NewsCard className="max-lg:order-11" />
-            <GalleryCard className="max-lg:order-12" />
+            <NewsCard className="max-lg:order-10" />
+            <GalleryCard className="max-lg:order-11" />
           </div>
 
           <div className="flex max-lg:contents flex-col gap-6 lg:col-span-3">
             <FixturesCard className="max-lg:order-3" />
             <AttendanceCard className="max-lg:order-7" />
-            <MvpCard className="max-lg:order-8" />
             <RulesCard className="max-lg:order-4" />
-            <BrandModule className="max-lg:order-13 mt-auto" />
+            <BrandModule className="max-lg:order-12 mt-auto" />
           </div>
         </div>
       </div>
