@@ -48,9 +48,7 @@ export default function LogrosView() {
               width of the screen and three plates fit. */}
           <PersonalAchievementsCard
             columns="grid-cols-3 lg:grid-cols-2"
-            perPage={8}
             className="h-full"
-            bodyClassName="min-h-0 overflow-y-auto"
           />
 
           <Card

@@ -98,7 +98,7 @@ export default function Dashboard() {
             <Standings className="max-lg:order-9" />
             <LastMatchCard className="max-lg:order-8" />
             <ScorersCard className="max-lg:order-5" />
-            <PersonalAchievementsCard className="max-lg:order-6" />
+            <PersonalAchievementsCard className="max-h-[36rem] max-lg:order-6" />
           </div>
 
           <div className="flex max-lg:contents flex-col gap-6 lg:col-span-5">

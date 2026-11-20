@@ -1,4 +1,3 @@
-import { useRef, useState } from "react";
 import { Medal } from "lucide-react";
 import { playerAchievements, playerScopeFor } from "../../data/achievements.js";
 import { season } from "../../data/club-record.js";
@@ -42,29 +41,21 @@ import AchievementsGrid, { seasonAchievements } from "../AchievementsGrid.jsx";
  * not is dark here, which is the only honest way to draw it.
  */
 
-/** Twelve at a time: three columns by four rows at the dashboard's width (S6). */
-const PER_PAGE = 12;
-
-function pagesOf(items, size) {
-  const pages = [];
-  for (let index = 0; index < items.length; index += size) {
-    pages.push(items.slice(index, index + size));
-  }
-  return pages;
-}
+/**
+ * One shelf, whatever the caller's width.
+ *
+ * The entries are drawn in a single grid that scrolls normally, because the
+ * pager this card used to carry was a worse toy on a desktop than it was on a
+ * phone (S21). The card never grows past the height its caller gives it: the
+ * dashboard bounds it and `/logros` makes it as tall as the team shelf, and in
+ * both the grid scrolls inside.
+ */
 export default function PersonalAchievementsCard({
   className = "",
   bodyClassName = "",
   columns = "grid-cols-3",
-  perPage = PER_PAGE,
 }) {
   const { player } = useIdentity();
-  const track = useRef(null);
-  const [page, setPage] = useState(0);
-  /* The page size follows the caller's column count: the dashboard draws three
-     columns and fits twelve, the narrow block of `/logros` draws two and fits
-     eight. A page that does not fit its card would hide the dots under the fold. */
-  const pages = pagesOf(playerAchievements, perPage);
   /* The reader's own shelf. `null` only before a device is bound. */
   const scope = player ? playerScopeFor(seasonAchievements.player, player) : null;
   const total = playerAchievements.length;
@@ -72,21 +63,6 @@ export default function PersonalAchievementsCard({
   // The two end-of-season entries: locked today, and not a loss.
   const seasonUnfinished = scope?.progress?.seasonComplete === false;
   const hasPending = seasonUnfinished && playerAchievements.some((entry) => entry.seasonEnd);
-
-  /* Reading the offset back rather than keeping the swipe state in a variable:
-     a trackpad, a finger and the dots all end up in the same place. */
-  const readPage = () => {
-    const node = track.current;
-    if (!node || node.clientWidth === 0) return;
-    setPage(Math.round(node.scrollLeft / node.clientWidth));
-  };
-
-  const goTo = (index) => {
-    const node = track.current;
-    if (!node) return;
-    node.scrollTo({ left: index * node.clientWidth, behavior: "smooth" });
-    setPage(index);
-  };
 
   return (
     <Card
@@ -99,44 +75,17 @@ export default function PersonalAchievementsCard({
     >
       {player && scope ? (
         <>
-          <div
-            ref={track}
-            onScroll={readPage}
-            role="group"
-            aria-roledescription="carrusel"
-            aria-label="Logros personales"
-            className="flex shrink-0 snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {pages.map((slice, index) => (
-              <div key={index} className="w-full shrink-0 snap-start px-6 pb-5">
-                <AchievementsGrid
-                  entries={slice}
-                  scope={scope}
-                  columns={columns}
-                  label={index === 0 ? undefined : `Logros personales, página ${index + 1}`}
-                />
-              </div>
-            ))}
+          {/* The grid scrolls, not the card: the count below stays where it is. */}
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <AchievementsGrid
+              entries={playerAchievements}
+              scope={scope}
+              columns={columns}
+              label="Logros personales"
+              className="px-6 pb-5"
+            />
           </div>
-          {pages.length > 1 ? (
-            <div className="flex items-center justify-center gap-1.5 px-6 pb-5 pt-1">
-              {pages.map((_, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() => goTo(index)}
-                  aria-label={`Página ${index + 1} de ${pages.length}`}
-                  aria-current={index === page ? "true" : undefined}
-                  className={`h-1.5 rounded-full transition-all duration-200 ${
-                    index === page
-                      ? "w-5 bg-acf-red"
-                      : "w-1.5 bg-white/25 hover:bg-white/50"
-                  }`}
-                />
-              ))}
-            </div>
-          ) : null}
-          <footer className="mt-auto border-t border-acf-line-soft px-6 py-3.5">
+          <footer className="border-t border-acf-line-soft px-6 py-3.5">
             <p className="text-micro font-semibold uppercase tracking-[0.16em] text-acf-dim">
               {earned} de {total} conseguidos
             </p>
