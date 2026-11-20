@@ -52,16 +52,19 @@ function pagesOf(items, size) {
   }
   return pages;
 }
-
-/* The catalogue never changes at run time, so the pages are cut once. */
-const PAGES = pagesOf(playerAchievements, PER_PAGE);
 export default function PersonalAchievementsCard({
   className = "",
+  bodyClassName = "",
   columns = "grid-cols-3",
+  perPage = PER_PAGE,
 }) {
   const { player } = useIdentity();
   const track = useRef(null);
   const [page, setPage] = useState(0);
+  /* The page size follows the caller's column count: the dashboard draws three
+     columns and fits twelve, the narrow block of `/logros` draws two and fits
+     eight. A page that does not fit its card would hide the dots under the fold. */
+  const pages = pagesOf(playerAchievements, perPage);
   /* The reader's own shelf. `null` only before a device is bound. */
   const scope = player ? playerScopeFor(seasonAchievements.player, player) : null;
   const total = playerAchievements.length;
@@ -92,7 +95,7 @@ export default function PersonalAchievementsCard({
       hint={player ? `${player.name} · ${earned} de ${total}` : `Temporada ${season}`}
       icon={Medal}
       className={className}
-      bodyClassName="flex flex-col"
+      bodyClassName={`flex min-h-0 flex-col ${bodyClassName}`}
     >
       {player && scope ? (
         <>
@@ -102,27 +105,27 @@ export default function PersonalAchievementsCard({
             role="group"
             aria-roledescription="carrusel"
             aria-label="Logros personales"
-            className="flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex shrink-0 snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            {PAGES.map((slice, index) => (
+            {pages.map((slice, index) => (
               <div key={index} className="w-full shrink-0 snap-start px-6 pb-5">
                 <AchievementsGrid
                   entries={slice}
                   scope={scope}
-                  columns={`${columns} grid-rows-4`}
+                  columns={columns}
                   label={index === 0 ? undefined : `Logros personales, página ${index + 1}`}
                 />
               </div>
             ))}
           </div>
-          {PAGES.length > 1 ? (
-            <div className="flex items-center justify-center gap-1.5 px-6 pb-5">
-              {PAGES.map((_, index) => (
+          {pages.length > 1 ? (
+            <div className="flex items-center justify-center gap-1.5 px-6 pb-5 pt-1">
+              {pages.map((_, index) => (
                 <button
                   key={index}
                   type="button"
                   onClick={() => goTo(index)}
-                  aria-label={`Página ${index + 1} de ${PAGES.length}`}
+                  aria-label={`Página ${index + 1} de ${pages.length}`}
                   aria-current={index === page ? "true" : undefined}
                   className={`h-1.5 rounded-full transition-all duration-200 ${
                     index === page

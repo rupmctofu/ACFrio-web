@@ -37,22 +37,29 @@ export default function LogrosView() {
           </p>
         </header>
 
-        {/* `items-start` and not a stretched row: the personal shelf is taller
-            than the team shelf, and stretching the team card would leave a large
-            empty panel under its last plate. Each block keeps its own height. */}
-        <div className="mt-8 grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,4fr)]">
+        {/* Both shelves share one height and scroll their own overflow: the
+            owner asked for the personal block to stop being the long one, and a
+            fixed row is the only way two catalogues of 49 and 58 entries can
+            stand level. `items-stretch` is the default, so one height on the
+            grid is enough for both cards. */}
+        <div className="mt-8 grid grid-cols-1 gap-6 lg:h-[44rem] lg:grid-cols-[minmax(0,1fr)_minmax(0,4fr)]">
           {/* First in the DOM and first on a phone. Two columns only once the
               grid has given the block its 20%: before that the card is the full
               width of the screen and three plates fit. */}
-          <PersonalAchievementsCard columns="grid-cols-3 lg:grid-cols-2" />
+          <PersonalAchievementsCard
+            columns="grid-cols-3 lg:grid-cols-2"
+            perPage={8}
+            className="h-full"
+            bodyClassName="min-h-0 overflow-y-auto"
+          />
 
           <Card
             id="logros-equipo"
             title="Logros de equipo"
             hint={`Temporada ${season} · ${earned} de ${total}`}
             icon={Trophy}
-            className="surface-deep"
-            bodyClassName="flex flex-col"
+            className="surface-deep h-full"
+            bodyClassName="flex min-h-0 flex-col overflow-y-auto"
           >
             <AchievementsGrid
               entries={teamAchievements}
