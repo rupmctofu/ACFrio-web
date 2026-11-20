@@ -13,6 +13,7 @@ import {
 } from "../data/competition.js";
 import Card from "../components/cards/Card.jsx";
 import { Crest } from "../components/cards/Crest.jsx";
+import ClubList, { leagueClubs } from "./ClubList.jsx";
 import { navigate, routeLink } from "../lib/router.js";
 
 /**
@@ -32,6 +33,10 @@ import { navigate, routeLink } from "../lib/router.js";
  * people paste into the group: it is the old `/jornada/3` under the new name.
  * The query (`?jornada=3`) is still read as a fallback, the way it was before
  * the fold — a bookmark that carried it keeps working.
+ *
+ * The clubs of this same table are the last card, under the two columns (S22):
+ * the tab that shows the league is also where its teams are, "cada uno con sus
+ * respectivos equipos", so the old Equipos tab left nothing behind.
  */
 
 /* The rounds the source publishes, in order. Nothing is invented: a round exists
@@ -305,7 +310,8 @@ export default function LigaTab({ matchday: fromPath }) {
     /* Two columns from 1024: the table on the left, where a position is read, and
        the jornadas on the right, where a night is read. Under 1024 they stack in
        the order of the sentence above — table, then this round, then the one
-       before it. */
+       before it. The clubs are the full-width row after both of them, which is
+       what `lg:col-span-2` says. */
     <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
       <Card
         id="competicion-liga"
@@ -388,6 +394,18 @@ export default function LigaTab({ matchday: fromPath }) {
           </Card>
         ) : null}
       </div>
+
+      {/* The seven clubs of the table above, each one a way into its page and
+          the list the old Equipos tab used to be (S22). */}
+      <ClubList
+        id="competicion-clubes-liga"
+        title="Los clubes de la liga"
+        hint={`${league.name} · ${leagueData.rows.length} clubes`}
+        href={league.sources.table}
+        linkLabel="Abrir la clasificación oficial de la liga en CEGARRAF"
+        clubs={leagueClubs()}
+        className="surface-deep lg:col-span-2"
+      />
     </div>
   );
 }

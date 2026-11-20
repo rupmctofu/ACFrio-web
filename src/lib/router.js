@@ -17,16 +17,21 @@ import { useEffect, useState } from "react";
 const HOME = "/";
 
 /**
- * The three tabs of `/competicion`, in the order the bar and the page show them,
+ * The two tabs of `/competicion`, in the order the bar and the page show them,
  * and the one the section lands on when the address names no tab (S14).
+ *
+ * There were three until S22. The third one was the list of clubs, and the owner
+ * folded it into the two that remain — the league's clubs under Liga, the cup's
+ * under Copa — so the third pill is gone and the section is one question with two
+ * answers.
  */
-export const COMPETITION_TABS = ["liga", "copa", "equipos"];
+export const COMPETITION_TABS = ["liga", "copa"];
 
 /**
  * The fixed sections. Anything else is either a dynamic segment or unknown.
  *
  * The site is three of these now (S14): Inicio, the Competición section with its
- * three tabs, and Logros. `reglamento` is the fourth address and not a pill of
+ * two tabs, and Logros. `reglamento` is the fourth address and not a pill of
  * the bar: the rules are opened from the dashboard card and from the footer, and
  * the bar simply lights nothing while a reader is there. It is a plain section
  * all the same — one page, one address.
@@ -46,6 +51,10 @@ const UNKNOWN = { name: "unknown", params: {} };
  * across: `/jornada/3` becomes `/competicion/liga/3`, which is the same night on
  * the same tab. The aliases need the same hosting rewrite every other deep link
  * has — `vercel.json` — so they resolve on a cold load and not only in-app.
+ *
+ * `equipos` retired twice over: the list it named was a tab and then a card
+ * inside the Liga tab (S22), so the old address now lands on the league — where
+ * those clubs live — instead of on nothing.
  */
 const RETIRED = new Set(["jornada", "copa", "equipos", "clasificacion"]);
 
@@ -143,7 +152,8 @@ export function matchRoute(path) {
   const [first, second, third, ...rest] = normalise(path).split("/").filter(Boolean);
   if (!first) return { name: "home", params: {} };
 
-  /* ---- The fold (S14): four retired paths, each one a tab of Competición. ---- */
+  /* ---- The fold (S14): four retired paths, each one answered by the tab it
+     belongs to now (S22 moved the club list into the liga tab). ---- */
   if (first === "jornada") {
     if (third || rest.length) return UNKNOWN;
     /* A second segment that is not a round is not a reason to send a shared link
@@ -159,14 +169,29 @@ export function matchRoute(path) {
   if (RETIRED.has(first)) {
     if (second) return UNKNOWN;
     /* `/clasificacion` was the league table, and the table is the left column of
-       the liga tab: it opens there, next to the jornadas it is read with. */
-    const tab = first === "copa" ? "copa" : first === "equipos" ? "equipos" : "liga";
+       the liga tab: it opens there, next to the jornadas it is read with.
+       `/equipos` was the club list, and that list is a card of the liga tab now
+       (S22), so it lands on the same tab. `/copa` is the only one that is still a
+       tab of its own. */
+    const tab = first === "copa" ? "copa" : "liga";
     return { name: "competicion", params: { tab }, redirect: `/competicion/${tab}` };
   }
 
   /* ---- Competición and its tabs. ---- */
   if (first === "competicion") {
     if (!second) return { name: "competicion", params: { tab: COMPETITION_TABS[0] } };
+    /* `/competicion/equipos` was the third tab, and the club list is a card of
+       the liga tab now (S22): the deep link is served with the league and the
+       address is corrected, the way the retired paths are. Every other segment
+       in that place is unknown. */
+    if (second === "equipos") {
+      if (third || rest.length) return UNKNOWN;
+      return {
+        name: "competicion",
+        params: { tab: "liga", matchday: null },
+        redirect: "/competicion/liga",
+      };
+    }
     if (!COMPETITION_TABS.includes(second)) return UNKNOWN;
     if (rest.length) return UNKNOWN;
     /* Only the liga tab counts rounds; a `/competicion/copa/3` names nothing. */

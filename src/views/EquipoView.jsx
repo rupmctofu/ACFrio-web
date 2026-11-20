@@ -185,15 +185,19 @@ function FixtureGroup({ id, title, fixtures, page, empty }) {
   );
 }
 
-/** The way back to the list, at the top of the page and after an unknown club. */
-function BackToTeams() {
+/** The way back to the list, at the top of the page and after an unknown club.
+ *
+ * The list is a card of the Liga tab since S22, so that is where the way back
+ * goes — not to a tab of its own, and not to a label that says "Equipos" when no
+ * section is called that any more. */
+function BackToClubs() {
   return (
     <a
-      {...routeLink("/competicion/equipos")}
+      {...routeLink("/competicion/liga")}
       className="inline-flex items-center gap-2 text-micro font-semibold uppercase tracking-[0.22em] text-acf-grey transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
     >
       <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-      Volver a Equipos
+      Volver a los clubes
     </a>
   );
 }
@@ -230,20 +234,20 @@ function UnknownTeam() {
   return (
     <section className="relative pb-16 pt-28">
       <div className="wrap">
-        <BackToTeams />
+        <BackToClubs />
         <div className="mt-8 max-w-2xl rounded-card border border-acf-line bg-acf-panel px-6 py-8 shadow-acf">
           <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
             No conocemos ese club
           </h1>
           <p className="mt-3 text-row leading-relaxed text-acf-snow/70">
             No hay ningún club con esa dirección en esta temporada. Los que juegan
-            están en Equipos, cada uno con su ficha.
+            están en Liga y en Copa, cada uno con su ficha.
           </p>
           <a
-            {...routeLink("/competicion/equipos")}
+            {...routeLink("/competicion/liga")}
             className="mt-6 inline-flex rounded-full border border-acf-line px-4 py-2 text-row font-bold tracking-tight text-acf-snow transition-colors hover:border-white/25 hover:bg-white/[0.06] hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-acf-red"
           >
-            Ver los equipos
+            Ver los clubes de la liga
           </a>
         </div>
       </div>
@@ -266,7 +270,7 @@ export default function EquipoView({ slug }) {
   return (
     <section className="relative pb-16 pt-28">
       <div className="wrap">
-        <BackToTeams />
+        <BackToClubs />
 
         {/* The club's own head: its crest at the size the poster gives ours, its
             name as the page's only h1, and where the source places it. */}

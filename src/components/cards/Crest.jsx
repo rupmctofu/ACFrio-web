@@ -142,7 +142,7 @@ const FOCUS_RING = "group-focus-visible:ring-2 group-focus-visible:ring-acf-red"
  *
  * Never pass `to` where the crest already sits inside an anchor: a link inside a
  * link is invalid HTML and the browser breaks the outer one. Call sites that
- * already wrap the crest in a `routeLink` (EquiposView, JornadaView, EquipoView)
+ * already wrap the crest in a `routeLink` (ClubList, JornadaView, EquipoView)
  * leave it alone, and the club's own crest on its own page is not a link to
  * itself.
  */

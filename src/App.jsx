@@ -54,12 +54,12 @@ function Footer() {
  * One view per route, keyed by the name the router resolves.
  *
  * The site is three pills and four views (S14): Inicio, Competición — one page
- * with the liga, the copa and the club list as tabs, and the tab in the URL —
- * and Logros. `competicion` is therefore the whole old quarter (jornada,
- * clasificación, equipos, copa): the router hands it the tab and the round.
- * `team` has no label of its own: it is one of the eleven, opened from the
- * Equipos tab, and the bar keeps lighting Competición while a reader is on a
- * club's page. `reglamento` has no label either, on purpose — three pills fill
+ * with the liga and the copa as tabs, each carrying its own clubs, and the tab
+ * in the URL — and Logros. `competicion` is therefore the whole old quarter
+ * (jornada, clasificación, equipos, copa): the router hands it the tab and the
+ * round. `team` has no label of its own: it is one of the eleven, opened from
+ * either club list, and the bar keeps lighting Competición while a reader is on
+ * a club's page. `reglamento` has no label either, on purpose — three pills fill
  * the bar — and is opened from the dashboard's rules card and from the footer.
  * Anything else is a fallback, below.
  */

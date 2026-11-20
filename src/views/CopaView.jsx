@@ -11,6 +11,7 @@ import {
 } from "../data/competition.js";
 import Card from "../components/cards/Card.jsx";
 import { Crest } from "../components/cards/Crest.jsx";
+import ClubList, { cupClubs } from "./ClubList.jsx";
 import { routeLink } from "../lib/router.js";
 
 /**
@@ -27,6 +28,11 @@ import { routeLink } from "../lib/router.js";
  *
  * The page heading and the tab strip belong to `CompeticionView`; this file
  * draws its cards and nothing else, so the section has one title and not three.
+ *
+ * The clubs of the cup close the tab (S22): the board names them, this list
+ * opens their pages, and it is the cup's own six — not the league's seven, and
+ * not a merged eleven, because the owner asked for each competition to carry its
+ * own ("y en liga y en Copa cada uno con sus respectivos equipos").
  */
 
 /* The rounds the source publishes, in order: a round exists because the calendar
@@ -445,6 +451,19 @@ export default function CopaTab() {
           <RoundBlock key={round} round={round} />
         ))}
       </Card>
+
+      {/* The sixth of the cup, in the row under the two columns of the group:
+          the same width the board above takes, because a list of clubs is read
+          across and not beside a table. */}
+      <ClubList
+        id="competicion-clubes-copa"
+        title="Los clubes de la copa"
+        hint={`${cup.name} · ${cupData.rows.length} clubes`}
+        href={cup.sources.table}
+        linkLabel="Abrir la clasificación oficial de la Copa en CEGARRAF"
+        clubs={cupClubs()}
+        className="surface-deep lg:col-span-2"
+      />
     </div>
   );
 }

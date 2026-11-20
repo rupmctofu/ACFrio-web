@@ -20,8 +20,9 @@ const NAV_LINKS = [
 /**
  * Which pill lights up for a route. The whole Competición section is one pill —
  * every `/competicion/*` path lights it, tabs included — and a club's own page
- * belongs to it too: it is one of the eleven, opened from the Equipos tab, and
- * the bar should keep saying where the reader is rather than going blank.
+ * belongs to it too: it is one of the eleven, opened from the club list that
+ * both tabs carry, and the bar should keep saying where the reader is rather
+ * than going blank.
  */
 const SECTION_OF_ROUTE = {
   home: "home",
