@@ -1,0 +1,17 @@
+# One line ending for the whole repository.
+#
+# This checkout runs with `core.autocrlf=true`, which does three things at once:
+# it stores LF in the index, it hands CRLF to the working tree, and it hides the
+# difference from `git status`. That is invisible until something reads a file
+# and compares it to a string written with `\n`: two test suites here do exactly
+# that (the achievements registry and the sitemap/robots pair), and both went red
+# on a checkout that changed no content at all.
+#
+# `text=auto` lets git decide what is text; `eol=lf` makes the answer the same
+# everywhere, so a Windows clone and a Linux build agree byte for byte. Pictures,
+# fonts and archives are detected as binary by `text=auto` and stay untouched.
+#
+# What this does not do: rewrite files already in a working tree. The ones here
+# keep the endings they have until the next checkout of each file, and every
+# write after that is LF.
+* text=auto eol=lf
