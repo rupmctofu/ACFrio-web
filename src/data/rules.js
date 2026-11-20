@@ -1,20 +1,23 @@
 /**
- * The league's internal rules, summarised for the squad.
+ * The league's internal rules, in the squad's own voice.
  *
  * Source: the Consell Esportiu del Garraf's own document for the 2026-2027
  * Lliga Comarcal de Futbol 7, written in Catalan. This file is a Spanish
  * summary of nine of its articles — not every clause, only the ones a player is
  * going to trip over during the season.
  *
- * Every `article` below was read from the document itself, and every `text` is a
- * paraphrase of the clause it cites, so the two never drift apart in silence. If
- * a rule is not in that document it is not in this file; when the summary and
- * the original disagree, the original wins, and both surfaces that render this
- * data say so out loud.
+ * Every `article` below was read from the document itself, and every `text`
+ * keeps that clause's facts — the numbers, the matchdays, what is allowed and
+ * what is not — while saying them the way a team-mate would say them: short, in
+ * the second person, and with the consequence in the same breath ("hacer esto
+ * tiene esta consecuencia"). The voice is the only thing that moved; a rule is
+ * exactly as true as it was before the rewrite. If a rule is not in that
+ * document it is not in this file, and when the summary and the original
+ * disagree the original wins — `/reglamento` says that out loud.
  *
  * The order is the document's own order, which is why Art. 8 comes before
  * nothing and Art. 4.9 sits after Art. 4.8: the page reads like the PDF, and the
- * dashboard card rotates through the same list.
+ * dashboard card steps through the same list, one rule at a time.
  */
 export const OFFICIAL_PDF =
   "https://www.cegarraf.cat/wp-content/uploads/CEG-Reglament-Intern-Lliga-Futbol-7-2026-2027.pdf";
@@ -24,49 +27,49 @@ export const RULES = [
     id: "copa",
     article: "Art. 1.12",
     title: "La Copa va en paralelo",
-    text: "La Copa se juega a la vez que la Liga: una primera fase en forma de liguilla de grupos y después una fase final a eliminación directa.",
+    text: "La Copa va a la vez que la Liga: primero una liguilla de grupos y después eliminatorias directas. Dos competiciones a la vez.",
   },
   {
     id: "acta",
     article: "Art. 4.2",
     title: "Catorce en el acta",
-    text: "Al acta entran como máximo 14 jugadores, y solo hasta el descanso: cada uno presenta su ficha al árbitro en persona. Si ya ha empezado la segunda parte, no entra nadie más.",
+    text: "En el acta entran catorce como mucho, y cada uno le enseña su ficha al árbitro en persona. Todo eso, hasta el descanso: si ya ha empezado la segunda parte, no entra nadie. Llegas tarde y te quedas mirando.",
   },
   {
     id: "minuto",
     article: "Art. 4.3",
     title: "Un minuto y se cierra",
-    text: "No hay tiempo de espera: pasado un minuto de la hora prevista se cierra el acta, el partido se da por perdido 5-0 y el equipo pierde un punto en la clasificación.",
+    text: "No hay margen de espera. Pasado un minuto de la hora prevista, el acta se cierra: partido perdido 5-0 y un punto menos en la clasificación. Llega a la hora.",
   },
   {
     id: "cinco",
     article: "Art. 4.5",
     title: "Cinco para empezar",
-    text: "Para poder iniciar el partido hacen falta un mínimo de 5 jugadores.",
+    text: "Para que empiece el partido hacen falta cinco jugadores, ni uno menos. Con cuatro no hay partido.",
   },
   {
     id: "ausencias",
     article: "Art. 4.8",
     title: "Tres ausencias y fuera",
-    text: "No presentarse a tres partidos, de Liga o de Copa, supone la expulsión de todas las competiciones: sin jugar la temporada siguiente y sin recuperar el depósito.",
+    text: "Tres plantones, de Liga o de Copa, y fuera de todas las competiciones: no juegas la temporada siguiente y no recuperas el depósito.",
   },
   {
     id: "dorsal",
     article: "Art. 4.9",
     title: "El dorsal tiene que cuadrar",
-    text: "La equipación va numerada y cada dorsal tiene que coincidir con el que figura en el acta; si no, el árbitro lo anota y el equipo se lleva un apercibimiento, y si reincide, un punto menos.",
+    text: "Camiseta numerada y el dorsal tiene que ser el que pone en el acta. Si no cuadra, el árbitro lo apunta y el equipo se lleva un apercibimiento; si vuelve a pasar, un punto menos.",
   },
   {
     id: "carnet",
     article: "Art. 7.2",
     title: "Sin carnet no se juega",
-    text: "Nadie participa sin haber tramitado el carnet de deportista: es el seguro de la competición y es obligatorio para todos los jugadores.",
+    text: "Sin carnet de deportista no juega nadie. No es un trámite del club: es el seguro de la competición y es obligatorio para todos.",
   },
   {
     id: "club",
     article: "Art. 7.4",
     title: "No se cambia de club",
-    text: "Un jugador no puede cambiar de equipo durante la temporada, ni en Liga ni en Copa.",
+    text: "Nadie cambia de equipo a mitad de temporada. Ni en Liga ni en Copa: donde empiezas, acabas.",
   },
   {
     // Art. 8.11 lists the minor offences; the cycle is item 5 of that list, and
@@ -76,6 +79,6 @@ export const RULES = [
     id: "amarillas",
     article: "Art. 8.11.5",
     title: "Cuatro amarillas, un partido",
-    text: "Cuatro amarillas acumuladas son un partido de sanción, y el contador arranca de nuevo con un ciclo continuo de tres.",
+    text: "Cuatro amarillas y te pierdes un partido. Después el contador vuelve a arrancar, con un ciclo continuo de tres.",
   },
 ];
