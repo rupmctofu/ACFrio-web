@@ -91,24 +91,40 @@ const CUP_TAG = "Copa";
 /*
  * ===== The one surface of the active card =====
  *
- * The mockup turns the active fixture into a single red-to-dark sheet and the
- * attendance block sits *on* it. That is why the gradient is painted by the
- * article itself and by nothing inside it: with the head, the crests and the
- * headcount all children of the same painted element, there is no boundary
- * between them to line up, so no padding, gap or wrapper can open the seam the
- * stacked-panel version used to show. Anything inside this card that paints a
- * background of its own would be a second surface again — the only child
- * allowed one is the "No van" strip, which the owner drew as its own band.
+ * The active fixture is the one card that carries a photograph: the owner's
+ * night pitch, edge to edge, under a single red-to-black veil. Both layers are
+ * children of the article and both are absolutely positioned, so the head, the
+ * crests and the headcount all sit on the same painted element and there is no
+ * boundary between them to line up — no padding, gap or wrapper can open the
+ * seam the stacked-panel version used to show.
  *
- * Stops: brand red at the very top, a third of it by the first fifth of the
- * card (the head), then a long dissolve into the base so the headcount reads on
- * near-dark ground. The last stop is the same red at zero alpha rather than
- * `transparent`, so the fade never introduces a second hue.
+ * The veil is the gradient the card already had, kept as one utility: brand red
+ * at the very top behind the head, a long dissolve through near-dark in the
+ * middle, and a nearly solid base at the foot so the headcount still reads. It
+ * stops short of full opacity down there on purpose: the photograph has to
+ * survive it, or it is not a photograph any more.
  */
-const HERO_SURFACE =
-  "border-acf-red/30 bg-acf-dark bg-linear-to-b from-acf-red via-acf-red/30 via-20% to-acf-red/0 shadow-acf";
+const HERO_SURFACE = "border-acf-red/30 bg-acf-dark shadow-acf";
 
-/** The quiet and rested cards: the plain panel, no red, no gradient. */
+/**
+ * The photograph and the two widths exported for it.
+ *
+ * `sizes` describes the card, not the viewport: the centre column holds it at
+ * roughly 520 px on a desktop, a little less on a tablet, and full width on a
+ * phone. A phone therefore picks the 900 export and a desktop the 1536 one,
+ * which is the only reason two widths exist at all.
+ */
+const HERO_PHOTO = {
+  src: "/assets/backgrounds/pitch-nocturno-900.webp",
+  srcSet:
+    "/assets/backgrounds/pitch-nocturno-900.webp 900w, /assets/backgrounds/pitch-nocturno-1536.webp 1536w",
+  sizes: "(min-width: 1024px) 520px, 100vw",
+};
+
+const HERO_VEIL =
+  "pointer-events-none absolute inset-0 bg-linear-to-b from-acf-red/70 via-acf-dark/45 via-42% to-acf-dark/92";
+
+/** The dormant and the rested cards: the plain panel, no red, no photograph. */
 const BASE_SURFACE = "border-acf-line bg-acf-panel shadow-acf";
 
 /* Three formatters instead of one, joined by a space: the owner's line is
@@ -134,10 +150,14 @@ function fixtureHourOf(fixture) {
 }
 
 /** The date and the hour as the two tight white lines of the mockup. */
-function DateLines({ fixture, align = "center", compact = false }) {
+function DateLines({ fixture, align = "center", compact = false, muted = false }) {
   const day = fixtureDayOf(fixture);
   const hour = fixtureHourOf(fixture);
   if (!day && !hour) return null;
+
+  /* The dormant card greys its whole face, date included: a white line is the
+     one thing that keeps a switched-off card looking alive. */
+  const ink = muted ? "text-acf-grey" : "text-white";
 
   /*
    * `compact` is the matchup's copy: it starts one step smaller and only grows
@@ -160,14 +180,14 @@ function DateLines({ fixture, align = "center", compact = false }) {
     >
       {day ? (
         <span
-          className={`${daySize} font-extrabold uppercase leading-none tracking-[0.02em] text-white`}
+          className={`${daySize} font-extrabold uppercase leading-none tracking-[0.02em] ${ink}`}
         >
           {day}
         </span>
       ) : null}
       {hour ? (
         <span
-          className={`${hourSize} font-display font-medium leading-none tabular-nums text-white`}
+          className={`${hourSize} font-display font-medium leading-none tabular-nums ${ink}`}
         >
           {hour}
         </span>
@@ -197,12 +217,19 @@ function roundLineFor(fixture, competitionKey) {
  */
 function CardHead({ title, competitionKey, fixture, tone }) {
   const hero = tone === "hero";
+  const dormant = tone === "dormant";
   const round = roundLineFor(fixture, competitionKey);
 
   return (
-    <header className="flex flex-col gap-2 px-5 pb-4 pt-5 sm:px-6 sm:pt-6">
+    /* `relative` because the active card paints a photograph under this head;
+       on the other treatments it changes nothing. */
+    <header className="relative flex flex-col gap-2 px-5 pb-4 pt-5 sm:px-6 sm:pt-6">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-        <h2 className="text-[0.8125rem] font-extrabold uppercase leading-none tracking-[0.2em] text-white sm:text-row sm:tracking-[0.26em]">
+        <h2
+          className={`text-[0.8125rem] font-extrabold uppercase leading-none tracking-[0.2em] sm:text-row sm:tracking-[0.26em] ${
+            dormant ? "text-acf-grey" : "text-white"
+          }`}
+        >
           {title}
         </h2>
         {fixture ? (
@@ -212,7 +239,9 @@ function CardHead({ title, competitionKey, fixture, tone }) {
             className={`ml-auto shrink-0 rounded-full border px-2.5 py-1 text-[0.5625rem] font-bold uppercase leading-none tracking-[0.16em] sm:text-micro ${
               hero
                 ? "border-acf-snow/30 bg-acf-dark/35 text-white"
-                : "border-acf-line bg-white/[0.04] text-acf-grey"
+                : dormant
+                  ? "border-acf-line bg-white/[0.02] text-acf-grey/70"
+                  : "border-acf-line bg-white/[0.04] text-acf-grey"
             }`}
           >
             {competitionKey === "cup" ? CUP_TAG : LEAGUE_TAG}
@@ -224,7 +253,7 @@ function CardHead({ title, competitionKey, fixture, tone }) {
         // contrast the moment the gradient is at full strength under it.
         <p
           className={`text-[0.625rem] font-semibold uppercase leading-relaxed tracking-[0.16em] sm:text-micro ${
-            hero ? "text-acf-snow/70" : "text-acf-grey"
+            hero ? "text-acf-snow/70" : dormant ? "text-acf-grey/70" : "text-acf-grey"
           }`}
         >
           {round}
@@ -264,6 +293,7 @@ const POSTER_NAME =
  */
 function MatchupFaces({ fixture, competitionKey, tone }) {
   const hero = tone === "hero";
+  const dormant = tone === "dormant";
   const rival = opponentOf(fixture);
   const crest = hero ? "xl" : "lg";
 
@@ -282,7 +312,11 @@ function MatchupFaces({ fixture, competitionKey, tone }) {
   return (
     <div className="@container">
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-2 gap-y-2.5 sm:gap-x-4">
-        <div className="col-start-1 row-start-1 flex justify-center">
+        <div
+          className={`col-start-1 row-start-1 flex justify-center ${
+            dormant ? "opacity-45 grayscale" : ""
+          }`}
+        >
           <Crest slug={CLUB_SLUG} size={crest} to={`/equipo/${CLUB_SLUG}`} />
         </div>
         {/*
@@ -291,13 +325,21 @@ function MatchupFaces({ fixture, competitionKey, tone }) {
          * restyled: a hidden block cannot open a gap.
          */}
         <div className="hidden flex-col items-center justify-center gap-1.5 text-center @min-[24rem]:col-span-1 @min-[24rem]:col-start-2 @min-[24rem]:row-span-2 @min-[24rem]:row-start-1 @min-[24rem]:flex">
-          <p className="text-micro font-bold uppercase leading-none tracking-[0.24em] text-acf-red">
+          <p
+            className={`text-micro font-bold uppercase leading-none tracking-[0.24em] ${
+              dormant ? "text-acf-grey/80" : "text-acf-red"
+            }`}
+          >
             {competitionWord}
           </p>
-          <p className="font-display text-lg font-medium uppercase leading-none tracking-[0.18em] text-acf-grey">
+          <p
+            className={`font-display text-lg font-medium uppercase leading-none tracking-[0.18em] ${
+              dormant ? "text-acf-grey/60" : "text-acf-grey"
+            }`}
+          >
             VS
           </p>
-          <DateLines fixture={fixture} compact />
+          <DateLines fixture={fixture} compact muted={dormant} />
         </div>
         {/*
          * The narrow-card replacement: one line under the club names, in the
@@ -313,19 +355,31 @@ function MatchupFaces({ fixture, competitionKey, tone }) {
               {index === 0 ? null : (
                 <span className="text-acf-grey"> · </span>
               )}
-              <span className={index === 0 ? "text-acf-red" : undefined}>
+              <span
+                className={
+                  index === 0
+                    ? dormant
+                      ? "text-acf-grey/80"
+                      : "text-acf-red"
+                    : undefined
+                }
+              >
                 {part}
               </span>
             </Fragment>
           ))}
         </p>
-        <div className="col-start-3 row-start-1 flex justify-center">
+        <div
+          className={`col-start-3 row-start-1 flex justify-center ${
+            dormant ? "opacity-45 grayscale" : ""
+          }`}
+        >
           <Crest slug={rival.slug} size={crest} to={`/equipo/${rival.slug}`} />
         </div>
         <div className="col-start-1 row-start-2 px-0.5">
           <p
             title={teamFullName(CLUB_SLUG)}
-            className={`${POSTER_NAME} text-white`}
+            className={`${POSTER_NAME} ${dormant ? "text-acf-grey" : "text-white"}`}
           >
             {teamFullName(CLUB_SLUG)}
           </p>
@@ -333,7 +387,13 @@ function MatchupFaces({ fixture, competitionKey, tone }) {
         <div className="col-start-3 row-start-2 px-0.5">
           <p
             title={teamFullName(rival.slug)}
-            className={`${POSTER_NAME} ${hero ? "text-acf-snow/75" : "text-acf-snow"}`}
+            className={`${POSTER_NAME} ${
+              dormant
+                ? "text-acf-grey/80"
+                : hero
+                  ? "text-acf-snow/75"
+                  : "text-acf-snow"
+            }`}
           >
             {teamFullName(rival.slug)}
           </p>
@@ -347,14 +407,17 @@ function MatchupFaces({ fixture, competitionKey, tone }) {
  * One fixture card. Both centre-column cards use this anatomy, so the cup card
  * and the league card can never drift apart. Three treatments:
  *
- *   hero  — the active card: the single red-to-dark gradient above, the crests
- *           with the date between them and the headcount of this match (S10).
- *   rest  — the league card when its next match is more than a week away (S7):
- *           no red at all, flat greys, a smaller body and the note that says so.
- *           Every line is a full-strength token, because a legible flat card is
- *           the point: fading it is what the owner asked to stop.
- *   quiet — the cup card when the league card is the active one: the same head
- *           and the same matchup, on the plain panel, smaller, no headcount.
+ *   hero    — the active card: the photograph and its veil, the crests with the
+ *             date between them and the headcount of this match (S10).
+ *   rest    — the league card when its next match is more than a week away
+ *             (S7): no red at all, flat greys, a smaller body and the note that
+ *             says so. Every line is a full-strength token, because a legible
+ *             flat card is the point: fading it is what the owner asked to
+ *             stop.
+ *   dormant — the card that is not the next match. Everything on it goes grey,
+ *             crests and names included, so the eye lands on the fixture the
+ *             squad actually signs up for and the other one reads as switched
+ *             off instead of merely quieter.
  */
 export function FixtureCardView({
   id,
@@ -364,7 +427,7 @@ export function FixtureCardView({
   className = "",
 }) {
   const { fixture, active, resting, days } = state;
-  const tone = active ? "hero" : resting ? "rest" : "quiet";
+  const tone = active ? "hero" : resting ? "rest" : "dormant";
   const hero = tone === "hero";
 
   return (
@@ -374,6 +437,21 @@ export function FixtureCardView({
         hero ? HERO_SURFACE : BASE_SURFACE
       } ${className}`}
     >
+      {/* The photograph and the veil it sits under: content is positioned, so
+          it always paints on top of both without a z-index anywhere. */}
+      {hero ? (
+        <>
+          <img
+            {...HERO_PHOTO}
+            alt=""
+            aria-hidden="true"
+            decoding="async"
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+          />
+          <div aria-hidden="true" className={HERO_VEIL} />
+        </>
+      ) : null}
+
       <CardHead
         title={title}
         competitionKey={competitionKey}
@@ -382,7 +460,7 @@ export function FixtureCardView({
       />
 
       {!fixture ? (
-        <div className="px-5 pb-6 pt-1 sm:px-6">
+        <div className="relative px-5 pb-6 pt-1 sm:px-6">
           <p className="text-row text-acf-grey">
             La fuente oficial no publica más partidos programados.
           </p>
@@ -398,7 +476,7 @@ export function FixtureCardView({
          * same structure — head, then the two lines of the date — set flush
          * left, because there is no matchup to centre it between.
          */
-        <div className="flex flex-col gap-3 px-5 pb-5 pt-1 sm:px-6">
+        <div className="relative flex flex-col gap-3 px-5 pb-5 pt-1 sm:px-6">
           <p className="text-[0.9375rem] font-extrabold uppercase leading-tight tracking-[0.04em] text-white">
             Esta semana no hay liga
           </p>
@@ -418,8 +496,8 @@ export function FixtureCardView({
         <div
           className={
             hero
-              ? "flex flex-col gap-5 px-5 pb-6 pt-1 sm:px-6"
-              : "flex flex-col gap-4 px-5 pb-5 pt-1 sm:px-6"
+              ? "relative flex flex-col gap-5 px-5 pb-6 pt-1 sm:px-6"
+              : "relative flex flex-col gap-4 px-5 pb-5 pt-1 sm:px-6"
           }
         >
           <MatchupFaces fixture={fixture} competitionKey={competitionKey} tone={tone} />
@@ -444,9 +522,9 @@ export function FixtureCardView({
  * The league fixture card, top of the centre column.
  *
  * While its match is the one being counted down it is the active card above;
- * otherwise it keeps the reduced or the quiet treatment, which now share its
- * head and its matchup. Either way it is still the `proximo-partido` anchor and
- * it still rolls over to the following fixture on its own.
+ * otherwise it keeps the dormant or the reduced treatment, and both keep the
+ * same head and the same matchup. Either way it is still the `proximo-partido`
+ * anchor and it still rolls over to the following fixture on its own.
  */
 export default function NextMatchCard({ className = "" }) {
   const now = useFixtureClock();

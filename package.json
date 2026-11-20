@@ -11,7 +11,8 @@
     "verify:supabase": "node scripts/verify-supabase.mjs",
     "assets:ink": "node scripts/build-crest-masks.mjs",
     "whatsapp:digest": "node scripts/whatsapp-digest.mjs",
-    "codes": "node scripts/club-codes.mjs"
+    "codes": "node scripts/club-codes.mjs",
+    "assets:backdrop": "node scripts/build-card-backdrop.mjs"
   },
   "devDependencies": {
     "@napi-rs/canvas": "^1.0.9",
