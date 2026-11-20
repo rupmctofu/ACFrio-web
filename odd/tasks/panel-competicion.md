@@ -81,3 +81,15 @@ L2 — Two decisions taken before the first write:
 - The working tree held 6505 uncommitted lines from earlier sessions; they were checkpointed as `a59a2fa` on the feature branch so each slice below lands in a clean base.
 
 L3 — Baseline before any change: `npm test` and `npm run build` pass on `a59a2fa`.
+
+L4 — Navigation, as chosen by the owner: a single Competición section with Liga, Copa and Equipos tabs. Nav is Inicio, Competición, Logros.
+
+L5 — Slices landed, with the commit that holds each: T1 `0b65283`, T2 `65a82da`, T3 `c32ceac`, T5 `fcbe451`, T6 `62747a2`, T9 `4202026`, T7 `0dd89a2`, T10 `9ea06c1`, T8 `898cb1f`, T4 `a3c841e`. Base checkpoint `a59a2fa`.
+
+L6 — Calls made while landing them, beyond the briefs:
+- The quiet list of the last-match card leaves out the match drawn above it; `recentResults(3)` repeated the same rival twice on one card.
+- The personal grid takes its page size from the caller's column count (12 on the dashboard, 8 in the narrow block), because a page that does not fit leaves the dots under the fold.
+- `vercel.json` had no `/competicion` rewrite, so a cold production load of any tab would have 404'd; the two rewrites were added.
+- The two `/equipos` links inside `EquipoView` now point at `/competicion/equipos` instead of relying on the alias.
+
+L7 — Closing evidence: `npm test` 134 pass / 0 fail (129 at baseline; three attendance cases and two achievement guards were added), `npm run build` clean. Browser checks at 1440 and 390 on the next-match card, the attendance row, the personal grid on both surfaces, the rules card, the last-match card, the Competición tabs and the achievement dialog.
