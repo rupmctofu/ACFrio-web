@@ -275,12 +275,22 @@ const SEASON = {
  */
 export const seasonAchievements = evaluateAchievements(SEASON);
 
+/*
+ * The plate is a recess, not a box (S7). No border and no fill of its own beyond
+ * one step darker than the card, plus two inset shadows: a dark one across the
+ * top and a hair of light along the bottom edge, which is how a groove takes the
+ * light. One size up from the old plate, because the frame that used to give the
+ * icon its weight is gone.
+ */
 const PLATE_BASE =
-  "flex h-11 w-11 shrink-0 items-center justify-center rounded-[13px] border transition-colors duration-200";
+  "flex h-12 w-12 shrink-0 items-center justify-center rounded-[14px] bg-acf-dark/70 shadow-[inset_0_1px_3px_rgba(0,0,0,0.7),inset_0_-1px_0_rgba(255,255,255,0.06)] transition-colors duration-200";
 
-const PLATE_UNLOCKED = "border-acf-red/40 bg-acf-red/10 text-acf-red-soft";
-const PLATE_PENDING = "border-dashed border-acf-line bg-transparent text-acf-grey/70";
-const PLATE_LOCKED = "border-acf-line-soft bg-white/[0.025] text-acf-dim";
+/* What changes between the three states is the ink, never the recess: the shelf
+   has to read as one carved surface, and a coloured box per state would rebuild
+   the plates the owner asked to remove. */
+const PLATE_UNLOCKED = "text-acf-red-soft";
+const PLATE_PENDING = "text-acf-grey/60";
+const PLATE_LOCKED = "text-acf-dim";
 
 /** One entry: a plate with its icon, the name under it, and its state spoken. */
 export function AchievementTile({ entry, unlocked = false, pending = false }) {
@@ -298,7 +308,7 @@ export function AchievementTile({ entry, unlocked = false, pending = false }) {
   return (
     <li className="flex flex-col items-center gap-2 text-center">
       <span aria-hidden="true" className={`${PLATE_BASE} ${plate}`}>
-        {Glyph ? <Glyph className="h-5 w-5" /> : null}
+        {Glyph ? <Glyph className="h-6 w-6" /> : null}
       </span>
       <span
         className={`text-micro font-semibold leading-snug ${
