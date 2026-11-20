@@ -42,3 +42,27 @@ L5 — T2, the rules-card overlap: **not a layout bug, and nothing was changed.*
 L6 — T3 fixed in `561ece9`: every crest link is `min-h-11` (44 px) on a phone and back to hugging the artwork from `sm` up, so the standings table, the club lists and both fixture cards stop being 28 px targets on one change. Verified at 390.
 
 L7 — Left open, and named rather than guessed at: `text-contrast` on the brand red over black in the two competition cards (the documented palette limit), `cut-text` in the news ticker, `cta` and `heading-scale` on Plantilla, `copy-headline` on the page, `stagger` on the fixtures section, and `edge-left` on the squad counter. None of them is a regression from this branch.
+
+L8 — The round-3 build, armed so the checker could run whole: `gate.mjs --start dist/index.html --root dist` with `CHROME_PATH` at Edge. Round 1 of that build: GATE: FAIL 70, 61 WARN.
+
+L9 — T4, first pass (commits below). Four findings closed:
+- **cut-text on the 75% (S2).** The attendance window declared seven rows at 18.5rem, taking a row for a clean 2rem plus 0.75rem gutters. A row measures 36.5px, so 296px held six rows and the top of the seventh, and the card's own clip sliced the last figure it showed. The window is 20.75rem now — an edge that lands on a row's edge — and `min-h-0 flex-1` lets it shrink with the card instead of running past its clip. Measured at 1440 after the change: window 332px, seven rows, none sliced.
+- **heading-order.** Announcing every card as an h2 put eleven headings at the section level under the page's h1, so the checker read a skipped level. Card titles are h3, and `Dashboard` carries an sr-only h2 ("El club, hoy") of its own.
+- **heading-scale, first two.** The fixture cards' 13px eyebrow was the only h3 at that size, so one level had two sizes: it now takes the grid's card-title size (19px) with tighter tracking. The three figures that outranked the section headings — the availability percentage, the score in the previous results, the squad counter — came down to the h2 size, 24px at 390 and 30px from `sm` up.
+- **cut-text on the rank column at 390.** The automatic table layout shrank the rank cell to 7px and the digit sat on its own edge; `min-w-7` gives the column a floor of 28px.
+
+Commits: `c60096e` (asistencias), `786d6b9` (clasificación), `25dfbab` (heading levels).
+
+L10 — Round 2: GATE: FAIL 69, 60 WARN. `heading-order` gone, `heading-scale` from 3 to 1.
+
+L11 — Round 3, the last one the build has: **GATE: OPEN 68 (rounds used up)**, 60 WARN. Down from 76 at the start of the slice.
+
+L12 — Left open, with the reason each needs a person rather than a patch:
+- **The two `cut-text` in the ticker.** A marquee moves its own text past its window by design; the checker measures the band at rest as clipped text. Fixing it means stopping the feed, which is the element the owner asked for.
+- **`edge-left` on the Plantilla counter.** Unchanged at 1238.4 after the counter's own two lines were left-aligned. The rule wants the line on the `.wrap` left edge (112), which means taking the counter out of the row's right-hand slot: a visible change to that section's header.
+- **`copy-headline`.** The page's h1 is deliberately sr-only (`HomeView`'s own note: the club's name is painted by the header). A visible h1 on the first screen is a design decision, not a bug.
+- **`cta`.** The last section before the footer ends without an action. What it says and where it goes belongs to the club, not to the checker.
+- **`stagger` on the middle column** still reads `+8, +8, +0, +0`, but all four cards' first line measures 545.3px at 1440, so the offset does not come from the page as rendered and the checker's own content-box arithmetic was not chased further.
+- **The structural family** — `container-edges` 8, `row-lines` 4, `one-section` 3, `section-height` 2, `hero-fold`/`hero-screen`, `centre-axis` 4, `collide` 3, `focus-ring`/`focus-visible`/`focus-hidden` 6, `photo-upscale` 3, `visual-caption`, `overlap-text`, `contrast` — is the bento dashboard measured against a one-section-per-screen landing page, the same family L5 diagnosed. `text-contrast` (17) is the documented palette limit of the brand red over black.
+
+L13 — Delivery shape: the branch is 25 commits and ~376.7k changed lines against `main` since the assets landed (lock files aside), so the slice boundary matters more than the diff size. Push, PR and merge remain the owner's decisions.
