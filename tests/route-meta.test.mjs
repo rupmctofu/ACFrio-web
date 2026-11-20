@@ -53,7 +53,11 @@ const { teamFullName, teamStanding } = await import("../src/data/competition.js"
 const { sitemapXml } = await import("../scripts/build-sitemap.mjs");
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
-const read = (relative) => readFileSync(`${ROOT}${relative}`, "utf8");
+/* A Windows checkout delivers these two files with CRLF (`core.autocrlf=true`
+   and no `.gitattributes`), while the generator writes LF, so both sides are
+   compared as text: the point is the address list and the rules, not the byte
+   that ends a line. */
+const read = (relative) => readFileSync(`${ROOT}${relative}`, "utf8").replace(/\r\n/g, "\n");
 
 /** Titles a result page shows whole, descriptions a snippet shows whole. */
 const TITLE_LIMIT = 60;

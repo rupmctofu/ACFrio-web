@@ -5,6 +5,7 @@ import { CLUB_SLUG, fixtureKickoffIso } from "../data/competition.js";
 import { season } from "../data/club-record.js";
 import { useIdentity } from "../lib/identity.js";
 import { VOICE } from "../data/copy.js";
+import { splitAnswers } from "../lib/attendance-split.js";
 import {
   ensureMatch,
   fetchAnswers,
@@ -205,14 +206,12 @@ export default function MatchAttendance({ fixture }) {
 
   /*
    * Split once, here, and hand the row down: the bar and the faces read the
-   * same answers, in the order they were stored. Only the people who said yes
-   * are drawn — the ones who said no are a headcount, not a list (S2).
+   * same answers. The people who said yes are the first row of faces; the people
+   * who said no are the second, with the same chips and a red label (S13), which
+   * this card had lost when it was rebuilt. The headcount above still counts
+   * confirmations only.
    */
-  const going = [];
-  for (const [id, status] of Object.entries(answers)) {
-    const squadPlayer = SQUAD_BY_ID.get(Number(id));
-    if (squadPlayer && status === "in") going.push(squadPlayer);
-  }
+  const { going, out } = splitAnswers(answers, SQUAD_BY_ID);
   const availability = availabilityOf(going.length, teamData.squad.length);
   /*
    * Spanish agrees with the number: with one player missing the line is «falta
@@ -305,6 +304,30 @@ export default function MatchAttendance({ fixture }) {
           chosenId={player?.id ?? null}
           onWithdraw={withdraw}
         />
+
+        {/*
+         * Who said they are not coming (S13): the same chip as the row above —
+         * circular portrait and a white name — under a red «NO VAN:». The reader's
+         * own chip keeps the X, so a no can be taken back from where it was said
+         * without hunting for the buttons.
+         */}
+        {out.length ? (
+          <div className="flex flex-col gap-1.5">
+            <p className="text-micro font-bold uppercase tracking-[0.16em] text-acf-red">
+              No van:
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {out.map((absent) => (
+                <FaceChip
+                  key={absent.id}
+                  player={absent}
+                  mine={player?.id === absent.id}
+                  onWithdraw={withdraw}
+                />
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         {!player ? (
           <p className="text-row text-acf-snow/70">
