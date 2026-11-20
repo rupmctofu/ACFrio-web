@@ -150,7 +150,7 @@ function fixtureHourOf(fixture) {
 }
 
 /** The date and the hour as the two tight white lines of the mockup. */
-function DateLines({ fixture, align = "center", compact = false, muted = false }) {
+function DateLines({ fixture, align = "center", muted = false }) {
   const day = fixtureDayOf(fixture);
   const hour = fixtureHourOf(fixture);
   if (!day && !hour) return null;
@@ -159,18 +159,8 @@ function DateLines({ fixture, align = "center", compact = false, muted = false }
      one thing that keeps a switched-off card looking alive. */
   const ink = muted ? "text-acf-grey" : "text-white";
 
-  /*
-   * `compact` is the matchup's copy: it starts one step smaller and only grows
-   * when the card itself is wide enough (the faces block is a container), which
-   * is what keeps "MIÉRCOLES 16 DIC" on a single line in a 348 px card as well
-   * as in a 520 px one.
-   */
-  const daySize = compact
-    ? "text-[0.6875rem] @min-[24rem]:text-row"
-    : "text-row";
-  const hourSize = compact
-    ? "text-[1rem] @min-[24rem]:text-[1.125rem]"
-    : "text-[1.0625rem]";
+  const daySize = "text-row";
+  const hourSize = "text-[1.0625rem]";
 
   return (
     <p
@@ -322,36 +312,27 @@ function MatchupFaces({ fixture, competitionKey, tone }) {
           <Crest slug={CLUB_SLUG} size={crest} to={`/equipo/${CLUB_SLUG}`} ink={dormant} />
         </div>
         {/*
-         * Only rendered once the card is 24rem wide, because only then do the
-         * crests leave room for it between them. Under that it is gone, not
-         * restyled: a hidden block cannot open a gap.
+         * The VS is the only thing between the two crests, at every width and
+         * not only on the wide card: it is what says this is a match rather than
+         * two badges side by side (owner, L1 and L3). It is the loud element now,
+         * one step up from the 18px it used to share with the meta lines.
          */}
-        <div className="hidden flex-col items-center justify-center gap-1.5 text-center @min-[24rem]:col-span-1 @min-[24rem]:col-start-2 @min-[24rem]:row-span-2 @min-[24rem]:row-start-1 @min-[24rem]:flex">
-          <p
-            className={`text-micro font-bold uppercase leading-none tracking-[0.24em] ${
-              dormant ? "text-acf-grey/80" : "text-acf-red"
-            }`}
-          >
-            {competitionWord}
-          </p>
-          <p
-            className={`font-display text-lg font-medium uppercase leading-none tracking-[0.18em] ${
-              dormant ? "text-acf-grey/60" : "text-acf-grey"
-            }`}
-          >
-            VS
-          </p>
-          <DateLines fixture={fixture} compact muted={dormant} />
-        </div>
+        <p
+          className={`col-start-2 row-start-1 text-center font-display text-xl font-medium uppercase leading-none tracking-[0.14em] @min-[24rem]:text-2xl ${
+            dormant ? "text-acf-grey/60" : "text-acf-grey"
+          }`}
+        >
+          VS
+        </p>
         {/*
-         * The narrow-card replacement: one line under the club names, in the
-         * same size and tracking as the names above it so the three of them
-         * read as one block. It sits on grid row 3 with nothing added to the
-         * grid gap, which is what removes the dead space the stacked column
-         * used to leave behind. Separators are middots, and the competition
-         * keeps the brand red it has on the wide card.
+         * One line under the two names, at every width: competition, day, hour.
+         * It used to live between the crests on the wide card and drop to this
+         * line only when the card was narrow; the VS has that space now, and the
+         * owner reads this line as one quiet row under the logos (L1). The day
+         * and the hour come down a step from the 16-17px the stacked column set:
+         * the VS is the loud thing here, this is the caption.
          */}
-        <p className="col-span-3 col-start-1 row-start-3 text-balance text-center text-micro font-bold uppercase leading-relaxed tracking-[0.12em] text-white @min-[24rem]:hidden">
+        <p className="col-span-3 col-start-1 row-start-3 mt-0.5 text-balance text-center text-[0.6875rem] font-bold uppercase leading-relaxed tracking-[0.12em] text-white @min-[24rem]:text-[0.8125rem]">
           {metaParts.map((part, index) => (
             <Fragment key={part}>
               {index === 0 ? null : (
