@@ -73,23 +73,22 @@ export default function Dashboard() {
           skipped level (gate: heading-order). */}
       <h2 className="sr-only">El club, hoy</h2>
       <div className="wrap">
+        {/*
+         * The feed opens the page, above everything else and at every width
+         * (owner: «no se ve el slider de noticias en movil, ponlo en el top
+         * superior»). It used to sit under the identity door and to drop out on
+         * phones, where a sideways headline was judged unreadable; the club wants
+         * its own news first, so it leads the grid and the door comes after it.
+         */}
+        <div className="mb-6">
+          <BreakingTicker />
+        </div>
+
         {/* The club-code door, first thing in the grid: nobody has to scroll
             past three cards to say who they are. Once the device knows, it
             leaves, and the fixed header is the only place left that says who
             is looking — there is no chip beside the news any more. */}
         <IdentityDoor />
-
-        {/*
-         * The satirical feed, now the whole row. The identity chip used to share
-         * this line and was dropped when identity moved into the fixed header
-         * for good (owner), so the band reads across the page instead of around
-         * a pill. Phones still drop the ticker — a headline moving sideways on a
-         * 390px screen is unreadable, and the column order there is about the
-         * fixture, not the news — so the margin belongs to the band itself.
-         */}
-        <div className="mb-6 hidden lg:block">
-          <BreakingTicker />
-        </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* On phones the columns dissolve (display: contents) and every card
