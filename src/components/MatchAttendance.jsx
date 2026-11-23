@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
 import teamData from "../data/teamData.json";
 import { CLUB_SLUG, fixtureKickoffIso } from "../data/competition.js";
@@ -10,9 +10,11 @@ import {
   ensureMatch,
   fetchAnswers,
   isConfigured,
+  matchLoadKey,
   setAnswer,
 } from "../lib/attendance.js";
 import { availabilityOf } from "../lib/availability.js";
+import { beginWork } from "../lib/app-ready.js";
 
 /**
  * Sí, voy / No voy on the fixture that is actually next.
@@ -141,8 +143,27 @@ export default function MatchAttendance({ fixture }) {
   const [saveError, setSaveError] = useState(null);
   const [busy, setBusy] = useState(false);
 
+  const firstRead = useRef(false);
+  const loadKey = matchLoadKey(fixture);
+
   const load = useCallback(async () => {
     if (!isConfigured || !fixture) return;
+    /*
+     * The boot curtain waits for this read — the FIRST one, and only it.
+     *
+     * `load` is keyed on the identity of the request (`matchLoadKey`), not on the
+     * fixture object: that object is a fresh copy on every call that builds it,
+     * so keying on it would run this effect once a second. The closure still
+     * reads `fixture`, and that is sound because the key covers every field the
+     * request sends — an equal key means an equal request.
+     *
+     * The guard is the second line of defence. A refetch after the curtain is up
+     * has nothing to declare to it; one that runs while it is down must not hand
+     * it a signal that is busy half the time, or the curtain would lift on a lull
+     * instead of on the answer. The first read is what the reader waits for.
+     */
+    const answered = firstRead.current ? () => {} : beginWork();
+    firstRead.current = true;
     try {
       const id = await ensureMatch({
         season,
@@ -158,8 +179,12 @@ export default function MatchAttendance({ fixture }) {
       // Loading and saving fail for different reasons, so they say so
       // differently: a failed load is not a failed answer.
       setLoadError(cause.message);
+    } finally {
+      // The curtain is about the wait, not about the outcome: a failure has
+      // answered too, and the card says so in its own words.
+      answered();
     }
-  }, [fixture]);
+  }, [loadKey]);
 
   useEffect(() => {
     load();

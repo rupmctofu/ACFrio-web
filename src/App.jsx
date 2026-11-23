@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar.jsx";
 import PageBackdrop from "./components/PageBackdrop.jsx";
 import teamData from "./data/teamData.json";
 import { matchRoute, navigate, routeLink, useRoute } from "./lib/router.js";
+import { markAppMounted, whenBooted } from "./lib/app-ready.js";
 import { applyRouteMeta, routeMeta } from "./lib/route-meta.js";
 import HomeView from "./views/HomeView.jsx";
 import CompeticionView from "./views/CompeticionView.jsx";
@@ -77,6 +78,26 @@ export default function App() {
   const route = matchRoute(path);
   const known = Object.hasOwn(VIEWS, route.name);
   const View = known ? VIEWS[route.name] : HomeView;
+
+  /*
+   * The boot curtain (`index.html`, `src/lib/app-ready.js`) lifts here.
+   *
+   * The subscription is registered before the mount is reported, because a page
+   * that waits for nothing lifts the moment it reports: the listener has to be
+   * in place to hear it. Effects of children run before the parent's, so the
+   * cards that read the attendance and the vote have already declared what they
+   * are waiting for by the time this line marks the commit as mounted.
+   *
+   * `?.` on `acfSplash`: the curtain is markup outside the bundle, and a test or
+   * an embed without it must not break the app for want of a curtain.
+   */
+  useEffect(() => {
+    const stop = whenBooted(() => window.acfSplash?.hide?.());
+    markAppMounted();
+    return () => {
+      stop();
+    };
+  }, []);
 
   /*
    * The head follows the address (S1, S3): the title, the description, the

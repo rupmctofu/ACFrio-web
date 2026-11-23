@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Award } from "lucide-react";
 import teamData from "../../data/teamData.json";
 import {
@@ -16,6 +16,7 @@ import {
 import { season } from "../../data/club-record.js";
 import { VOICE } from "../../data/copy.js";
 import { useIdentity } from "../../lib/identity.js";
+import { beginWork } from "../../lib/app-ready.js";
 import Card from "./Card.jsx";
 import { Crest } from "./Crest.jsx";
 import {
@@ -239,8 +240,19 @@ export default function LastMatchCard({ className = "" }) {
   const [busy, setBusy] = useState(false);
   const [choosing, setChoosing] = useState(false);
 
+  const firstRead = useRef(false);
+
   const load = useCallback(async () => {
     if (!isConfigured || !fixture || !player) return;
+    /*
+     * The boot curtain waits for this read too, and only for the first one: a
+     * later refetch is the card refreshing itself, and the curtain is already
+     * up by then. Its own dependencies are stable strings, unlike the attendance
+     * block's, but the guard is here as well so the two blocks cannot drift
+     * apart the day one of them changes what its effect depends on.
+     */
+    const answered = firstRead.current ? () => {} : beginWork();
+    firstRead.current = true;
     try {
       const id = await ensureMatchRow({ fixture, season, clubSlug: CLUB_SLUG });
       setMatchId(id);
@@ -251,6 +263,10 @@ export default function LastMatchCard({ className = "" }) {
     } catch (cause) {
       // A failed read is not a failed vote, so the two errors are kept apart.
       setLoadError(cause.message);
+    } finally {
+      // A failure has answered too: the card says so, and the curtain has no
+      // reason to stay down for it.
+      answered();
     }
     // `key` and the player are everything the request depends on: the fixture
     // object itself is rebuilt on every render.

@@ -1,5 +1,12 @@
 <!doctype html>
-<html lang="es">
+<!--
+  `acf-booting` locks the page's scroll while the curtain is down. It is set
+  here, in the markup, and not by a script: the class has to be there in the
+  first frame, before anything has been parsed twice. `app-ready` removes it when
+  the curtain lifts, and the <noscript> block at the end of the file releases it
+  for a reader without JavaScript.
+-->
+<html lang="es" class="acf-booting">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -56,9 +63,300 @@
       href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,500;1,600;1,700&family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+
+    <!--
+      The curtain's own artwork, fetched in parallel with the fonts: the crest is
+      the one thing on screen while the bundle, the fonts and the first Supabase
+      answer arrive, so it is not left to compete with them.
+    -->
+    <link rel="preload" as="image" href="/assets/logo-acf.png" />
+
+    <!--
+      The boot curtain, in critical CSS, on purpose.
+
+      It covers the first paint, and at that moment there is no bundle: the
+      Tailwind stylesheet Vite ships is still being downloaded (in dev it is
+      injected by the script that is not running yet). Anything this file
+      borrowed from `src/index.css` — the canvas, the red, the greys — is
+      therefore copied below, and those copies are the only duplicated tokens in
+      the project. They are read once each, before the page exists, and the
+      curtain leaves the DOM afterwards; `src/index.css` stays the source of
+      truth for everything the club keeps.
+
+      Why it exists at all: `/` reads the next match's attendance and the last
+      match's vote. Both render a placeholder first and swap it for more lines
+      when the answer lands, so the centre column grows and every card below it
+      moves — the little jump the owner sees on every open. The curtain
+      covers that assembly. It is not a spinner parked in front of a slow site:
+      it lifts on a real signal (`src/lib/app-ready.js`), never later than that
+      signal's own deadline.
+    -->
+    <style>
+      /* No white frame between parsing and painting: the page's canvas is the
+         first thing that exists, in both the curtain and the app. */
+      html,
+      body {
+        margin: 0;
+        background-color: #141416;
+        color-scheme: dark;
+      }
+
+      /*
+        The gutter is reserved for good, on every page.
+
+        The curtain locks the scroll while it is down and releases it when it
+        goes; without this, the vertical scrollbar disappears and comes back with
+        it, and the whole page reflows ten pixels sideways at the exact moment
+        the reader first sees it — the same kind of jump the curtain exists to
+        hide, only horizontal. Reserving the gutter costs a ten-pixel band on a
+        centred layout nobody can point at, and it buys a reveal with nothing
+        moving in it.
+      */
+      html {
+        scrollbar-gutter: stable;
+      }
+
+      /* The page does not scroll under a curtain nobody can reach past. */
+      html.acf-booting {
+        overflow: hidden;
+      }
+
+      #acf-splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        background-color: #141416;
+        opacity: 1;
+        transition:
+          opacity 0.42s ease,
+          visibility 0s linear 0.42s;
+      }
+
+      #acf-splash[data-done] {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      /*
+        The same photograph the dashboard lays under its own cards, out of focus
+        (`.page-backdrop` in `src/index.css`). Reusing it is the point: when the
+        curtain fades, the ground underneath is already the picture that was in
+        front of the reader, so the reveal has nothing to hide.
+      */
+      .acf-splash__ground {
+        position: absolute;
+        inset: -10%;
+        display: block;
+      }
+
+      .acf-splash__ground img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 55% 20%;
+        transform: scale(1.2);
+        filter: blur(26px) saturate(0.85) brightness(0.55);
+        opacity: 0.45;
+      }
+
+      /* The club's red behind the crest, so the crest sits in its own light. */
+      #acf-splash::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          42rem 30rem at 50% 46%,
+          rgba(230, 28, 36, 0.16),
+          transparent 72%
+        );
+      }
+
+      /* A vignette, not a black sheet: the photograph thins to canvas at the
+         edges instead of stopping at a line. */
+      #acf-splash::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(
+          120% 80% at 50% 50%,
+          transparent 30%,
+          rgba(20, 20, 22, 0.75) 72%,
+          #141416 100%
+        );
+      }
+
+      #acf-splash .acf-splash__body {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.6rem;
+      }
+
+      #acf-splash .acf-splash__crest {
+        display: block;
+        height: clamp(5.5rem, 18vw, 7.5rem);
+        width: auto;
+        filter: drop-shadow(0 0 2rem rgba(230, 28, 36, 0.45));
+        animation: acf-splash-breathe 2.8s ease-in-out infinite;
+      }
+
+      /*
+        The label and the bar are not decoration: a crest alone on a dark screen
+        is indistinguishable from a frozen tab. The bar is indeterminate because
+        the wait is one request we do not get progress for, and a bar that
+        invented a percentage would be lying about it.
+      */
+      #acf-splash .acf-splash__label {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 0.62rem;
+        font-weight: 600;
+        line-height: 1;
+        letter-spacing: 0.34em;
+        text-transform: uppercase;
+        color: #8f8f97;
+      }
+
+      #acf-splash .acf-splash__bar {
+        position: relative;
+        width: 7.5rem;
+        height: 2px;
+        overflow: hidden;
+        background-color: rgba(255, 255, 255, 0.08);
+      }
+
+      #acf-splash .acf-splash__bar::after {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 38%;
+        background-color: #e61c24;
+        animation: acf-splash-sweep 1.4s ease-in-out infinite;
+      }
+
+      @keyframes acf-splash-sweep {
+        from {
+          transform: translateX(-100%);
+        }
+        to {
+          transform: translateX(264%);
+        }
+      }
+
+      @keyframes acf-splash-breathe {
+        0%,
+        100% {
+          opacity: 0.9;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      /* Nothing breathes or sweeps for a reader who asked for stillness; the
+         bar still says "working" by sitting there. */
+      @media (prefers-reduced-motion: reduce) {
+        #acf-splash .acf-splash__crest,
+        #acf-splash .acf-splash__bar::after {
+          animation: none;
+        }
+        #acf-splash .acf-splash__bar::after {
+          transform: none;
+          opacity: 0.55;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <!--
+      Outside `#root`, deliberately: React mounts into `#root` and replaces
+      whatever is inside it, so a curtain rendered as a child would be wiped by
+      the very mount it is waiting for. It is the page's first element, and the
+      first thing that paints.
+    -->
+    <div id="acf-splash" role="status" aria-live="polite">
+      <picture class="acf-splash__ground" aria-hidden="true">
+        <source
+          type="image/webp"
+          srcset="
+            /assets/backgrounds/pitch-night-900.webp   900w,
+            /assets/backgrounds/pitch-night-1536.webp 1536w
+          "
+          sizes="100vw"
+        />
+        <img src="/assets/backgrounds/pitch-night.jpg" alt="" fetchpriority="high" decoding="async" />
+      </picture>
+
+      <div class="acf-splash__body">
+        <img class="acf-splash__crest" src="/assets/logo-acf.png" alt="AC FRÍO" width="486" height="630" />
+        <p class="acf-splash__label">Calentando</p>
+        <span class="acf-splash__bar" aria-hidden="true"></span>
+      </div>
+    </div>
+
+    <!--
+      The curtain's own controls, inline and classic: `src/main.jsx` is a module
+      and may not have run yet. Two ways out, and both are honest — the app says
+      it is ready, or eight seconds pass and the club is shown anyway, because a
+      screen that waits forever is worse than a screen that shows what it has.
+      `hide` is idempotent: React mounting twice under StrictMode cannot lift it
+      twice.
+    -->
+    <script>
+      (function () {
+        var splash = document.getElementById("acf-splash");
+        var born = Date.now();
+        /* Shorter than this and the curtain is a flicker, not a screen. */
+        var MIN_VISIBLE_MS = 420;
+        /* React never arrived: a dead bundle, a dead device. Lift anyway and let
+           the reader see whatever the app managed to paint — for a bundle that
+           never came, that is an empty canvas, which is still more honest than a
+           curtain that never leaves. */
+        var GIVE_UP_MS = 8000;
+        var lifted = false;
+
+        function hide() {
+          if (lifted || !splash) return;
+          lifted = true;
+          var held = Math.max(0, MIN_VISIBLE_MS - (Date.now() - born));
+          setTimeout(function () {
+            splash.setAttribute("data-done", "");
+            document.documentElement.classList.remove("acf-booting");
+            /* The overlay covered the app, but a keyboard does not know that:
+               until this line, `#root` is inert and Tab cannot walk into
+               controls nobody can see. */
+            var root = document.getElementById("root");
+            if (root) root.removeAttribute("inert");
+            setTimeout(function () {
+              if (splash.parentNode) splash.parentNode.removeChild(splash);
+            }, 500);
+          }, held);
+        }
+
+        window.acfSplash = { hide: hide };
+        setTimeout(hide, GIVE_UP_MS);
+      })();
+    </script>
+
+    <div id="root" inert></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- No script, no app: the curtain would cover an empty page forever. -->
+    <noscript>
+      <style>
+        html.acf-booting {
+          overflow: auto;
+        }
+        #acf-splash {
+          display: none;
+        }
+      </style>
+    </noscript>
   </body>
 </html>

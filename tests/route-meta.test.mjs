@@ -209,8 +209,10 @@ test("the club's own head is the fallback, and it is still the one index.html sh
   assert.equal(title, DEFAULT_TITLE);
   assert.equal(description, DEFAULT_DESCRIPTION);
 
-  /* Nothing this slice touched, and nothing it may lose (L2). */
-  assert.match(html, /<html lang="es">/);
+  /* Nothing this slice touched, and nothing it may lose (L2). The document is
+     in Spanish, with or without the boot curtain's own class beside it — and
+     with nothing else: the tag has exactly these two shapes. */
+  assert.match(html, /<html lang="es"(?: class="acf-booting")?>/);
   assert.match(html, /<meta property="og:image" content="https:\/\/acfrio\.club\/og-image\.jpg\?v=2"/);
   assert.match(html, /<meta property="og:image:width" content="1200"/);
   assert.match(html, /<meta property="og:image:height" content="630"/);

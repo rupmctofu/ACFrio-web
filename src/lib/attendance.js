@@ -22,6 +22,35 @@ function fail(error) {
 }
 
 /**
+ * The identity of the attendance request for one fixture.
+ *
+ * `MatchAttendance` keys its effect on this. It cannot key it on the fixture
+ * object: `nextFixtureOf` builds a fresh one on every call (`withCompetition`
+ * spreads) and the card's clock ticks once a second, so the effect re-ran every
+ * second and put two requests on the backend each time — twenty-five fetches in
+ * ten seconds, measured in a browser, for data that had already arrived.
+ *
+ * Nor on `matchKey` (competition + matchday): a fixture moved to a new kickoff
+ * keeps both, and the row it points at is not the same one any more.
+ *
+ * Deliberately pure over the fixture and free of imports. This module is loaded
+ * by Node's test runner, and the fixture data lives behind a JSON import that
+ * Node cannot read without an import attribute — pulling `competition.js` in
+ * here would take every test that touches attendance down with it.
+ */
+export function matchLoadKey(fixture) {
+  if (!fixture) return "";
+  return [
+    fixture.competitionKey ?? "",
+    fixture.matchday ?? "",
+    fixture.date ?? "",
+    fixture.time ?? "",
+    fixture.home?.slug ?? "",
+    fixture.away?.slug ?? "",
+  ].join("|");
+}
+
+/**
  * The row for a fixture, created on first use. Callers pass what the fixture
  * card already knows; nothing is invented when a field is unknown.
  */
